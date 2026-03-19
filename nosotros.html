@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiénes Somos | Zona Digital</title>
+    <title>Zona Digital | Reparación de Consolas de Videojuegos, Computadoras y Microelectrónica en CDMX</title>
+<meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo  y Laptops. Micro-soldadura avanzada y diagnóstico electrónico en La Magdalena Contreras, CDMX.">
+<meta name="keywords" content="reparación de consolas, microelectrónica, reballing, ps5, xbox one, xbox series s, xbox series x, nintendo switch, cdmx, magdalena contreras, zona digital, puerto HDMI, carga, cargador, ps4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #38bdf8; --secondary: #1e293b; --bg: #0f172a; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
-        header { background: rgba(15, 23, 42, 0.9); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); }
+        :root {
+            --primary: #38bdf8;
+            --secondary: #1e293b;
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --accent: #25d366;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
+        
+        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.85rem; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid var(--secondary); }
+        .top-bar div { margin-right: 20px; color: #94a3b8; }
+        .top-bar i { color: var(--primary); margin-right: 5px; }
+
+        header { position: sticky; top: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); z-index: 1000; }
         .logo { 
     display: flex; 
     align-items: center; 
@@ -26,17 +40,86 @@
     width: auto; 
     border-radius: 5px; /* Por si quieres bordes redondeados */
 }
-        nav a { color: var(--text); text-decoration: none; margin-left: 20px; }
-        .content { max-width: 800px; margin: 50px auto; padding: 0 20px; }
-        h1 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
-        .bio-section { background: var(--secondary); padding: 30px; border-radius: 1rem; margin-top: 20px; }
-        .badge { display: inline-block; background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin-bottom: 10px; }
+        
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
+        nav a:hover { color: var(--primary); }
+
+        .hero { padding: 80px 5%; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 0 auto 2rem; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+
+        /* Mapa */
+        .map-section { padding: 50px 5%; text-align: center; }
+        .map-container { position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); }
+        .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+        
+        @media (max-width: 768px) {
+            .top-bar { justify-content: center; text-align: center; gap: 5px; }
+            header { flex-direction: column; gap: 15px; }
+            nav a { margin: 0 10px; font-size: 0.9rem; }
+            .hero h1 { font-size: 2.2rem; }
+        }
     </style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ElectronicsRepairShop",
+  "name": "Zona Digital",
+  "alternateName": "Zona Digital CDMX",
+  "description": "Laboratorio especializado en microelectrónica, reparación de consolas de videojuegos PlayStation 5, Xbox One, Xbox Series S, Xbox Series X,Nintendos Switch y laptops a nivel componente.",
+  "url": "https://zdigital.mx",
+  "telephone": "+525562491653",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. México 1322, Colonia La Guadalupe",
+    "addressLocality": "La Magdalena Contreras",
+    "addressRegion": "CDMX",
+    "postalCode": "10820",
+    "addressCountry": "MX"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 19.307660, 
+    "longitude": -99.232917
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "19:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "10:00",
+      "closes": "16:00"
+    }
+  ],
+  "sameAs": [
+    "https://wa.me/525562491653"
+  ]
+}
+</script>
 
     <link rel="icon" type="image/png" href="img/logo_zd.png">
     
 </head>
 <body>
+
+    <div class="top-bar">
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM | Dom: 11:00 AM - 4:00 PM</div>
+        <div><i class="fas fa-phone"></i> +52 55 6249 1653 | +52 55 4663 5882</div>
+        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
+    </div>
+
     <header>
         <a href="index.html" class="logo">
     <img src="img/logo_zd.png" alt="Logo ZDigital">
@@ -50,7 +133,6 @@
     <a href="contacto.html">Contacto</a>
 </nav>
     </header>
-
     <div class="content">
         <span class="badge">Perfil del Fundador</span>
         <h1>M. en I. Alberto Ramiro Garibay Martínez</h1>
