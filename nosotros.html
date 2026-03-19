@@ -110,6 +110,61 @@
 </script>
 
     <link rel="icon" type="image/png" href="img/logo_zd.png">
+
+    <style>
+    /* Variables y Reset */
+    :root { --primary: #38bdf8; --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; }
+
+    /* Contenedor Principal (El que centra todo) */
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* Los Rectángulos (Bio-sections) */
+    .bio-section {
+        background: var(--card);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        border: 1px solid #334155;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilo de los Títulos e Iconos */
+    .bio-section h3 {
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 0;
+        font-size: 1.5rem;
+    }
+
+    /* Badges de Colores (Maestría/Licenciatura) */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    /* Ajuste para el Header (Para que no se rompa con el logo) */
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 5%;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #334155;
+    }
+</style>
     
 </head>
 <body>
