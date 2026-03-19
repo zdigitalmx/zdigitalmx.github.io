@@ -9,7 +9,23 @@
         :root { --primary: #38bdf8; --secondary: #1e293b; --bg: #0f172a; --text: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
         header { background: rgba(15, 23, 42, 0.9); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .logo { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; /* Espacio entre logo y texto */
+    font-size: 1.8rem; 
+    font-weight: bold; 
+    color: var(--primary); 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    text-decoration: none;
+}
+
+.logo img { 
+    height: 45px; /* Ajusta la altura a tu gusto */
+    width: auto; 
+    border-radius: 5px; /* Por si quieres bordes redondeados */
+}
         nav a { color: var(--text); text-decoration: none; margin-left: 20px; }
         .content { max-width: 800px; margin: 50px auto; padding: 0 20px; }
         h1 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
@@ -19,7 +35,10 @@
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Zona Digital</a>
+        <a href="index.html" class="logo">
+    <img src="img/logo_zd.png" alt="Logo ZDigital">
+    <span>Zona Digital</span>
+</a>
         <nav>
             <a href="index.html">Inicio</a>
             <a href="nosotros.html" style="color: var(--primary);">Quiénes somos</a>
