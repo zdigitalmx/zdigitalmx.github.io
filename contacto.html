@@ -6,53 +6,113 @@
     <title>Contacto | Zona Digital</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #38bdf8;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: Arial, sans-serif;
+            background-color: #0f172a; /* Fondo azul oscuro */
+            color: #f8fafc;
             margin: 0;
-            line-height: 1.6;
+            padding: 0;
+            text-align: center;
         }
 
         header {
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.95);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: #1e293b;
+            padding: 20px;
+            border-bottom: 2px solid #38bdf8;
         }
 
-        .logo { color: var(--primary); font-weight: bold; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        nav a { color: var(--text); text-decoration: none; margin-left: 15px; font-size: 0.85rem; }
-
-        .container { padding: 40px 5%; max-width: 900px; margin: 0 auto; }
-        
-        h1 { font-size: 2.2rem; text-align: center; margin-bottom: 10px; }
-        .subtitle { color: var(--primary); text-align: center; display: block; margin-bottom: 40px; }
-
-        .contact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+        header a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+            font-size: 0.9rem;
         }
 
-        .contact-card {
-            background: var(--card);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-            text-align: center;
-            transition: border-color 0.3s
+        .main-container {
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 { color: #38bdf8; margin-bottom: 30px; }
+
+        .info-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card i {
+            font-size: 1.5rem;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .info-card h3 { margin: 5px 0; font-size: 1.1rem; }
+        .info-card p { color: #94a3b8; margin: 5px 0; font-size: 0.9rem; }
+
+        .btn-ws {
+            display: inline-block;
+            background: #25d366;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        footer {
+            margin-top: 40px;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html">INICIO</a>
+        <a href="servicios.html">SERVICIOS</a>
+        <a href="galeria.html">GALERÍA</a>
+        <a href="contacto.html" style="border-bottom: 2px solid #38bdf8;">CONTACTO</a>
+    </header>
+
+    <div class="main-container">
+        <h1>Contacto</h1>
+
+        <div class="info-card">
+            <i class="fas fa-clock"></i>
+            <h3>Horarios</h3>
+            <p>Lun - Vie: 9:00 AM - 7:00 PM</p>
+            <p>Sáb: 10:00 AM - 4:00 PM</p>
+            <p>Dom: 11:00 AM - 4:00 PM</p>
+        </div>
+
+        <div class="info-card">
+            <i class="fas fa-phone"></i>
+            <h3>Teléfonos</h3>
+            <p>+52 55 6249 1653</p>
+            <p>+52 55 4663 5882</p>
+        </div>
+
+        <div class="info-card">
+            <i class="fas fa-envelope"></i>
+            <h3>Correo</h3>
+            <p>contacto@zdigital.mx</p>
+        </div>
+
+        <a href="https://wa.me/525562491653" class="btn-ws">
+            <i class="fab fa-whatsapp"></i> WhatsApp Directo
+        </a>
+
+        <footer>
+            Av. México 1322, CDMX | Zona Digital
+        </footer>
+    </div>
+
+</body>
+</html>
