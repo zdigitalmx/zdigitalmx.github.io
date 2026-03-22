@@ -11,74 +11,79 @@
         :root {
             --primary: #38bdf8;
             --bg: #0f172a;
-            --text: #f8fafc;
             --card: #1e293b;
+            --text: #f8fafc;
         }
 
         body { 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             background-color: var(--bg); 
             color: var(--text); 
             margin: 0; 
+            padding: 0;
+            overflow-x: hidden;
         }
 
         header { 
-            background: rgba(15, 23, 42, 0.9); 
+            background: rgba(15, 23, 42, 0.95); 
             padding: 1rem 5%; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             border-bottom: 1px solid #1e293b;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); text-decoration: none; font-weight: bold; }
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .logo img { height: 35px; }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; text-align: center; }
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+        nav a:hover { color: var(--primary); }
+
+        .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; text-align: center; }
         
-        /* Carrusel Horizontal - Estilo Primera Captura */
-        .video-carousel {
+        h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        .subtitle { color: var(--primary); margin-bottom: 40px; font-size: 1.1rem; }
+
+        /* Carrusel Horizontal Estilo Captura 1 */
+        .video-wrapper {
             display: flex;
             gap: 20px;
             overflow-x: auto;
-            padding: 20px 0;
+            padding: 20px 5px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
         }
 
-        .video-carousel::-webkit-scrollbar { height: 5px; }
-        .video-carousel::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .video-wrapper::-webkit-scrollbar { height: 6px; }
+        .video-wrapper::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         .video-card {
-            min-width: 320px;
+            min-width: 300px;
+            flex: 0 0 auto;
             background: var(--card);
             border-radius: 12px;
             overflow: hidden;
             scroll-snap-align: start;
             border: 1px solid #334155;
+            transition: transform 0.3s ease;
         }
 
-        video { 
-            width: 100%; 
-            aspect-ratio: 16/9; 
-            display: block; 
-            background: #000;
-        }
+        .video-card:hover { transform: translateY(-5px); border-color: var(--primary); }
 
-        .video-info { 
-            padding: 12px; 
+        video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
+
+        .info-bar { 
+            padding: 15px; 
             background: #1e293b; 
-            font-size: 0.9rem; 
-            text-align: left;
+            font-size: 0.85rem; 
+            text-align: left; 
             border-top: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
         }
-    </style>
-</head>
-<body>
-
-    <header>
-        <a href="index.html" class="logo">
-            <img src="img/logo_zd.png" alt="ZD">
-            <span>ZONA DIGITAL</span>
-        </a>
-    </header>
+        .info-bar i { color: var
