@@ -3,80 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería Técnica | Zona Digital</title>
+    <title>Zona Digital | Galería Técnica</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="img/logo_zd.png">
+
     <style>
         :root {
             --primary: #38bdf8;
             --bg: #0f172a;
-            --card: #1e293b;
             --text: #f8fafc;
-            --border: #334155;
+            --card: #1e293b;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            overflow-x: hidden;
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
         }
 
-        header {
-            padding: 1rem 5%;
+        header { 
+            background: rgba(15, 23, 42, 0.9); 
+            padding: 1rem 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; color: var(--primary); text-decoration: none; font-weight: bold; }
+        .logo img { height: 35px; }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; text-align: center; }
+        
+        /* Carrusel Horizontal - Estilo Primera Captura */
+        .video-carousel {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.95);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo { color: var(--primary); font-weight: bold; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        nav a { color: var(--text); text-decoration: none; margin-left: 15px; font-size: 0.85rem; }
-
-        .container { padding: 30px 5%; max-width: 1200px; margin: 0 auto; }
-        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 5px; }
-        .subtitle { color: var(--primary); display: block; text-align: center; margin-bottom: 35px; font-size: 0.9rem; }
-
-        /* Grid responsiva */
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
         }
+
+        .video-carousel::-webkit-scrollbar { height: 5px; }
+        .video-carousel::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         .video-card {
+            min-width: 320px;
             background: var(--card);
             border-radius: 12px;
             overflow: hidden;
-            border: 1px solid var(--border);
-            transition: transform 0.2s;
+            scroll-snap-align: start;
+            border: 1px solid #334155;
         }
 
-        .video-card:hover { transform: scale(1.02); border-color: var(--primary); }
-
-        video {
-            width: 100%;
-            aspect-ratio: 9 / 16;
+        video { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            display: block; 
             background: #000;
-            display: block;
-            object-fit: cover;
         }
 
-        .video-info {
-            padding: 12px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-top: 1px solid var(--border);
-        }
-
-        @media (max-width: 480px) {
-            .video-grid { grid-template-columns: 1fr; }
+        .video-info { 
+            padding: 12px; 
+            background: #1e293b; 
+            font-size: 0.9rem; 
+            text-align: left;
+            border-top: 1px solid #334155;
         }
     </style>
 </head>
@@ -84,43 +78,7 @@
 
     <header>
         <a href="index.html" class="logo">
-            <i class="fas fa-microchip"></i> ZONA DIGITAL
+            <img src="img/logo_zd.png" alt="ZD">
+            <span>ZONA DIGITAL</span>
         </a>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="servicios.html">Servicios</a>
-            <a href="galeria.html" style="color: var(--primary)">Galería</a>
-        </nav>
     </header>
-
-    <main class="container">
-        <h1>Galería de Ingeniería</h1>
-        <span class="subtitle">Evidencia técnica de micro-soldadura y reparaciones avanzadas.</span>
-
-        <div class="video-grid" id="gallery-container">
-            </div>
-    </main>
-
-    <script>
-        const container = document.getElementById('gallery-container');
-        
-        // Generamos los videos del 46 al 59 automáticamente
-        for (let i = 46; i <= 59; i++) {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-                <video controls preload="none" poster="img/logo_zd.png">
-                    <source src="img/galeria/Download (${i}).mp4" type="video/mp4">
-                    Tu navegador no soporta video.
-                </video>
-                <div class="video-info">
-                    <i class="fas fa-check-circle" style="color: var(--primary)"></i>
-                    Reparación Especializada #${i}
-                </div>
-            `;
-            container.appendChild(card);
-        }
-    </script>
-
-</body>
-</html>
