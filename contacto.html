@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zona Digital | Reparación de Consolas de Videojuegos, Computadoras y Microelectrónica en CDMX</title>
-<meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo  y Laptops. Micro-soldadura avanzada y diagnóstico electrónico en La Magdalena Contreras, CDMX.">
-<meta name="keywords" content="reparación de consolas, microelectrónica, reballing, ps5, xbox one, xbox series s, xbox series x, nintendo switch, cdmx, magdalena contreras, zona digital, puerto HDMI, carga, cargador, ps4">
+    <title>Contacto | Zona Digital CDMX</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="img/logo_zd.png">
+
     <style>
         :root {
             --primary: #38bdf8;
@@ -14,182 +14,171 @@
             --bg: #0f172a;
             --text: #f8fafc;
             --accent: #25d366;
+            --card: #1e293b;
         }
 
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
-        
-        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.85rem; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid var(--secondary); }
-        .top-bar div { margin-right: 20px; color: #94a3b8; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            line-height: 1.6; 
+        }
+
+        /* Top Bar */
+        .top-bar { 
+            background: #020617; 
+            padding: 10px 5%; 
+            font-size: 0.85rem; 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 1px solid var(--secondary); 
+        }
+        .top-bar div { color: #94a3b8; }
         .top-bar i { color: var(--primary); margin-right: 5px; }
 
-        header { position: sticky; top: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); z-index: 1000; }
-        .logo { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; /* Espacio entre logo y texto */
-    font-size: 1.8rem; 
-    font-weight: bold; 
-    color: var(--primary); 
-    text-transform: uppercase; 
-    letter-spacing: 2px; 
-    text-decoration: none;
-}
+        /* Header */
+        header { 
+            position: sticky; 
+            top: 0; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(10px); 
+            padding: 1rem 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--secondary); 
+            z-index: 1000; 
+        }
 
-.logo img { 
-    height: 45px; /* Ajusta la altura a tu gusto */
-    width: auto; 
-    border-radius: 5px; /* Por si quieres bordes redondeados */
-}
-        
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: var(--primary); 
+            text-decoration: none; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+        }
+        .logo img { height: 40px; border-radius: 5px; }
+
         nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
         nav a:hover { color: var(--primary); }
 
-        .hero { padding: 80px 5%; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 0 auto 2rem; }
+        /* Contenido de Contacto Centrado */
+        .main-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
 
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
-        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; transition: transform 0.3s; }
-        .card:hover { transform: translateY(-10px); border-color: var(--primary); }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 40px; color: var(--text); }
 
-        /* Mapa */
-        .map-section { padding: 50px 5%; text-align: center; }
-        .map-container { position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); }
-        .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        /* Bloques de Información (Estilo Nosotros) */
+        .info-card {
+            background: var(--card);
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
 
-        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 20px; }
-        
+        .info-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .info-card h3 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 0;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+
+        .info-item i { color: var(--primary); margin-top: 5px; width: 20px; }
+
+        /* Botón WhatsApp */
+        .btn-whatsapp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .btn-whatsapp:hover { background: #1eb956; transform: scale(1.05); }
+
         @media (max-width: 768px) {
-            .top-bar { justify-content: center; text-align: center; gap: 5px; }
-            header { flex-direction: column; gap: 15px; }
-            nav a { margin: 0 10px; font-size: 0.9rem; }
-            .hero h1 { font-size: 2.2rem; }
+            header { flex-direction: column; gap: 15px; padding: 1rem; }
+            .top-bar { display: none; } /* Ocultar en móvil para limpiar espacio */
+            nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            nav a { margin: 0 5px; font-size: 0.85rem; }
         }
     </style>
-    
-
-    <link rel="icon" type="image/png" href="img/logo_zd.png">
-
-    <style>
-    /* Variables y Reset */
-    :root { --primary: #38bdf8; --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; }
-
-    /* Contenedor Principal (El que centra todo) */
-    .container {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-
-.bio-section {
-    max-width: 800px; /* O el ancho que tengan tus cuadros de arriba */
-    margin: 20px auto; /* Centra el cuadro horizontalmente */
-    width: 90%; /* Responsivo para celulares */
-}
-        
-    /* Los Rectángulos (Bio-sections) */
-    .bio-section {
-        max-width: 800px; /* O el ancho que tengan tus cuadros de arriba */
-    margin: 20px auto; /* Centra el cuadro horizontalmente */
-    width: 90%; /* Responsivo para celulares */
-        background: var(--card);
-        padding: 30px;
-        border-radius: 15px;
-        margin-bottom: 25px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Estilo de los Títulos e Iconos */
-    .bio-section h3 {
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-top: 0;
-        font-size: 1.5rem;
-    }
-
-    /* Badges de Colores (Maestría/Licenciatura) */
-    .badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-    }
-
-    /* Ajuste para el Header (Para que no se rompa con el logo) */
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 5%;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid #334155;
-    }
-</style>
-    
 </head>
 <body>
 
     <div class="top-bar">
-        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM | Dom: 11:00 AM - 4:00 PM</div>
-        <div><i class="fas fa-phone"></i> +52 55 6249 1653 | +52 55 4663 5882</div>
+        <div><i class="fas fa-map-marker-alt"></i> Av. México 1322, CDMX</div>
         <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
     </div>
 
     <header>
         <a href="index.html" class="logo">
-    <img src="img/logo_zd.png" alt="Logo ZDigital">
-    <span>Zona Digital</span>
-</a>
-<nav>
-    <a href="index.html">Inicio</a>
-    <a href="nosotros.html">Quiénes somos</a>
-    <a href="servicios.html">Servicios</a>
-    <a href="galeria.html">Galería</a>
-    <a href="contacto.html">Contacto</a>
-</nav>
+            <img src="img/logo_zd.png" alt="ZD">
+            <span>Zona Digital</span>
+        </a>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="nosotros.html">Quiénes somos</a>
+            <a href="servicios.html">Servicios</a>
+            <a href="galeria.html">Galería</a>
+            <a href="contacto.html" style="color: var(--primary);">Contacto</a>
+        </nav>
     </header>
 
-    <div class="main-container">
-        <h1>Contacto</h1>
+    <main class="main-container">
+        <h1>Ponte en Contacto</h1>
 
         <div class="info-card">
-            <i class="fas fa-clock"></i>
-            <h3>Horarios</h3>
-            <p>Lun - Vie: 9:00 AM - 7:00 PM</p>
-            <p>Sáb: 10:00 AM - 4:00 PM</p>
-            <p>Dom: 11:00 AM - 4:00 PM</p>
+            <h3><i class="fas fa-clock"></i> Horarios de Atención</h3>
+            <div class="info-item"><i class="fas fa-calendar-day"></i> Lunes a Viernes: 9:00 AM - 7:00 PM</div>
+            <div class="info-item"><i class="fas fa-calendar-day"></i> Sábado: 10:00 AM - 4:00 PM</div>
+            <div class="info-item"><i class="fas fa-calendar-day"></i> Domingo: 11:00 AM - 4:00 PM</div>
         </div>
 
         <div class="info-card">
-            <i class="fas fa-phone"></i>
-            <h3>Teléfonos</h3>
-            <p>+52 55 6249 1653</p>
-            <p>+52 55 4663 5882</p>
+            <h3><i class="fas fa-id-card"></i> Información Directa</h3>
+            <div class="info-item"><i class="fas fa-phone"></i> +52 55 6249 1653 / +52 55 4663 5882</div>
+            <div class="info-item"><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
+            <div class="info-item"><i class="fas fa-location-arrow"></i> Av. México 1322, CDMX | Zona Digital</div>
+            
+            <a href="https://wa.me/525562491653" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> WhatsApp Directo
+            </a>
         </div>
-
-        <div class="info-card">
-            <i class="fas fa-envelope"></i>
-            <h3>Correo</h3>
-            <p>contacto@zdigital.mx</p>
-        </div>
-
-        <a href="https://wa.me/525562491653" class="btn-ws">
-            <i class="fab fa-whatsapp"></i> WhatsApp Directo
-        </a>
-
-        <footer>
-            Av. México 1322, CDMX | Zona Digital
-        </footer>
-    </div>
+    </main>
 
 </body>
 </html>
