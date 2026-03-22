@@ -1,50 +1,130 @@
-
-<style>
-    /* ... (mantén el resto del CSS igual hasta .video-carousel) ... */
-
-    .video-carousel {
-        display: flex;
-        gap: 15px;
-        overflow-x: auto;
-        padding: 20px 0;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .video-card {
-        /* Ajustamos el ancho para que no ocupe toda la pantalla y se vea el siguiente */
-        min-width: 260px; 
-        max-width: 260px;
-        background: var(--card);
-        border-radius: 15px;
-        overflow: hidden;
-        border: 1px solid #334155;
-        scroll-snap-align: center;
-        transition: transform 0.3s ease;
-    }
-
-    video {
-        width: 100%;
-        /* CAMBIO CLAVE: Relación de aspecto vertical para TikTok */
-        aspect-ratio: 9 / 16; 
-        background: #000;
-        display: block;
-        object-fit: cover; /* Esto asegura que el video llene el contenedor */
-    }
-
-    .video-info {
-        padding: 12px;
-        font-size: 0.8rem;
-        background: rgba(30, 41, 59, 0.8);
-        color: var(--primary);
-        font-weight: bold;
-    }
-
-    /* Optimización para móviles */
-    @media (max-width: 768px) {
-        .video-card {
-            min-width: 75vw; /* El video ocupará el 75% del ancho de la pantalla */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería | Zona Digital</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --border: #334155;
         }
-        h1 { font-size: 1.8rem; }
-    }
-</style>
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .logo { color: var(--primary); font-weight: bold; text-decoration: none; font-size: 1.5rem; }
+        
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+
+        .container { padding: 40px 5%; text-align: center; }
+
+        h1 { font-size: 2rem; margin-bottom: 10px; }
+        .subtitle { color: var(--primary); margin-bottom: 40px; display: block; }
+
+        /* Carrusel Vertical para TikToks */
+        .video-grid {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .video-card {
+            min-width: 280px;
+            max-width: 280px;
+            background: var(--card);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            scroll-snap-align: start;
+        }
+
+        video {
+            width: 100%;
+            /* Forzamos la relación de aspecto vertical de TikTok */
+            aspect-ratio: 9 / 16;
+            background: #000;
+            display: block;
+            object-fit: cover;
+        }
+
+        .video-label {
+            padding: 12px;
+            font-size: 0.85rem;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Scrollbar personalizado para que no se vea feo */
+        .video-grid::-webkit-scrollbar { height: 6px; }
+        .video-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            .video-card { min-width: 85vw; } /* En móvil se ve casi toda la pantalla */
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">ZONA DIGITAL</a>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="servicios.html">Servicios</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Galería de Ingeniería</h1>
+        <span class="subtitle">Evidencia técnica de micro-soldadura y reparaciones avanzadas.</span>
+
+        <div class="video-grid">
+            <div class="video-card">
+                <video controls preload="metadata">
+                    <source src="img/galeria/Download (46).mp4" type="video/mp4">
+                </video>
+                <div class="video-label">
+                    <i class="fas fa-microchip" style="color: var(--primary)"></i>
+                    Reparación #46 - PS5
+                </div>
+            </div>
+
+            <div class="video-card">
+                <video controls preload="metadata">
+                    <source src="img/galeria/Download (47).mp4" type="video/mp4">
+                </video>
+                <div class="video-label">
+                    <i class="fas fa-microchip" style="color: var(--primary)"></i>
+                    Reparación #47 - Reballing
+                </div>
+            </div>
+            
+            </div>
+    </main>
+
+</body>
+</html>
