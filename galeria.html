@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería | Zona Digital</title>
+    <title>Galería Técnica | Zona Digital</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -19,7 +19,7 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 0;
+            overflow-x: hidden;
         }
 
         header {
@@ -28,73 +28,68 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .logo { color: var(--primary); font-weight: bold; text-decoration: none; font-size: 1.5rem; }
-        
-        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+        .logo { color: var(--primary); font-weight: bold; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        nav a { color: var(--text); text-decoration: none; margin-left: 15px; font-size: 0.85rem; }
 
-        .container { padding: 40px 5%; text-align: center; }
+        .container { padding: 30px 5%; max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 5px; }
+        .subtitle { color: var(--primary); display: block; text-align: center; margin-bottom: 35px; font-size: 0.9rem; }
 
-        h1 { font-size: 2rem; margin-bottom: 10px; }
-        .subtitle { color: var(--primary); margin-bottom: 40px; display: block; }
-
-        /* Carrusel Vertical para TikToks */
+        /* Grid responsiva */
         .video-grid {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 20px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
         }
 
         .video-card {
-            min-width: 280px;
-            max-width: 280px;
             background: var(--card);
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border);
-            scroll-snap-align: start;
+            transition: transform 0.2s;
         }
+
+        .video-card:hover { transform: scale(1.02); border-color: var(--primary); }
 
         video {
             width: 100%;
-            /* Forzamos la relación de aspecto vertical de TikTok */
             aspect-ratio: 9 / 16;
             background: #000;
             display: block;
             object-fit: cover;
         }
 
-        .video-label {
+        .video-info {
             padding: 12px;
-            font-size: 0.85rem;
-            background: var(--card);
-            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            border-top: 1px solid var(--border);
         }
 
-        /* Scrollbar personalizado para que no se vea feo */
-        .video-grid::-webkit-scrollbar { height: 6px; }
-        .video-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-        @media (max-width: 768px) {
-            .video-card { min-width: 85vw; } /* En móvil se ve casi toda la pantalla */
+        @media (max-width: 480px) {
+            .video-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="logo">ZONA DIGITAL</a>
+        <a href="index.html" class="logo">
+            <i class="fas fa-microchip"></i> ZONA DIGITAL
+        </a>
         <nav>
             <a href="index.html">Inicio</a>
             <a href="servicios.html">Servicios</a>
+            <a href="galeria.html" style="color: var(--primary)">Galería</a>
         </nav>
     </header>
 
@@ -102,29 +97,30 @@
         <h1>Galería de Ingeniería</h1>
         <span class="subtitle">Evidencia técnica de micro-soldadura y reparaciones avanzadas.</span>
 
-        <div class="video-grid">
-            <div class="video-card">
-                <video controls preload="metadata">
-                    <source src="img/galeria/Download (46).mp4" type="video/mp4">
-                </video>
-                <div class="video-label">
-                    <i class="fas fa-microchip" style="color: var(--primary)"></i>
-                    Reparación #46 - PS5
-                </div>
-            </div>
-
-            <div class="video-card">
-                <video controls preload="metadata">
-                    <source src="img/galeria/Download (47).mp4" type="video/mp4">
-                </video>
-                <div class="video-label">
-                    <i class="fas fa-microchip" style="color: var(--primary)"></i>
-                    Reparación #47 - Reballing
-                </div>
-            </div>
-            
+        <div class="video-grid" id="gallery-container">
             </div>
     </main>
+
+    <script>
+        const container = document.getElementById('gallery-container');
+        
+        // Generamos los videos del 46 al 59 automáticamente
+        for (let i = 46; i <= 59; i++) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <video controls preload="none" poster="img/logo_zd.png">
+                    <source src="img/galeria/Download (${i}).mp4" type="video/mp4">
+                    Tu navegador no soporta video.
+                </video>
+                <div class="video-info">
+                    <i class="fas fa-check-circle" style="color: var(--primary)"></i>
+                    Reparación Especializada #${i}
+                </div>
+            `;
+            container.appendChild(card);
+        }
+    </script>
 
 </body>
 </html>
