@@ -3,82 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacto | Zona Digital</title>
+    <title>Zona Digital | Reparación de Consolas de Videojuegos, Computadoras y Microelectrónica en CDMX</title>
+<meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo  y Laptops. Micro-soldadura avanzada y diagnóstico electrónico en La Magdalena Contreras, CDMX.">
+<meta name="keywords" content="reparación de consolas, microelectrónica, reballing, ps5, xbox one, xbox series s, xbox series x, nintendo switch, cdmx, magdalena contreras, zona digital, puerto HDMI, carga, cargador, ps4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a; /* Fondo azul oscuro */
-            color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            text-align: center;
+        :root {
+            --primary: #38bdf8;
+            --secondary: #1e293b;
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --accent: #25d366;
         }
 
-        header {
-            background: #1e293b;
-            padding: 20px;
-            border-bottom: 2px solid #38bdf8;
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
+        
+        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.85rem; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid var(--secondary); }
+        .top-bar div { margin-right: 20px; color: #94a3b8; }
+        .top-bar i { color: var(--primary); margin-right: 5px; }
 
-        header a {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 0 10px;
-            font-size: 0.9rem;
-        }
+        header { position: sticky; top: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); z-index: 1000; }
+        .logo { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; /* Espacio entre logo y texto */
+    font-size: 1.8rem; 
+    font-weight: bold; 
+    color: var(--primary); 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    text-decoration: none;
+}
 
-        .main-container {
-            padding: 40px 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+.logo img { 
+    height: 45px; /* Ajusta la altura a tu gusto */
+    width: auto; 
+    border-radius: 5px; /* Por si quieres bordes redondeados */
+}
+        
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
+        nav a:hover { color: var(--primary); }
 
-        h1 { color: #38bdf8; margin-bottom: 30px; }
+        .hero { padding: 80px 5%; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 0 auto 2rem; }
 
-        .info-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
 
-        .info-card i {
-            font-size: 1.5rem;
-            color: #38bdf8;
-            margin-bottom: 10px;
-        }
+        /* Mapa */
+        .map-section { padding: 50px 5%; text-align: center; }
+        .map-container { position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); }
+        .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-        .info-card h3 { margin: 5px 0; font-size: 1.1rem; }
-        .info-card p { color: #94a3b8; margin: 5px 0; font-size: 0.9rem; }
-
-        .btn-ws {
-            display: inline-block;
-            background: #25d366;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
-        footer {
-            margin-top: 40px;
-            color: #475569;
-            font-size: 0.8rem;
+        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+        
+        @media (max-width: 768px) {
+            .top-bar { justify-content: center; text-align: center; gap: 5px; }
+            header { flex-direction: column; gap: 15px; }
+            nav a { margin: 0 10px; font-size: 0.9rem; }
+            .hero h1 { font-size: 2.2rem; }
         }
     </style>
+    
+
+    <link rel="icon" type="image/png" href="img/logo_zd.png">
+
+    <style>
+    /* Variables y Reset */
+    :root { --primary: #38bdf8; --bg: #0f172a; --text: #f8fafc; --card: #1e293b; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; }
+
+    /* Contenedor Principal (El que centra todo) */
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+.bio-section {
+    max-width: 800px; /* O el ancho que tengan tus cuadros de arriba */
+    margin: 20px auto; /* Centra el cuadro horizontalmente */
+    width: 90%; /* Responsivo para celulares */
+}
+        
+    /* Los Rectángulos (Bio-sections) */
+    .bio-section {
+        max-width: 800px; /* O el ancho que tengan tus cuadros de arriba */
+    margin: 20px auto; /* Centra el cuadro horizontalmente */
+    width: 90%; /* Responsivo para celulares */
+        background: var(--card);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        border: 1px solid #334155;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilo de los Títulos e Iconos */
+    .bio-section h3 {
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 0;
+        font-size: 1.5rem;
+    }
+
+    /* Badges de Colores (Maestría/Licenciatura) */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    /* Ajuste para el Header (Para que no se rompa con el logo) */
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 5%;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #334155;
+    }
+</style>
+    
 </head>
 <body>
 
+    <div class="top-bar">
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM | Dom: 11:00 AM - 4:00 PM</div>
+        <div><i class="fas fa-phone"></i> +52 55 6249 1653 | +52 55 4663 5882</div>
+        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
+    </div>
+
     <header>
-        <a href="index.html">INICIO</a>
-        <a href="servicios.html">SERVICIOS</a>
-        <a href="galeria.html">GALERÍA</a>
-        <a href="contacto.html" style="border-bottom: 2px solid #38bdf8;">CONTACTO</a>
+        <a href="index.html" class="logo">
+    <img src="img/logo_zd.png" alt="Logo ZDigital">
+    <span>Zona Digital</span>
+</a>
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="nosotros.html">Quiénes somos</a>
+    <a href="servicios.html">Servicios</a>
+    <a href="galeria.html">Galería</a>
+    <a href="contacto.html">Contacto</a>
+</nav>
     </header>
 
     <div class="main-container">
