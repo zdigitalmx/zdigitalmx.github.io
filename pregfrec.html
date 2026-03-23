@@ -1,1 +1,153 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zona Digital | Preguntas Frecuentes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="img/logo_zd.png">
+
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --card: #1e293b;
+            --secondary: #334155;
+            --accent: #0ea5e9;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            line-height: 1.6;
+        }
+
+        header { 
+            position: sticky; top: 0; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(10px); 
+            padding: 1rem 5%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid var(--secondary); z-index: 1000; 
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .logo img { height: 40px; }
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; }
+        nav a:hover { color: var(--primary); }
+
+        .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+        h1 { font-size: 2.5rem; text-align: center; margin-bottom: 10px; color: var(--text); }
+        .subtitle { text-align: center; color: var(--primary); margin-bottom: 50px; font-size: 1.1rem; }
+
+        /* Acordeón FAQ */
+        .faq-section { margin-bottom: 40px; }
+        .faq-category { color: var(--primary); font-size: 1.3rem; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .faq-item { background: var(--card); border: 1px solid var(--secondary); border-radius: 12px; margin-bottom: 15px; overflow: hidden; transition: all 0.3s ease; }
+        .faq-item:hover { border-color: var(--primary); }
+
+        .faq-question { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.05rem; }
+        .faq-question i { transition: transform 0.3s ease; color: var(--primary); }
+
+        .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease; background: rgba(15, 23, 42, 0.3); color: #94a3b8; }
+        
+        .faq-item.active .faq-answer { padding: 20px; max-height: 500px; border-top: 1px solid var(--secondary); }
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+
+        .contact-cta { text-align: center; margin-top: 60px; padding: 40px; background: var(--card); border-radius: 20px; border: 1px solid var(--primary); }
+        .btn-whatsapp { background: #25d366; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-weight: bold; margin-top: 20px; transition: transform 0.2s; }
+        .btn-whatsapp:hover { transform: scale(1.05); }
+
+        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.9rem; border-top: 1px solid var(--secondary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/logo_zd.png" alt="Logo ZDigital">
+            <span>Zona Digital</span>
+        </a>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="nosotros.html">Quiénes somos</a>
+            <a href="galeria.html">Galería</a>
+            <a href="preguntasfrecuentes.html" style="color: var(--primary);">FAQ</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Preguntas Frecuentes</h1>
+        <p class="subtitle">Resolviendo tus dudas con transparencia y rigor técnico.</p>
+
+        <div class="faq-section">
+            <div class="faq-category">Ingeniería y Reparación</div>
+            
+            <div class="faq-item">
+                <div class="faq-question">¿Qué es el Reballing y cuándo es necesario? <span><i class="fas fa-chevron-down"></i></span></div>
+                <div class="faq-answer">Es un proceso de alta precisión que consiste en extraer el chip (GPU/CPU), limpiar la soldadura antigua de fábrica y colocar esferas de soldadura nuevas de alta calidad para volver a soldar el componente. Es necesario cuando la consola presenta fallas de video, luces de error o se apaga repentinamente debido a fracturas en las uniones de soldadura por fatiga térmica.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">¿Qué herramientas utilizan para el diagnóstico? <span><i class="fas fa-chevron-down"></i></span></div>
+                <div class="faq-answer">Utilizamos instrumentación avanzada que incluye cámaras termográficas para detectar puntos calientes, osciloscopios para análisis de señales de datos y microscopios de alta definición para inspección de micro-componentes SMD. Todo bajo protocolos de ingeniería.</div>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <div class="faq-category">Servicio y Garantía</div>
+            
+            <div class="faq-item">
+                <div class="faq-question">¿Cuánto tiempo tarda una reparación técnica? <span><i class="fas fa-chevron-down"></i></span></div>
+                <div class="faq-answer">El tiempo promedio es de 3 a 5 días hábiles. Esto incluye la fase de diagnóstico, la intervención técnica y, lo más importante, una fase de pruebas de estrés de 24 horas para garantizar la estabilidad del sistema antes de la entrega.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">¿Ofrecen garantía en sus trabajos? <span><i class="fas fa-chevron-down"></i></span></div>
+                <div class="faq-answer">Absolutamente. Todas nuestras reparaciones a nivel componente cuentan con una garantía por escrito. Al aplicar rigor académico y materiales de grado industrial, confiamos plenamente en la durabilidad de nuestras intervenciones.</div>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <div class="faq-category">Ubicación y Contacto</div>
+            
+            <div class="faq-item">
+                <div class="faq-question">¿Dónde se encuentra ubicado el laboratorio? <span><i class="fas fa-chevron-down"></i></span></div>
+                <div class="faq-answer">Estamos ubicados en Av. México 1322, CDMX. Puedes visitarnos directamente o agendar una cita para una recepción más ágil de tu equipo.</div>
+            </div>
+        </div>
+
+        <div class="contact-cta">
+            <h3>¿Tienes una duda específica?</h3>
+            <p>Escríbenos directamente y un especialista te atenderá.</p>
+            <a href="https://wa.me/525562491653" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Zona Digital | Ingeniería en Microelectrónica Aplicada.
+    </footer>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                
+                // Cerrar otros abiertos (opcional)
+                document.querySelectorAll('.faq-item').forEach(otherItem => {
+                    if (otherItem !== item) otherItem.classList.remove('active');
+                });
+
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
