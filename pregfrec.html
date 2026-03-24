@@ -8,82 +8,71 @@
     <link rel="icon" type="image/png" href="img/logo_zd.png">
 
     <style>
+        /* --- VARIABLES GLOBALES UNIFICADAS --- */
         :root {
             --primary: #38bdf8;
+            --secondary: #1e293b;
             --bg: #0f172a;
             --text: #f8fafc;
+            --accent: #25d366;
             --card: #1e293b;
-            --secondary: #334155;
-            --header-bg: #0b1120;
+            --border: #334155;
+            --header-bg: #020617;
         }
 
+        /* --- RESET Y BASE --- */
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             background-color: var(--bg); 
             color: var(--text); 
             margin: 0; 
-            line-height: 1.6;
+            line-height: 1.6; 
         }
 
-        /* --- ESTILO CAPTURA 2: TOP BAR --- */
-        .top-bar {
-            background-color: var(--header-bg);
-            padding: 8px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--primary);
-            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
-        }
-
-        .top-bar-info { display: flex; gap: 20px; align-items: center; }
-        .top-bar-info i { margin-right: 8px; }
-
-        /* --- ESTILO CAPTURA 2: HEADER & NAV --- */
-        header { 
+        /* --- TOP BAR (ESTILO UNIFICADO) --- */
+        .top-bar { 
             background: var(--header-bg); 
-            padding: 20px 5%; 
-            text-align: center;
-            border-bottom: 1px solid var(--secondary);
+            padding: 10px 5%; 
+            font-size: 0.85rem; 
+            display: flex; 
+            justify-content: space-between; 
+            flex-wrap: wrap; 
+            border-bottom: 1px solid var(--secondary); 
+        }
+        .top-bar div { margin-right: 20px; color: #94a3b8; }
+        .top-bar i { color: var(--primary); margin-right: 5px; }
+
+        /* --- HEADER Y NAVEGACIÓN (ESTILO UNIFICADO) --- */
+        header { 
+            position: sticky; 
+            top: 0; 
+            background: rgba(15, 23, 42, 0.9); 
+            backdrop-filter: blur(10px); 
+            padding: 1rem 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--secondary); 
+            z-index: 1000; 
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            text-decoration: none;
-            margin-bottom: 20px;
-        }
-
-        .brand img { height: 50px; }
-        .brand span { 
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
             font-size: 1.8rem; 
-            font-weight: 800; 
+            font-weight: bold; 
             color: var(--primary); 
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-decoration: none;
         }
-
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-
-        nav a { 
-            color: var(--text); 
-            text-decoration: none; 
-            font-weight: 500; 
-            font-size: 0.95rem;
-            transition: color 0.3s;
-        }
-
+        .logo img { height: 45px; width: auto; border-radius: 5px; }
+        
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
         nav a:hover, nav a.active { color: var(--primary); }
 
-        /* --- CUERPO DE LA PÁGINA --- */
+        /* --- CUERPO DE PREGUNTAS FRECUENTES --- */
         .container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
         
         .hero-section { text-align: center; margin-bottom: 50px; }
@@ -112,7 +101,7 @@
             background: var(--card); 
             border-radius: 12px; 
             margin-bottom: 15px; 
-            border: 1px solid var(--secondary);
+            border: 1px solid var(--border);
             transition: transform 0.2s;
         }
 
@@ -135,11 +124,12 @@
             border-radius: 0 0 12px 12px;
         }
 
-        .faq-item.active .faq-answer { max-height: 500px; padding: 20px; border-top: 1px solid var(--secondary); }
+        .faq-item.active .faq-answer { max-height: 500px; padding: 20px; border-top: 1px solid var(--border); }
         .faq-item.active .faq-question i { transform: rotate(180deg); }
 
+        /* Botón WhatsApp */
         .btn-whatsapp {
-            background: #22c55e;
+            background: var(--accent);
             color: white;
             padding: 15px 35px;
             border-radius: 50px;
@@ -150,27 +140,32 @@
             font-weight: bold;
             font-size: 1.1rem;
             margin-top: 30px;
-            transition: transform 0.3s;
+            transition: 0.3s;
         }
         .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); }
 
-        footer { text-align: center; padding: 50px; color: #64748b; border-top: 1px solid var(--secondary); margin-top: 80px; }
+        /* --- RESPONSIVO --- */
+        @media (max-width: 768px) {
+            .top-bar { justify-content: center; text-align: center; gap: 5px; }
+            header { flex-direction: column; gap: 15px; }
+            nav { display: flex; flex-wrap: wrap; justify-content: center; }
+            nav a { margin: 5px 10px; font-size: 0.9rem; }
+            .hero-section h1 { font-size: 2.2rem; }
+        }
+
+        footer { text-align: center; padding: 50px; color: #64748b; border-top: 1px solid var(--border); margin-top: 80px; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="top-bar-info">
-            <span><i class="far fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM</span>
-        </div>
-        <div class="top-bar-info">
-            <span><i class="fas fa-phone-alt"></i> +52 55 6249 1653</span>
-            <span><i class="far fa-envelope"></i> contacto@zdigital.mx</span>
-        </div>
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM</div>
+        <div><i class="fas fa-phone"></i> +52 55 6249 1653 | +52 55 4663 5882</div>
+        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
     </div>
 
     <header>
-        <a href="index.html" class="brand">
+        <a href="index.html" class="logo">
             <img src="img/logo_zd.png" alt="Logo Zona Digital">
             <span>Zona Digital</span>
         </a>
@@ -194,33 +189,3 @@
         
         <div class="faq-item">
             <div class="faq-question">¿Qué es el Reballing y cuándo es necesario? <i class="fas fa-chevron-down"></i></div>
-            <div class="faq-answer">Es un proceso de alta precisión que consiste en reconstruir las uniones de soldadura de un chip (BGA). Se requiere cuando las fluctuaciones térmicas fracturan las soldaduras originales, provocando fallas críticas de hardware.</div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-question">¿Qué herramientas utilizan para el diagnóstico? <i class="fas fa-chevron-down"></i></div>
-            <div class="faq-answer">Aplicamos protocolos de ingeniería utilizando cámaras termográficas para mapeo de calor, osciloscopios para integridad de señal y estaciones de soldadura infrarroja de grado industrial.</div>
-        </div>
-
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="https://wa.me/525562491653" class="btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> WhatsApp Directo
-            </a>
-            <p style="margin-top: 15px; font-size: 0.9rem; color: #64748b;">Av. México 1322, CDMX | Zona Digital</p>
-        </div>
-    </main>
-
-    <footer>
-        &copy; 2026 Zona Digital | Expertos en Microelectrónica Aplicada.
-    </footer>
-
-    <script>
-        document.querySelectorAll('.faq-question').forEach(q => {
-            q.addEventListener('click', () => {
-                const item = q.parentElement;
-                item.classList.toggle('active');
-            });
-        });
-    </script>
-</body>
-</html>
