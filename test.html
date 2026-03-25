@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zona Digital | Servicios Especializados</title>
+    <title>Zona Digital | Reparación de Consolas de Videojuegos, Computadoras y Microelectrónica en CDMX</title>
+    <meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo  y Laptops. Micro-soldadura avanzada y diagnóstico electrónico en La Magdalena Contreras, CDMX.">
+    <meta name="keywords" content="reparación de consolas, microelectrónica, reballing, ps5, xbox one, xbox series s, xbox series x, nintendo switch, cdmx, magdalena contreras, zona digital, puerto HDMI, carga, cargador, ps4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
         :root {
             --primary: #38bdf8;
@@ -13,258 +14,192 @@
             --bg: #0f172a;
             --text: #f8fafc;
             --accent: #25d366;
-            --card: #1e293b;
-            --border: #334155;
-            --header-bg: #020617;
+            --header-bg: rgba(15, 23, 42, 0.95);
         }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 0;
-            line-height: 1.6; 
-        }
-
-        /* BARRA SUPERIOR */
-        .top-bar { 
-            background: var(--header-bg); 
-            padding: 10px 5%; 
-            font-size: 0.85rem; 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 1px solid var(--border);
-        }
-        .top-bar div { color: #94a3b8; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; overflow-x: hidden; }
+        
+        /* Top Bar */
+        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.85rem; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid var(--secondary); }
+        .top-bar div { margin-right: 20px; color: #94a3b8; }
         .top-bar i { color: var(--primary); margin-right: 5px; }
 
-        /* HEADER */
-        header { 
-            position: sticky; 
-            top: 0; 
-            background: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(10px); 
-            padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--secondary); 
-            z-index: 1000; 
-        }
-
-        .logo { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            font-size: 1.5rem; 
-            font-weight: bold; 
-            color: var(--primary); 
-            text-decoration: none;
-            text-transform: uppercase;
-        }
+        /* Header & Logo */
+        header { position: sticky; top: 0; background: var(--header-bg); backdrop-filter: blur(10px); padding: 0.8rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--secondary); z-index: 1000; height: 60px; }
         
-        /* Respaldo si no hay imagen */
-        .logo-box {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border-radius: 8px;
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-decoration: none; z-index: 1100; }
+        .logo img { height: 40px; width: auto; border-radius: 5px; }
+
+        /* Menu Burger Icon (Animado) */
+        .menu-btn {
+            width: 30px;
+            height: 20px;
+            position: relative;
+            cursor: pointer;
+            z-index: 1100;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--bg);
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; }
-        nav a.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-
-        /* CONTENIDO */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        
-        .hero { text-align: center; margin-bottom: 60px; }
-        .hero h1 { font-size: 3rem; margin: 0; color: #fff; }
-        .hero p { color: var(--primary); font-size: 1.2rem; }
-
-        /* GRID */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
+        .menu-btn span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s ease-in-out;
         }
 
-        .card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
+        /* Transformación a "X" */
+        .menu-btn.open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+        /* Nav Menu (Overlay Estilo BYD) */
+        nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            padding: 100px 10% 20px;
+            transition: right 0.4s cubic-bezier(0.77,0.2,0.05,1.0);
+            z-index: 1050;
+        }
+
+        nav.open { right: 0; }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.4rem;
+            font-weight: 500;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             transition: 0.3s;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
+        nav a:hover { color: var(--primary); padding-left: 10px; }
+
+        /* Desktop View - Mantener menú oculto tras hamburguesa o mostrarlo (BYD lo oculta siempre) */
+        /* Si quieres que en PC se vea normal, borra el bloque media de abajo, pero para estilo BYD, se queda así. */
+
+        .hero { padding: 80px 5%; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 0 auto 2rem; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+
+        .map-section { padding: 50px 5%; text-align: center; }
+        .map-container { position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); }
+        .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+        
+        @media (max-width: 768px) {
+            .top-bar { display: none; } /* Ocultamos top-bar en móvil para limpieza */
+            .hero h1 { font-size: 2.2rem; }
         }
-
-        .icon-circle {
-            width: 50px;
-            height: 50px;
-            background: rgba(56, 189, 248, 0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
-        .card h3 { margin: 0 0 15px 0; font-size: 1.25rem; }
-        .card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; }
-
-        .list-items { list-style: none; padding: 0; margin: 0; }
-        .list-items li { font-size: 0.8rem; color: var(--primary); margin-bottom: 5px; }
-        .list-items li::before { content: "→ "; }
-
-        .btn-wa {
-            display: inline-block;
-            background: var(--accent);
-            color: #fff;
-            padding: 15px 30px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 40px;
-        }
-
-        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div><i class="fas fa-microchip"></i> Laboratorio de Ingeniería Electrónica</div>
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 - 19:00 | Sáb: 10:00 - 16:00</div>
         <div><i class="fas fa-phone"></i> +52 55 6249 1653</div>
+        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
     </div>
 
     <header>
         <a href="index.html" class="logo">
-            <div class="logo-box">ZD</div>
+            <img src="img/logo_zd.png" alt="Logo Zona Digital">
             <span>Zona Digital</span>
         </a>
-        <nav>
+
+        <div class="menu-btn" id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <nav id="navMenu">
             <a href="index.html">Inicio</a>
-            <a href="servicios.html" class="active">Servicios</a>
+            <a href="pregfrec.html">Preguntas Frecuentes</a>
+            <a href="nosotros.html">Quiénes somos</a>
+            <a href="servicios.html">Servicios</a>
+            <a href="galeria.html">Galería</a>
             <a href="contacto.html">Contacto</a>
         </nav>
     </header>
 
-    <main class="container">
-        <div class="hero">
-            <h1>Servicios Especializados</h1>
-            <p>Ingeniería de precisión y diagnóstico avanzado</p>
-        </div>
+    <section class="hero">
+        <h1>Expertos en Microelectrónica</h1>
+        <p>Especialistas en reparación de consolas, laptops y micro-soldadura en la CDMX. Más de 15 años de experiencia técnica.</p>
+        <a href="https://wa.me/525562491653" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> Envíanos un WhatsApp </a>       
+    </section>
 
-        <div class="services-grid">
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-tools"></i></div>
-                <h3>Mantenimiento Pro</h3>
-                <p>Limpieza ultrasónica y renovación de compuestos térmicos de alto rendimiento.</p>
-                <ul class="list-items">
-                    <li>Metal Líquido (PS5)</li>
-                    <li>Limpieza de ductos</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-gamepad"></i></div>
-                <h3>Controles y Periféricos</h3>
-                <p>Solución definitiva a fallas mecánicas y electrónicas en mandos.</p>
-                <ul class="list-items">
-                    <li>Sensores Efecto Hall</li>
-                    <li>Reparación de Drift</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-microchip"></i></div>
-                <h3>Tarjeta Madre</h3>
-                <p>Reparación a nivel componente y diagnóstico de circuitos SMD.</p>
-                <ul class="list-items">
-                    <li>Reballing BGA</li>
-                    <li>Detección térmica de cortos</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-laptop"></i></div>
-                <h3>Laptops y MacBooks</h3>
-                <p>Especialistas en recuperación de equipos con daño por líquido.</p>
-                <ul class="list-items">
-                    <li>Cambio de pantallas</li>
-                    <li>Reconstrucción de pistas</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-wave-square"></i></div>
-                <h3>Micro-soldadura</h3>
-                <p>Soldadura de precisión bajo microscopio para puertos y conectores.</p>
-                <ul class="list-items">
-                    <li>Puertos HDMI 2.1</li>
-                    <li>Conectores FPC</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-history"></i></div>
-                <h3>Consolas Retro</h3>
-                <p>Restauración total y mods para sistemas clásicos.</p>
-                <ul class="list-items">
-                    <li>Recap de condensadores</li>
-                    <li>Mods de Video RGB</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-rocket"></i></div>
-                <h3>Upgrades SSD</h3>
-                <p>Incremento de velocidad y almacenamiento masivo.</p>
-                <ul class="list-items">
-                    <li>NVMe High Speed</li>
-                    <li>Clonación de sistemas</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-bolt"></i></div>
-                <h3>Fuentes de Poder</h3>
-                <p>Análisis de etapas de potencia y regulación de carga.</p>
-                <ul class="list-items">
-                    <li>Reparación de circuitos PWM</li>
-                    <li>Sustitución de reguladores</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-snowflake"></i></div>
-                <h3>Optimización Térmica</h3>
-                <p>Modificaciones para reducir el estrés calórico del procesador.</p>
-                <ul class="list-items">
-                    <li>Thermal Pads de 12W/mK</li>
-                    <li>Control de RPM</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-code-branch"></i></div>
-                <h3>Bios y Firmware</h3>
-                <p>Reprogramación de memorias SPI Flash y recuperación de bricks.</p>
-                <ul class="list-items">
-                    <li>Programación externa</li>
-                    <li>Actualización segura</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-search"></i></div>
-                <h3>Análisis de Señal</h3>
-                <p>Uso de osciloscopio para verificar la integridad de datos.</p>
-                <ul class="list-items">
-                    <li>Protocolos I2C / UART</li>
-                    <li>Verificación de reloj</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="icon-circle"><i class="fas fa-broadcast-tower"></i></div>
-                <h3>Redes y Conectividad</h3>
+    <section class="services-grid" id="servicios">
+        <div class="card">
+            <i class="fas fa-gamepad"></i>
+            <h3>Consolas</h3>
+            <p>Reparación de PS5, Xbox Series y Switch. Solución a problemas de video y mantenimiento.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-microchip"></i>
+            <h3>Micro-soldadura</h3>
+            <p>Reparación de placas a nivel componente, reballing y cambio de integrados.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-laptop-code"></i>
+            <h3>Cómputo</h3>
+            <p>Diagnóstico avanzado de laptops y optimización de hardware.</p>
+        </div>
+    </section>
+
+    <section class="map-section" id="ubicacion">
+        <h2>Nuestra Ubicación</h2>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.48512534567!2d-99.232917!3d19.307660!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDE4JzI3LjYiTiA5OcKwMTMnNTguNSJX!5e0!3m2!1ses!2smx!4v1625600000000" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 40px; color: #64748b; font-size: 0.8rem; border-top: 1px solid var(--secondary);">
+        © 2026 Zona Digital. Alberto Ramiro Garibay Martínez.
+    </footer>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        menuBtn.addEventListener('click', () => {
+            menuBtn.classList.toggle('open');
+            navMenu.classList.toggle('open');
+            
+            // Bloquear scroll cuando el menú está abierto
+            if(navMenu.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Cerrar menú al hacer click en un enlace
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menuBtn.classList.remove('open');
+                navMenu.classList.remove('open');
+                document.body.style.overflow = 'auto';
+            });
+        });
+    </script>
+
+</body>
+</html>
