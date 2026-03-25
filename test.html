@@ -31,6 +31,11 @@ header {
     justify-content: space-between; 
     align-items: center; 
     border-bottom: 1px solid var(--secondary); 
+    position: fixed;   /* Ocupa un lugar fijo respecto a la pantalla, no a la página */
+    top: 0;            /* Se pega al borde superior */
+    width: 100%;       /* Asegura que cubra todo el ancho */
+    z-index: 9999;     /* Lo pone por encima de cualquier otro elemento (como el texto de microelectrónica) */
+    background-color: #0b132b; /* Asegúrate de ponerle el color de fondo exacto para que no sea transparente */
 }
 
 /* 2. Se lo aplicamos al nuevo contenedor padre */
@@ -81,7 +86,9 @@ header {
                 border-left: 1px solid var(--secondary);
                 box-shadow: -10px 0 20px rgba(0,0,0,0.5);
             }
-
+body {
+  padding-top: 60px; /* Ajusta este valor según la altura de tu header */
+}
             nav.active { right: 0; } /* Se muestra al activarse */
 
             nav a {
