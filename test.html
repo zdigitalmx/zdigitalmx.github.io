@@ -16,11 +16,48 @@
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; overflow-x: hidden; }
 
-        /* Top Bar */
-        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.8rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--secondary); }
-        .top-bar div { color: #94a3b8; display: flex; align-items: center; gap: 8px; }
-        .top-bar i { color: var(--primary); }
-        .top-bar a { color: inherit; text-decoration: none; }
+     /* ... (top bar) ... */
+
+    .top-bar { 
+        background: #020617; 
+        padding: 8px 5%; 
+        font-size: 0.85rem; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border-bottom: 1px solid var(--secondary); 
+    }
+
+    /* Izquierda: Teléfono */
+    .top-contact { 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        color: #94a3b8; 
+    }
+    .top-contact i { color: var(--primary); }
+    .top-contact a { color: inherit; text-decoration: none; transition: 0.3s; }
+    .top-contact a:hover { color: var(--primary); }
+
+    /* Derecha: Redes Sociales */
+    .top-socials { 
+        display: flex; 
+        gap: 20px; 
+    }
+    .top-socials a { 
+        color: #94a3b8; 
+        font-size: 1rem; 
+        transition: 0.3s; 
+        text-decoration: none;
+    }
+    /* Colores oficiales al pasar el mouse */
+    .top-socials a.fb:hover { color: #1877F2; } 
+    .top-socials a.tk:hover { color: #ff0050; }
+
+    /* Ocultar en móviles muy pequeños si estorba */
+    @media (max-width: 480px) {
+        .top-bar { flex-direction: column; gap: 5px; text-align: center; }
+    }ion: none; }
 
         /* Header & Nav */
         header { 
@@ -89,10 +126,16 @@
 <body>
 
     <div class="top-bar">
-        <div><i class="fas fa-phone"></i> 55 6249 1653</div>
-        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
-        <div><i class="fas fa-clock"></i> Lun-Vie 9-19h | Sáb 10-16h</div>
+    <div class="top-contact">
+        <i class="fas fa-phone-alt"></i> 
+        <span>Llámanos: <a href="tel:+525562491653">55 6249 1653</a></span>
     </div>
+    
+    <div class="top-socials">
+        <a href="#" class="fb" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="tk" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+    </div>
+</div>
 
     <header>
         <a href="index.html" class="logo">
