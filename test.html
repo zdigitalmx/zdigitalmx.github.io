@@ -25,8 +25,6 @@
             justify-content: space-between; 
             border-bottom: 1px solid var(--secondary);
             color: #94a3b8;
-            position: relative;
-            z-index: 1101;
         }
         .top-bar .contact-info { display: flex; gap: 20px; }
         .top-bar i { color: var(--primary); margin-right: 6px; }
@@ -47,7 +45,6 @@
         .menu-btn { width: 30px; height: 22px; display: none; flex-direction: column; justify-content: space-between; cursor: pointer; z-index: 2000; }
         .menu-btn span { display: block; height: 3px; width: 100%; background-color: var(--text); border-radius: 3px; transition: 0.3s; }
 
-        /* --- RESPONSIVO MÓVIL --- */
         @media (max-width: 992px) {
             .top-bar { display: none; }
             .menu-btn { display: flex; }
@@ -59,27 +56,26 @@
         }
 
         /* --- SECCIONES --- */
-        .hero { padding: 80px 5%; text-align: center; }
+        .hero { padding: 80px 5% 40px; text-align: center; }
         .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
         .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; }
 
-        /* --- MAPA CORREGIDO --- */
+        /* RESTAURACIÓN DE TARJETAS */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 40px 5%; }
+        .card { background: var(--secondary); padding: 2.5rem 1.5rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; }
+        .card h3 { margin-bottom: 1rem; font-size: 1.4rem; }
+        .card p { font-size: 0.95rem; color: #94a3b8; }
+
         .map-section { padding: 60px 5%; text-align: center; }
-        .map-container { 
-            position: relative; 
-            padding-bottom: 450px; /* Altura del mapa */
-            height: 0; 
-            overflow: hidden; 
-            border-radius: 1rem; 
-            border: 2px solid var(--secondary); 
-            max-width: 1000px; 
-            margin: 20px auto; 
-        }
+        .map-container { position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); max-width: 1000px; margin: 20px auto; }
         .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
         footer { text-align: center; padding: 40px 5%; color: #94a3b8; border-top: 1px solid var(--secondary); background: #020617; }
         .social-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
         .social-icon { color: var(--text); font-size: 1.6rem; transition: 0.3s; }
+        .social-icon:hover { color: var(--primary); transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -114,16 +110,29 @@
         <a href="https://wa.me/525562491653" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> Envíanos un WhatsApp </a>       
     </section>
 
+    <section class="services-grid">
+        <div class="card">
+            <i class="fas fa-gamepad"></i>
+            <h3>Consolas</h3>
+            <p>Reparación de PS5, Xbox y Switch. Solución a problemas de video y encendido.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-microchip"></i>
+            <h3>Micro-soldadura</h3>
+            <p>Reparación de placas base a nivel componente y reballing avanzado.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-laptop-code"></i>
+            <h3>Cómputo</h3>
+            <p>Diagnóstico de laptops y equipos de alto rendimiento.</p>
+        </div>
+    </section>
+
     <section class="map-section">
         <h2>Ubicación</h2>
         <p>Av. México 1322, Colonia La Guadalupe, Magdalena Contreras, CDMX</p>
         <div class="map-container">
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.034!2d-99.2343!3d19.3088!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cdffa04bfd0649%3A0x8975167e761de710!2sZona%20Digital!5e0!3m2!1ses-419!2smx!4v1711370000000!5m2!1ses-419!2smx" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m12!1m3!1d3765.138!2d-99.2328981!3d19.3087894!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cdffa04bfd0649%3A0x8975167e761de710!2sZona%20Digital!5e0!3m2!1ses!2smx!4v1711380000000!5m2!1ses!2smx" allowfullscreen="" loading="lazy"></iframe>
         </div>
     </section>
 
@@ -138,7 +147,6 @@
     <script>
         const menuBtn = document.getElementById('menuBtn');
         const navMenu = document.getElementById('navMenu');
-
         menuBtn.addEventListener('click', () => {
             menuBtn.classList.toggle('open');
             navMenu.classList.toggle('open');
