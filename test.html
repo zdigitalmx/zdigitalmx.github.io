@@ -16,118 +16,89 @@
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
 
-        /* Top Bar */
-        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.85rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--secondary); }
-        .top-bar div { color: #94a3b8; }
-        .top-bar i { color: var(--primary); margin-right: 5px; }
-
-        /* Header */
+        /* --- NAVIGATION --- */
         header { 
-            position: sticky; 
-            top: 0; 
-            background: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(10px); 
-            padding: 0.8rem 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--secondary); 
-            z-index: 1000; 
-            height: 65px;
+            position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); 
+            padding: 0.8rem 5%; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid var(--secondary); z-index: 1000; height: 65px;
         }
-        
         .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-transform: uppercase; text-decoration: none; z-index: 1100; }
         .logo img { height: 40px; }
-
-        /* Botón Hamburguesa (Solo visible en Móvil) */
-        .menu-btn { 
-            width: 30px; 
-            height: 22px; 
-            display: none; /* Oculto en PC */
-            flex-direction: column; 
-            justify-content: space-between; 
-            cursor: pointer; 
-            z-index: 2000; 
-        }
+        
+        .menu-btn { width: 30px; height: 22px; display: none; flex-direction: column; justify-content: space-between; cursor: pointer; z-index: 2000; }
         .menu-btn span { display: block; height: 3px; width: 100%; background-color: var(--text); border-radius: 3px; transition: 0.3s; }
-
-        /* Animación Hamburguesa a X */
         .menu-btn.open span:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
         .menu-btn.open span:nth-child(2) { opacity: 0; }
         .menu-btn.open span:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
 
-        /* Navegación (Comportamiento Base PC) */
-        nav { display: flex; gap: 25px; align-items: center; transition: opacity 0.4s ease; }
+        nav { display: flex; gap: 25px; align-items: center; }
         nav a { color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
         nav a:hover { color: var(--primary); }
 
-        /* --- MEDIA QUERY PARA MÓVIL (iPad y teléfonos) --- */
         @media (max-width: 992px) {
-            .top-bar { display: none; }
-            
-            .menu-btn { display: flex; } /* Aparece el botón */
-
+            .menu-btn { display: flex; }
             nav {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background: #0f172a;
-                flex-direction: column;
-                justify-content: center;
-                gap: 30px;
-                opacity: 0;
-                pointer-events: none;
-                z-index: 1500;
+                position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0f172a;
+                flex-direction: column; justify-content: center; gap: 30px; opacity: 0; pointer-events: none; z-index: 1500; transition: 0.4s;
             }
-
             nav.open { opacity: 1; pointer-events: auto; }
-
             nav a { font-size: 1.8rem; transform: translateY(20px); opacity: 0; }
             nav.open a { transform: translateY(0); opacity: 1; transition: 0.4s ease; }
-            
-            /* Cascada en móvil */
-            nav.open a:nth-child(1) { transition-delay: 0.1s; }
-            nav.open a:nth-child(2) { transition-delay: 0.15s; }
-            nav.open a:nth-child(3) { transition-delay: 0.2s; }
-            nav.open a:nth-child(4) { transition-delay: 0.25s; }
-            nav.open a:nth-child(5) { transition-delay: 0.3s; }
-            nav.open a:nth-child(6) { transition-delay: 0.35s; }
         }
 
-        /* Secciones */
+        /* --- CONTENT SECTIONS --- */
         .hero { padding: 100px 5%; text-align: center; }
         .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
         .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; }
 
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
-        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
         .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
 
-        footer { text-align: center; padding: 40px; color: #64748b; font-size: 0.8rem; border-top: 1px solid var(--secondary); }
+        /* --- FOOTER ACTUALIZADO --- */
+        footer { 
+            text-align: center; 
+            padding: 60px 5% 40px; 
+            color: #94a3b8; 
+            border-top: 1px solid var(--secondary);
+            background: #020617;
+        }
+
+        .social-links { 
+            margin-bottom: 25px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+        }
+
+        .social-icon { 
+            color: var(--text); 
+            font-size: 1.8rem; 
+            transition: 0.3s ease; 
+            text-decoration: none;
+        }
+
+        .social-icon:hover { 
+            color: var(--primary); 
+            transform: translateY(-3px); 
+        }
+
+        .copyright { 
+            font-size: 0.85rem; 
+            letter-spacing: 0.5px;
+        }
+
     </style>
 </head>
 <body>
-
-    <div class="top-bar">
-        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 - 19:00 | Sáb: 10:00 - 16:00</div>
-        <div><i class="fas fa-phone"></i> +52 55 6249 1653</div>
-        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
-    </div>
 
     <header>
         <a href="index.html" class="logo">
             <img src="img/logo_zd.png" alt="Zona Digital">
             <span>Zona Digital</span>
         </a>
-
-        <div class="menu-btn" id="menuBtn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-
+        <div class="menu-btn" id="menuBtn"><span></span><span></span><span></span></div>
         <nav id="navMenu">
             <a href="index.html">Inicio</a>
             <a href="pregfrec.html">Preguntas Frecuentes</a>
@@ -150,7 +121,19 @@
         <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico de laptops y alto rendimiento.</p></div>
     </section>
 
-    <footer>© 2026 Zona Digital. Alberto Ramiro Garibay Martínez.</footer>
+    <footer>
+        <div class="social-links">
+            <a href="https://www.facebook.com/TU_PERFIL" target="_blank" class="social-icon" aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://www.tiktok.com/@TU_PERFIL" target="_blank" class="social-icon" aria-label="TikTok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+        </div>
+        <div class="copyright">
+            &copy; 2026 Zona Digital. Todos los derechos reservados.
+        </div>
+    </footer>
 
     <script>
         const menuBtn = document.getElementById('menuBtn');
@@ -162,7 +145,6 @@
             document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         });
 
-        // Solo cerrar si estamos en modo móvil (pantalla < 992px)
         const navLinks = document.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
