@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zona Digital | Servicios Especializados</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="img/logo_zd.png">
 
     <style>
-        /* --- VARIABLES GLOBALES --- */
         :root {
             --primary: #38bdf8;
             --secondary: #1e293b;
@@ -20,35 +18,34 @@
             --header-bg: #020617;
         }
 
-        /* --- RESET Y BASE --- */
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: var(--bg); 
             color: var(--text); 
             margin: 0; 
+            padding: 0;
             line-height: 1.6; 
         }
 
-        /* --- TOP BAR --- */
+        /* BARRA SUPERIOR */
         .top-bar { 
             background: var(--header-bg); 
             padding: 10px 5%; 
             font-size: 0.85rem; 
             display: flex; 
             justify-content: space-between; 
-            flex-wrap: wrap; 
-            border-bottom: 1px solid var(--secondary); 
+            border-bottom: 1px solid var(--border);
         }
-        .top-bar div { margin-right: 20px; color: #94a3b8; }
+        .top-bar div { color: #94a3b8; }
         .top-bar i { color: var(--primary); margin-right: 5px; }
 
-        /* --- HEADER Y NAVEGACIÓN --- */
+        /* HEADER */
         header { 
             position: sticky; 
             top: 0; 
-            background: rgba(15, 23, 42, 0.9); 
+            background: rgba(15, 23, 42, 0.95); 
             backdrop-filter: blur(10px); 
-            padding: 1rem 5%; 
+            padding: 15px 5%; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -60,19 +57,214 @@
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            font-size: 1.8rem; 
+            font-size: 1.5rem; 
             font-weight: bold; 
             color: var(--primary); 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
             text-decoration: none;
+            text-transform: uppercase;
         }
-        .logo img { height: 45px; width: auto; border-radius: 5px; }
         
-        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
-        nav a:hover, nav a.active { color: var(--primary); }
+        /* Respaldo si no hay imagen */
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg);
+        }
 
-        /* --- CONTENEDOR PRINCIPAL --- */
-        .container { max-width: 1200px; margin: 60px auto; padding: 0 20px; }
+        nav a { color: var(--text); text-decoration: none; margin-left: 20px; font-weight: 500; }
+        nav a.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+
+        /* CONTENIDO */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         
-        .hero-section { text-align: center; margin-bottom:
+        .hero { text-align: center; margin-bottom: 60px; }
+        .hero h1 { font-size: 3rem; margin: 0; color: #fff; }
+        .hero p { color: var(--primary); font-size: 1.2rem; }
+
+        /* GRID */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card h3 { margin: 0 0 15px 0; font-size: 1.25rem; }
+        .card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; }
+
+        .list-items { list-style: none; padding: 0; margin: 0; }
+        .list-items li { font-size: 0.8rem; color: var(--primary); margin-bottom: 5px; }
+        .list-items li::before { content: "→ "; }
+
+        .btn-wa {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+
+        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div><i class="fas fa-microchip"></i> Laboratorio de Ingeniería Electrónica</div>
+        <div><i class="fas fa-phone"></i> +52 55 6249 1653</div>
+    </div>
+
+    <header>
+        <a href="index.html" class="logo">
+            <div class="logo-box">ZD</div>
+            <span>Zona Digital</span>
+        </a>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="servicios.html" class="active">Servicios</a>
+            <a href="contacto.html">Contacto</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="hero">
+            <h1>Servicios Especializados</h1>
+            <p>Ingeniería de precisión y diagnóstico avanzado</p>
+        </div>
+
+        <div class="services-grid">
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-tools"></i></div>
+                <h3>Mantenimiento Pro</h3>
+                <p>Limpieza ultrasónica y renovación de compuestos térmicos de alto rendimiento.</p>
+                <ul class="list-items">
+                    <li>Metal Líquido (PS5)</li>
+                    <li>Limpieza de ductos</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-gamepad"></i></div>
+                <h3>Controles y Periféricos</h3>
+                <p>Solución definitiva a fallas mecánicas y electrónicas en mandos.</p>
+                <ul class="list-items">
+                    <li>Sensores Efecto Hall</li>
+                    <li>Reparación de Drift</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-microchip"></i></div>
+                <h3>Tarjeta Madre</h3>
+                <p>Reparación a nivel componente y diagnóstico de circuitos SMD.</p>
+                <ul class="list-items">
+                    <li>Reballing BGA</li>
+                    <li>Detección térmica de cortos</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-laptop"></i></div>
+                <h3>Laptops y MacBooks</h3>
+                <p>Especialistas en recuperación de equipos con daño por líquido.</p>
+                <ul class="list-items">
+                    <li>Cambio de pantallas</li>
+                    <li>Reconstrucción de pistas</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-wave-square"></i></div>
+                <h3>Micro-soldadura</h3>
+                <p>Soldadura de precisión bajo microscopio para puertos y conectores.</p>
+                <ul class="list-items">
+                    <li>Puertos HDMI 2.1</li>
+                    <li>Conectores FPC</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-history"></i></div>
+                <h3>Consolas Retro</h3>
+                <p>Restauración total y mods para sistemas clásicos.</p>
+                <ul class="list-items">
+                    <li>Recap de condensadores</li>
+                    <li>Mods de Video RGB</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-rocket"></i></div>
+                <h3>Upgrades SSD</h3>
+                <p>Incremento de velocidad y almacenamiento masivo.</p>
+                <ul class="list-items">
+                    <li>NVMe High Speed</li>
+                    <li>Clonación de sistemas</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-bolt"></i></div>
+                <h3>Fuentes de Poder</h3>
+                <p>Análisis de etapas de potencia y regulación de carga.</p>
+                <ul class="list-items">
+                    <li>Reparación de circuitos PWM</li>
+                    <li>Sustitución de reguladores</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-snowflake"></i></div>
+                <h3>Optimización Térmica</h3>
+                <p>Modificaciones para reducir el estrés calórico del procesador.</p>
+                <ul class="list-items">
+                    <li>Thermal Pads de 12W/mK</li>
+                    <li>Control de RPM</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-code-branch"></i></div>
+                <h3>Bios y Firmware</h3>
+                <p>Reprogramación de memorias SPI Flash y recuperación de bricks.</p>
+                <ul class="list-items">
+                    <li>Programación externa</li>
+                    <li>Actualización segura</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-search"></i></div>
+                <h3>Análisis de Señal</h3>
+                <p>Uso de osciloscopio para verificar la integridad de datos.</p>
+                <ul class="list-items">
+                    <li>Protocolos I2C / UART</li>
+                    <li>Verificación de reloj</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="icon-circle"><i class="fas fa-broadcast-tower"></i></div>
+                <h3>Redes y Conectividad</h3>
