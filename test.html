@@ -147,44 +147,40 @@ header {
     </style>
 </head>
 <body>
-<div class="navbar-fixed">
-    <div class="top-bar">
+    <div class="navbar-fixed">
+        
+        <div class="top-bar">
+            <div class="top-contact">
+                <i class="fas fa-phone-alt"></i> 
+                <span>Llámanos: <a href="tel:+525562491653">55 6249 1653</a></span>
+            </div>
+            
+            <div class="top-socials">
+                <a href="#" class="fb" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="tk" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
         </div>
 
-    <header>
-         <a href="index.html" class="logo">
-            <img src="img/logo_zd.png" alt="Zona Digital">
-            <span>Zona Digital</span>
-        </a>
+        <header>
+            <a href="index.html" class="logo">
+                <img src="img/logo_zd.png" alt="Zona Digital">
+                <span>Zona Digital</span>
+            </a>
 
-        <div class="menu-toggle" id="mobile-menu">
-            <i class="fas fa-bars"></i>
-        </div>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
 
-        <nav id="nav-menu">
-            <a href="index.html">Inicio</a>
-            <a href="pregfrec.html">Preguntas</a>
-            <a href="nosotros.html">Nosotros</a>
-            <a href="servicios.html">Servicios</a>
-            <a href="galeria.html">Galería</a>
-            <a href="contacto.html">Contacto</a>
-        </nav>
-
+            <nav id="nav-menu">
+                <a href="index.html">Inicio</a>
+                <a href="pregfrec.html">Preguntas</a>
+                <a href="nosotros.html">Nosotros</a>
+                <a href="servicios.html">Servicios</a>
+                <a href="galeria.html">Galería</a>
+                <a href="contacto.html">Contacto</a>
+            </nav>
         </header>
-</div>
-<div class="top-bar">
-    <div class="top-contact">
-        <i class="fas fa-phone-alt"></i> 
-        <span>Llámanos: <a href="tel:+525562491653">55 6249 1653</a></span>
     </div>
-    
-    <div class="top-socials">
-        <a href="#" class="fb" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="tk" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
-    </div>
-</div>
-
-    
 
     <section class="hero">
         <h1>Expertos en Microelectrónica</h1>
@@ -200,8 +196,6 @@ header {
 
         menuToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
-            
-            // Cambia el icono de barras a una "X" al abrir
             const icon = menuToggle.querySelector('i');
             if (navMenu.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -212,7 +206,6 @@ header {
             }
         });
 
-        // Cerrar menú al hacer clic en un enlace (importante para Single Page)
         document.querySelectorAll('nav a').forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
@@ -220,4 +213,3 @@ header {
         });
     </script>
 </body>
-</html>
