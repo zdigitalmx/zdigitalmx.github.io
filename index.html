@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zona Digital | Reparación de Consolas y Microelectrónica</title>
-    <meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo y Laptops en CDMX.">
+    <meta name="description" content="Especialistas en reparación de PS5, Xbox Series, Nintendo  y Laptops. Micro-soldadura avanzada y diagnóstico electrónico en La Magdalena Contreras, CDMX.">
+    <meta name="keywords" content="reparación de consolas, microelectrónica, reballing, ps5, xbox one, xbox series s, xbox series x, nintendo switch, cdmx, magdalena contreras, zona digital, puerto HDMI, carga, cargador, ps4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -17,6 +18,19 @@
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
 
+        /* --- TOP BAR (RESTAURADA) --- */
+        .top-bar { 
+            background: #020617; 
+            padding: 8px 5%; 
+            font-size: 0.85rem; 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 1px solid var(--secondary);
+            color: #94a3b8;
+        }
+        .top-bar .contact-info { display: flex; gap: 20px; }
+        .top-bar i { color: var(--primary); margin-right: 6px; }
+
         /* --- NAVEGACIÓN --- */
         header { 
             position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); 
@@ -26,17 +40,21 @@
         .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-transform: uppercase; text-decoration: none; z-index: 1100; }
         .logo img { height: 40px; }
         
+        /* Botón Hamburguesa */
         .menu-btn { width: 30px; height: 22px; display: none; flex-direction: column; justify-content: space-between; cursor: pointer; z-index: 2000; }
         .menu-btn span { display: block; height: 3px; width: 100%; background-color: var(--text); border-radius: 3px; transition: 0.3s; }
         .menu-btn.open span:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
         .menu-btn.open span:nth-child(2) { opacity: 0; }
         .menu-btn.open span:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
 
+        /* Menú PC */
         nav { display: flex; gap: 25px; align-items: center; }
         nav a { color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
         nav a:hover { color: var(--primary); }
 
+        /* --- RESPONSIVO MÓVIL --- */
         @media (max-width: 992px) {
+            .top-bar { display: none; } /* Ocultar top-bar en móvil para ahorrar espacio */
             .menu-btn { display: flex; }
             nav {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0f172a;
@@ -47,42 +65,85 @@
             nav.open a { transform: translateY(0); opacity: 1; transition: 0.4s ease; }
         }
 
-        /* --- CONTENIDO --- */
+        /* --- SECCIONES --- */
         .hero { padding: 100px 5%; text-align: center; }
         .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 0 auto 2rem; }
-        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .btn-ws:hover { transform: scale(1.05); background: #20ba5a; }
+        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; }
 
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
-        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; }
         .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
 
-        /* --- MAPA Y DIRECCIÓN --- */
-        .map-section { padding: 60px 5%; text-align: center; background: rgba(2, 6, 23, 0.5); }
-        .map-section h2 { margin-bottom: 10px; color: var(--primary); }
-        .map-section p { color: #94a3b8; margin-bottom: 30px; }
+        .map-section { padding: 60px 5%; text-align: center; }
         .map-container { position: relative; padding-bottom: 400px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); max-width: 1000px; margin: 0 auto; }
         .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
         /* --- FOOTER --- */
-        footer { text-align: center; padding: 60px 5% 40px; color: #94a3b8; border-top: 1px solid var(--secondary); background: #020617; }
-        .social-links { margin-bottom: 25px; display: flex; justify-content: center; gap: 25px; }
-        .social-icon { color: var(--text); font-size: 1.8rem; transition: 0.3s; text-decoration: none; }
+        footer { text-align: center; padding: 40px 5%; color: #94a3b8; border-top: 1px solid var(--secondary); background: #020617; }
+        .social-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
+        .social-icon { color: var(--text); font-size: 1.6rem; transition: 0.3s; }
         .social-icon:hover { color: var(--primary); transform: translateY(-3px); }
-        .copyright { font-size: 0.85rem; letter-spacing: 0.5px; }
-
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-        }
     </style>
+
+    </style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ElectronicsRepairShop",
+  "name": "Zona Digital",
+  "alternateName": "Zona Digital CDMX",
+  "description": "Laboratorio especializado en microelectrónica, reparación de consolas de videojuegos PlayStation 5, Xbox One, Xbox Series S, Xbox Series X,Nintendos Switch y laptops a nivel componente.",
+  "url": "https://zdigital.mx",
+  "telephone": "+525562491653",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. México 1322, Colonia La Guadalupe",
+    "addressLocality": "La Magdalena Contreras",
+    "addressRegion": "CDMX",
+    "postalCode": "10820",
+    "addressCountry": "MX"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 19.307660, 
+    "longitude": -99.232917
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "19:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "10:00",
+      "closes": "16:00"
+    }
+  ],
+  "sameAs": [
+    "https://wa.me/525562491653"
+  ]
+}
+</script>
+
+    <link rel="icon" type="image/png" href="img/logo_zd.png">    
+    
 </head>
 <body>
 
+    <div class="top-bar">
+        <div class="contact-info">
+            <span><i class="fas fa-phone"></i> +52 55 6249 1653</span>
+            <span><i class="fas fa-envelope"></i> contacto@zdigital.mx</span>
+        </div>
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM | Dom: 11:00 AM - 4:00 PM</div>
+    </div>
+
     <header>
         <a href="index.html" class="logo">
-            <img src="img/logo_zd.png" alt="Logo Zona Digital">
+            <img src="img/logo_zd.png" alt="Zona Digital">
             <span>Zona Digital</span>
         </a>
         <div class="menu-btn" id="menuBtn"><span></span><span></span><span></span></div>
@@ -102,17 +163,22 @@
         <a href="https://wa.me/525562491653" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> Envíanos un WhatsApp </a>       
     </section>
 
-    <section class="services-grid" id="servicios">
-        <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Reparación de PS5, Xbox y Switch. Solución a problemas de video y encendido.</p></div>
-        <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Reparación de placas base a nivel componente y reballing avanzado.</p></div>
-        <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico de laptops y equipos de alto rendimiento.</p></div>
+    <section class="services-grid">
+        <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Reparación de consolas de videojuegos y controles para consolas de generaciones actuales PS5, Xbox Series y Nintendo Switch. Solución a problemas de video y encendido. También realizamos mantenimiento preventivo, limpieza interna, cambio de pasta térmica, cambio de metal líquido.</p></div>
+        <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Reparación de placas base a nivel componente y reballing.</p></div>
+        <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico y reparación de computadoras, laptops y alto rendimiento. Reparamos desde la computadora más sencilla hasta la más potente y de última generación.</p></div>
     </section>
 
-    <section class="map-section" id="ubicacion">
-        <h2>Nuestra Ubicación</h2>
-        <p><i class="fas fa-map-marker-alt"></i> Av. México 1322, Colonia La Guadalupe, La Magdalena Contreras, CDMX</p>
+    <section class="map-section">
+        <h2>Ubicación</h2>
+        <p>Av. México 1322, Colonia La Guadalupe, Magdalena Contreras, CDMX</p>
         <div class="map-container">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.231268393582!2d-99.232917!3d19.30766!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1fff400000000%3A0x0!2zMTnCsDE4JzI3LjYiTiA5OcKwMTMnNTguNSJX!5e0!3m2!1ses!2smx!4v1710000000000" allowfullscreen="" loading="lazy"></iframe>
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.034!2d-99.2343!3d19.3088!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cdffa04bfd0649%3A0x8975167e761de710!2sZona%20Digital!5e0!3m2!1ses-419!2smx!4v1711370000000!5m2!1ses-419!2smx" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
         </div>
     </section>
 
@@ -122,7 +188,7 @@
             <a href="https://www.tiktok.com/@zd1322" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
         </div>
         <div class="copyright">
-            &copy; 2026 Zona Digital. Todos los derechos reservados.
+            © 2026 Zona Digital. Todos los derechos reservados.
         </div>
     </footer>
 
