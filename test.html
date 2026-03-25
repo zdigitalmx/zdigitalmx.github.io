@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zona Digital | Reparación de Consolas y Microelectrónica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --secondary: #1e293b;
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --accent: #25d366;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; overflow-x: hidden; }
+
+        /* Top Bar */
+        .top-bar { background: #020617; padding: 10px 5%; font-size: 0.8rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--secondary); }
+        .top-bar div { color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+        .top-bar i { color: var(--primary); }
+        .top-bar a { color: inherit; text-decoration: none; }
+
+        /* Header & Nav */
+        header { 
+            position: sticky; top: 0; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(10px); 
+            padding: 0.8rem 5%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid var(--secondary); z-index: 1000; 
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; text-transform: uppercase; }
+        .logo img { height: 40px; width: auto; }
+
+        /* Desktop Nav */
+        nav { display: flex; align-items: center; }
+        nav a { color: var(--text); text-decoration: none; margin-left: 25px; font-weight: 500; transition: 0.3s; font-size: 0.95rem; }
+        nav a:hover { color: var(--primary); }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle { display: none; font-size: 1.5rem; color: var(--text); cursor: pointer; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .top-bar { display: none; } /* Ocultamos datos extra en móvil para limpiar la vista */
+            
+            .menu-toggle { display: block; }
+
+            nav {
+                position: fixed;
+                top: 70px; /* Debajo del header */
+                right: -100%; /* Escondido a la derecha */
+                background: var(--bg);
+                flex-direction: column;
+                width: 80%;
+                height: calc(100vh - 70px);
+                transition: 0.4s ease;
+                padding: 2rem;
+                border-left: 1px solid var(--secondary);
+                box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+            }
+
+            nav.active { right: 0; } /* Se muestra al activarse */
+
+            nav a {
+                margin: 15px 0;
+                font-size: 1.2rem;
+                width: 100%;
+                border-bottom: 1px solid var(--secondary);
+                padding-bottom: 10px;
+            }
+        }
+
+        /* Hero & Content */
+        .hero { padding: 100px 5% 60px; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 1rem; }
+        .hero p { font-size: 1.1rem; color: #94a3b8; max-width: 800px; margin: 0 auto 2rem; }
+        
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
+        .card { background: var(--secondary); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        
+        .btn-ws { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: white; padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div><i class="fas fa-phone"></i> 55 6249 1653</div>
+        <div><i class="fas fa-envelope"></i> contacto@zdigital.mx</div>
+        <div><i class="fas fa-clock"></i> Lun-Vie 9-19h | Sáb 10-16h</div>
+    </div>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/logo_zd.png" alt="Zona Digital">
+            <span>Zona Digital</span>
+        </a>
+
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <nav id="nav-menu">
+            <a href="index.html">Inicio</a>
+            <a href="pregfrec.html">Preguntas</a>
+            <a href="nosotros.html">Nosotros</a>
+            <a href="servicios.html">Servicios</a>
+            <a href="galeria.html">Galería</a>
+            <a href="contacto.html">Contacto</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Expertos en Microelectrónica</h1>
+        <p>Especialistas en reparación de consolas (PS5, Xbox, Switch), laptops y micro-soldadura. Ingeniería aplicada a la reparación a nivel componente.</p>
+        <a href="https://wa.me/525562491653" target="_blank" class="btn-ws">
+            <i class="fab fa-whatsapp"></i> Envíanos un WhatsApp
+        </a>
+    </section>
+
+    <script>
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.getElementById('nav-menu');
+
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            
+            // Cambia el icono de barras a una "X" al abrir
+            const icon = menuToggle.querySelector('i');
+            if (navMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Cerrar menú al hacer clic en un enlace (importante para Single Page)
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
