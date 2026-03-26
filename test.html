@@ -173,6 +173,7 @@
         </div>
     </footer>
 
+   
     <script>
         // Función para detectar el sistema y el dispositivo
         function updateSystemSpecs() {
@@ -186,7 +187,7 @@
             else if (ua.indexOf("Android") != -1) { os = "Android"; equipo = "dispositivo móvil"; }
             else if (ua.indexOf("iPhone") != -1 || ua.indexOf("iPad") != -1) { os = "iOS"; equipo = "iPhone/iPad"; }
             else if (ua.indexOf("Mac") != -1) { os = "macOS"; equipo = "Mac"; }
-            else if (ua.indexOf("Linux") != -1) { os = "Linux"; equipo = "equipo"; }
+            else if (ua.indexOf("Linux") != -1) { os = "Linux"; equipo = "computadora"; }
 
             // Detección de Navegador
             if (ua.indexOf("Chrome") != -1) browser = "Google Chrome";
@@ -196,7 +197,7 @@
 
             // Inyectar el texto
             const target = document.getElementById('system-spec');
-            target.innerHTML = `Por lo tanto, sabemos que tu <strong>"sistema operativo" ${os}</strong> corre en un <strong>"${equipo}"</strong> navegando con <strong>${browser}</strong>.`;
+            target.innerHTML = `Por lo tanto, sabemos que tu <strong>"sistema operativo es" ${os}</strong> y es ejecutado en tu <strong>"${equipo}"</strong> navegando con <strong>${browser}</strong>.`;
         }
 
         // Ejecutar al cargar la página
