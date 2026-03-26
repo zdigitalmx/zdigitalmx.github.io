@@ -102,4 +102,126 @@
         "@type": "PostalAddress",
         "streetAddress": "Av. México 1322, Colonia La Guadalupe",
         "addressLocality": "La Magdalena Contreras",
-        "address
+        "addressRegion": "CDMX",
+        "postalCode": "10820",
+        "addressCountry": "MX"
+      }
+    }
+    </script>
+
+    <link rel="icon" type="image/png" href="img/logo_zd.png">    
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="contact-info">
+            <span><i class="fas fa-phone"></i> +52 55 6249 1653</span>
+            <span><i class="fas fa-envelope"></i> contacto@zdigital.mx</span>
+        </div>
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM</div>
+    </div>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/logo_zd.png" alt="Zona Digital">
+            <span>Zona Digital</span>
+        </a>
+        <div class="menu-btn" id="menuBtn"><span></span><span></span><span></span></div>
+        <nav id="navMenu">
+            <a href="index.html">Inicio</a>
+            <a href="pregfrec.html">Preguntas Frecuentes</a>
+            <a href="nosotros.html">Quiénes somos</a>
+            <a href="servicios.html">Servicios</a>
+            <a href="contacto.html">Contacto</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Expertos en Microelectrónica</h1>
+        
+        <div id="system-spec">Detectando hardware...</div>
+
+        <p>Especialistas en reparación de consolas, laptops y micro-soldadura avanzada en la CDMX.</p>
+        <a href="https://wa.me/525562491653" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> Envíanos un WhatsApp </a>       
+    </section>
+
+    <section class="services-grid">
+        <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Reparación de PS5, Xbox y Switch.</p></div>
+        <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Reparación de placas base a nivel componente.</p></div>
+        <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico de laptops y alto rendimiento.</p></div>
+    </section>
+
+    <section class="map-section">
+        <h2>Ubicación</h2>
+        <p>Av. México 1322, Colonia La Guadalupe, Magdalena Contreras, CDMX</p>
+        <div class="map-container">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.2345!2d-99.232917!3d19.307660!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDE4JzI3LjYiTiA5OcKwMTMnNTguNSJX!5e0!3m2!1ses!2smx!4v1650000000000" 
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+        </div>
+    </section>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://www.facebook.com/ZonaDigital106" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.tiktok.com/@zd1322" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <div class="copyright">
+            © 2026 Zona Digital. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <script>
+        // Función para detectar el sistema y el dispositivo
+        function updateSystemSpecs() {
+            const ua = navigator.userAgent;
+            let os = "desconocido";
+            let equipo = "equipo";
+            let browser = "navegador";
+
+            // Detección de OS y tipo de equipo
+            if (ua.indexOf("Win") != -1) { os = "Windows"; equipo = "computadora"; }
+            else if (ua.indexOf("Android") != -1) { os = "Android"; equipo = "dispositivo móvil"; }
+            else if (ua.indexOf("iPhone") != -1 || ua.indexOf("iPad") != -1) { os = "iOS"; equipo = "iPhone/iPad"; }
+            else if (ua.indexOf("Mac") != -1) { os = "macOS"; equipo = "Mac"; }
+            else if (ua.indexOf("Linux") != -1) { os = "Linux"; equipo = "equipo"; }
+
+            // Detección de Navegador
+            if (ua.indexOf("Chrome") != -1) browser = "Google Chrome";
+            else if (ua.indexOf("Firefox") != -1) browser = "Firefox";
+            else if (ua.indexOf("Safari") != -1) browser = "Safari";
+            else if (ua.indexOf("Edge") != -1) browser = "Edge";
+
+            // Inyectar el texto
+            const target = document.getElementById('system-spec');
+            target.innerHTML = `Por lo tanto, sabemos que tu <strong>"sistema operativo" ${os}</strong> corre en un <strong>"${equipo}"</strong> navegando con <strong>${browser}</strong>.`;
+        }
+
+        // Ejecutar al cargar la página
+        window.addEventListener('load', updateSystemSpecs);
+
+        // Lógica del menú móvil
+        const menuBtn = document.getElementById('menuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        menuBtn.addEventListener('click', () => {
+            const isOpen = menuBtn.classList.toggle('open');
+            navMenu.classList.toggle('open');
+            document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+        });
+
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth <= 992) {
+                    menuBtn.classList.remove('open');
+                    navMenu.classList.remove('open');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
