@@ -18,7 +18,6 @@
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; line-height: 1.6; scroll-behavior: smooth; }
 
-        /* --- TOP BAR (RESTAURADA) --- */
         .top-bar { 
             background: #020617; 
             padding: 8px 5%; 
@@ -31,7 +30,6 @@
         .top-bar .contact-info { display: flex; gap: 20px; }
         .top-bar i { color: var(--primary); margin-right: 6px; }
 
-        /* --- NAVEGACIÓN --- */
         header { 
             position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); 
             padding: 0.8rem 5%; display: flex; justify-content: space-between; align-items: center; 
@@ -40,21 +38,18 @@
         .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: bold; color: var(--primary); text-transform: uppercase; text-decoration: none; z-index: 1100; }
         .logo img { height: 40px; }
         
-        /* Botón Hamburguesa */
         .menu-btn { width: 30px; height: 22px; display: none; flex-direction: column; justify-content: space-between; cursor: pointer; z-index: 2000; }
         .menu-btn span { display: block; height: 3px; width: 100%; background-color: var(--text); border-radius: 3px; transition: 0.3s; }
         .menu-btn.open span:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
         .menu-btn.open span:nth-child(2) { opacity: 0; }
         .menu-btn.open span:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
 
-        /* Menú PC */
         nav { display: flex; gap: 25px; align-items: center; }
         nav a { color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
         nav a:hover { color: var(--primary); }
 
-        /* --- RESPONSIVO MÓVIL --- */
         @media (max-width: 992px) {
-            .top-bar { display: none; } /* Ocultar top-bar en móvil para ahorrar espacio */
+            .top-bar { display: none; }
             .menu-btn { display: flex; }
             nav {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0f172a;
@@ -65,9 +60,21 @@
             nav.open a { transform: translateY(0); opacity: 1; transition: 0.4s ease; }
         }
 
-        /* --- SECCIONES --- */
         .hero { padding: 100px 5%; text-align: center; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        
+        /* Estilo para el detector de sistema */
+        #system-spec { 
+            margin-bottom: 2rem; 
+            font-size: 1.2rem; 
+            color: var(--primary); 
+            font-weight: 400;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #system-spec strong { color: #fff; border-bottom: 1px solid var(--primary); }
+
         .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; }
 
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 50px 5%; }
@@ -78,140 +85,21 @@
         .map-container { position: relative; padding-bottom: 400px; height: 0; overflow: hidden; border-radius: 1rem; border: 2px solid var(--secondary); max-width: 1000px; margin: 0 auto; }
         .map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-        /* --- FOOTER --- */
         footer { text-align: center; padding: 40px 5%; color: #94a3b8; border-top: 1px solid var(--secondary); background: #020617; }
         .social-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
         .social-icon { color: var(--text); font-size: 1.6rem; transition: 0.3s; }
         .social-icon:hover { color: var(--primary); transform: translateY(-3px); }
     </style>
 
-    </style>
     <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ElectronicsRepairShop",
-  "name": "Zona Digital",
-  "alternateName": "Zona Digital CDMX",
-  "description": "Laboratorio especializado en microelectrónica, reparación de consolas de videojuegos PlayStation 5, Xbox One, Xbox Series S, Xbox Series X,Nintendos Switch y laptops a nivel componente.",
-  "url": "https://zdigital.mx",
-  "telephone": "+525562491653",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Av. México 1322, Colonia La Guadalupe",
-    "addressLocality": "La Magdalena Contreras",
-    "addressRegion": "CDMX",
-    "postalCode": "10820",
-    "addressCountry": "MX"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 19.307660, 
-    "longitude": -99.232917
-  },
-  "openingHoursSpecification": [
     {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      "opens": "09:00",
-      "closes": "19:00"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": "Saturday",
-      "opens": "10:00",
-      "closes": "16:00"
-    }
-  ],
-  "sameAs": [
-    "https://wa.me/525562491653"
-  ]
-}
-</script>
-
-    <link rel="icon" type="image/png" href="img/logo_zd.png">    
-    
-</head>
-<body>
-
-    <div class="top-bar">
-        <div class="contact-info">
-            <span><i class="fas fa-phone"></i> +52 55 6249 1653</span>
-            <span><i class="fas fa-envelope"></i> contacto@zdigital.mx</span>
-        </div>
-        <div><i class="fas fa-clock"></i> Lun - Vie: 9:00 AM - 7:00 PM | Sáb: 10:00 AM - 4:00 PM | Dom: 11:00 AM - 4:00 PM</div>
-    </div>
-
-    <header>
-        <a href="index.html" class="logo">
-            <img src="img/logo_zd.png" alt="Zona Digital">
-            <span>Zona Digital</span>
-        </a>
-        <div class="menu-btn" id="menuBtn"><span></span><span></span><span></span></div>
-        <nav id="navMenu">
-            <a href="index.html">Inicio</a>
-            <a href="pregfrec.html">Preguntas Frecuentes</a>
-            <a href="nosotros.html">Quiénes somos</a>
-            <a href="servicios.html">Servicios</a>
-            <a href="galeria.html">Galería</a>
-            <a href="contacto.html">Contacto</a>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1>Expertos en Microelectrónica</h1>
-        <p>Especialistas en reparación de consolas, laptops y micro-soldadura avanzada en la CDMX.</p>
-        <a href="https://wa.me/525562491653" target="_blank" class="btn-ws"><i class="fab fa-whatsapp"></i> Envíanos un WhatsApp </a>       
-    </section>
-
-    <section class="services-grid">
-        <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Reparación de PS5, Xbox y Switch.</p></div>
-        <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Reparación de placas base a nivel componente.</p></div>
-        <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico de laptops y alto rendimiento.</p></div>
-    </section>
-
-    <section class="map-section">
-        <h2>Ubicación</h2>
-        <p>Av. México 1322, Colonia La Guadalupe, Magdalena Contreras, CDMX</p>
-        <div class="map-container">
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.034!2d-99.2343!3d19.3088!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cdffa04bfd0649%3A0x8975167e761de710!2sZona%20Digital!5e0!3m2!1ses-419!2smx!4v1711370000000!5m2!1ses-419!2smx" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
-        </div>
-    </section>
-
-    <footer>
-        <div class="social-links">
-            <a href="https://www.facebook.com/ZonaDigital106" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.tiktok.com/@zd1322" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
-        </div>
-        <div class="copyright">
-            © 2026 Zona Digital. Todos los derechos reservados.
-        </div>
-    </footer>
-
-    <script>
-        const menuBtn = document.getElementById('menuBtn');
-        const navMenu = document.getElementById('navMenu');
-
-        menuBtn.addEventListener('click', () => {
-            const isOpen = menuBtn.classList.toggle('open');
-            navMenu.classList.toggle('open');
-            document.body.style.overflow = isOpen ? 'hidden' : 'auto';
-        });
-
-        const navLinks = document.querySelectorAll('nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if(window.innerWidth <= 992) {
-                    menuBtn.classList.remove('open');
-                    navMenu.classList.remove('open');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+      "@context": "https://schema.org",
+      "@type": "ElectronicsRepairShop",
+      "name": "Zona Digital",
+      "url": "https://zdigital.mx",
+      "telephone": "+525562491653",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. México 1322, Colonia La Guadalupe",
+        "addressLocality": "La Magdalena Contreras",
+        "address
