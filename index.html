@@ -136,8 +136,52 @@
         .btn-ws:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
 
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 60px 5%; }
-        .card { background: var(--secondary); padding: 2.5rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; }
+        
+/* Estilo de la Tarjeta */
+.card {
+    background: #1a2537; /* Color oscuro de fondo */
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+/* Resalte de los Títulos */
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;         /* Muy negrita */
+    color: #ffffff;
+    margin: 20px 0;
+    text-transform: uppercase; /* Mayúsculas para más impacto */
+    letter-spacing: 2px;      /* Espaciado entre letras pro */
+    border-bottom: 2px solid #3498db; /* Línea decorativa bajo el título */
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Texto Justificado y Estético */
+.card-text {
+    font-size: 0.95rem;
+    line-height: 1.6;         /* Mayor espacio entre líneas para lectura fácil */
+    color: #d1d8e0;
+    text-align: justify;      /* Justificado */
+    hyphens: auto;            /* Corta palabras si es necesario (opcional) */
+    margin-top: 15px;
+}
+
+/* Efecto al pasar el mouse */
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid #3498db;
+}
+
+/* Estilo de los Iconos */
+.card i {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 10px;
+}
 
         .map-section { padding: 60px 5%; text-align: center; }
         .map-container { border-radius: 1rem; overflow: hidden; border: 1px solid var(--secondary); max-width: 1000px; margin: 20px auto; height: 400px; }
@@ -249,24 +293,24 @@
         </section>
 
         <section class="services-grid">
-            <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Especialistas en Reparación de Hardware de Nueva Generación
+            <div class="card"><i class="fas fa-gamepad"></i><h3 class="card-title">Consolas</h3><p class="card-text>Especialistas en Reparación de Hardware de Nueva Generación
 No solo sustituimos piezas; diagnosticamos fallos críticos en sistemas PS5, Xbox Series X/S y Nintendo Switch. Desde problemas de sobrecalentamiento y conectores HDMI dañados, hasta fallas complejas en la lectura de datos. Devolvemos tu consola a sus especificaciones de fábrica con refacciones de alta calidad.</p></div>
-            <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Intervención Electrónica a Nivel Componente
+            <div class="card"><i class="fas fa-microchip"></i><h3 class="card-title">Micro-soldadura</h3><p class="card-text>Intervención Electrónica a Nivel Componente
 Recuperamos hardware que otros dan por perdido. Realizamos reparaciones de alta precisión en placas base, incluyendo reballing, reconstrucción de pistas, sustitución de integrados (IC) y corrección de cortocircuitos. Aplicamos técnicas avanzadas bajo microscopio para garantizar la integridad de los circuitos impresos más complejos.</p></div>
-            <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico Avanzado y Optimización de Alto Rendimiento
+            <div class="card"><i class="fas fa-laptop-code"></i><h3 class="card-title">Cómputo</h3><p class="card-text>Diagnóstico Avanzado y Optimización de Alto Rendimiento
 Servicio técnico especializado para laptops, estaciones de trabajo y equipos de alto desempeño (Gaming/Engineering). Nos enfocamos en la resolución de problemas de encendido, fallas en etapas de potencia y optimización de hardware para maximizar la eficiencia operativa. Análisis exhaustivo para asegurar un rendimiento estable y prolongar la vida útil de tu equipo.</p></div>    
-            <div class="card"><i class="fas fa-tools"></i><h3>Mantenimiento Preventivo y Térmico</h3><p>Optimización de Flujo Térmico y Limpieza Ultrasónica
+            <div class="card"><i class="fas fa-tools"></i><h3 class="card-title">Mantenimiento Preventivo y Térmico</h3><p class="card-text>Optimización de Flujo Térmico y Limpieza Ultrasónica
 Prolongamos la vida útil de tus equipos mediante procesos de limpieza profunda. Utilizamos tina ultrasónica con alcohol isopropílico para eliminar corrosión y residuos en placas críticas. Especialistas en la aplicación de metal líquido y pastas térmicas de alta conductividad en consolas y computadoras de alto rendimiento, reduciendo drásticamente las temperaturas de operación y evitando el estrangulamiento térmico (thermal throttling).</p></div>
         <div class="card">
     <i class="fas fa-gamepad"></i>
-    <h3>Controles y Periféricos</h3>
-    <p>Solución Especializada a Fallas de Precisión
+    <h3 class="card-title">Controles y Periféricos</h3>
+    <p class="card-text>Solución Especializada a Fallas de Precisión
     Corregimos problemas de <strong>drift</strong> en joysticks mediante el reemplazo de potenciómetros o instalación de sensores de efecto Hall para una mayor durabilidad. Reparamos botones gomosos, gatillos adaptativos (DualSense) y puertos de carga en controles de PS5, Xbox y Switch Pro. Calibramos cada mando para asegurar una respuesta exacta en el eje de movimiento.</p>
 </div>
             <div class="card">
     <i class="fas fa-shield-alt"></i>
-    <h3>Garantía y Respaldo</h3>
-    <p>Compromiso de Calidad en cada Intervención
+    <h3 class="card-title">Garantía y Respaldo</h3>
+    <p class="card-text>Compromiso de Calidad en cada Intervención
     Todas nuestras reparaciones a nivel componente cuentan con una garantía por escrito que respalda la mano de obra y las refacciones instaladas. Realizamos pruebas de estrés y control de calidad antes de la entrega para asegurar que el equipo opere de forma estable bajo carga. Tu inversión está protegida por un diagnóstico honesto y un servicio técnico transparente.</p>
 </div>
         </section>
