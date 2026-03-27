@@ -7,7 +7,7 @@
     <meta name="description" content="Expertos en reparación de consolas (PS5, Xbox Series, Nintendo Switch, Xbox One) y computadoras gamer/oficina. Especialistas en micro-soldadura, reballing y diagnóstico electrónico en La Magdalena Contreras, CDMX. ¡Soluciones rápidas y garantizadas!">
     <meta name="keywords" content="reparación de consolas, técnico de computadoras, reparación de laptops, mantenimiento pc gamer, reparación de controles, PS5, PS4, Xbox Series X, Xbox Series S, Nintendo Switch, OLED, Joy-Con drift, microelectrónica, micro soldadura, reballing, cambio de pasta térmica, cambio de metal liquido, limpieza de consolas, puerto HDMI, puerto de carga, reparación de tarjetas madre, laptop lenta, cambio de pantalla, teclado macbook, PC de escritorio, La Magdalena Contreras, CDMX, Zona Digital, mantenimiento preventivo, diagnóstico electrónico, reparación de fuentes de poder, drift en joystick, dualsense, dualshock">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-   <style>
+    <style>
         :root {
             --primary: #38bdf8;
             --secondary: #1e293b;
@@ -17,6 +17,7 @@
             --header-height: 70px;
         }
 
+        /* Reset y Base */
         * { box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
@@ -24,9 +25,10 @@
             color: var(--text); 
             margin: 0; 
             line-height: 1.6; 
+            overflow-x: hidden;
         }
 
-        /* --- HEADER & NAV --- */
+       /* --- TOP BAR (RESTAURADA) --- */
         .top-bar { 
             background: #020617; 
             padding: 8px 5%; 
@@ -36,8 +38,13 @@
             border-bottom: 1px solid var(--secondary);
             color: #94a3b8;
         }
+        .top-bar .contact-info { display: flex; gap: 20px; }
+        .top-bar i { color: var(--primary); margin-right: 6px; }
+
+        /* Header */
         header { 
-            position: sticky; top: 0; 
+            position: sticky; 
+            top: 0; 
             background: #0f172a; 
             padding: 0 5%; 
             display: flex; 
@@ -47,76 +54,99 @@
             z-index: 2000; 
             height: var(--header-height);
         }
-        .logo { display: flex; align-items: center; gap: 12px; font-weight: bold; color: var(--text); text-transform: uppercase; text-decoration: none; }
-        .logo img { height: 40px; }
-        nav { display: flex; gap: 25px; }
-        nav a { color: var(--text); text-decoration: none; font-weight: 500; transition: 0.3s; }
-        nav a:hover { color: var(--primary); }
 
-        /* --- HERO --- */
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            color: var(--text); 
+            text-transform: uppercase; 
+            text-decoration: none; 
+        }
+        .logo img { height: 40px; }
+        
+        /* Menu Button */
+        .menu-btn { 
+            width: 25px; 
+            height: 18px; 
+            display: none; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            cursor: pointer; 
+            z-index: 2100;
+        }
+        .menu-btn span { display: block; height: 2px; width: 100%; background-color: var(--text); transition: 0.3s; }
+        .menu-btn.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* Navigation */
+        nav { display: flex; gap: 25px; align-items: center; }
+        nav a { color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
+        nav a:hover { color: var(--primary); }
+        .nav-socials { display: none; gap: 20px; padding-top: 30px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .nav-socials a { font-size: 1.5rem; border: none; padding: 0; }
+        .nav-socials a::after { display: none; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 992px) {
+            .top-bar { display: none; }
+            .menu-btn { display: flex; }
+            
+            nav {
+                position: fixed; 
+                top: var(--header-height); 
+                right: -100%; 
+                width: 100%; 
+                height: calc(100vh - var(--header-height)); 
+                background: #0f172a;
+                flex-direction: column; 
+                justify-content: flex-start; 
+                align-items: flex-start;
+                padding: 30px 10%;
+                transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1900;
+                overflow-y: auto;
+            }
+
+            nav.open { right: 0; }
+
+            nav a { 
+                width: 100%;
+                padding: 18px 0;
+                font-size: 1.1rem; 
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            nav a::after { content: '+'; color: #444; font-size: 1.2rem; }
+            .nav-socials { display: flex; }
+        }
+
+        /* Secciones de Contenido */
         .hero { padding: 80px 5%; text-align: center; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
         .hero h1 { font-size: 2.8rem; margin-bottom: 0.5rem; }
-        #system-spec { margin-bottom: 2rem; color: var(--primary); }
-
-        /* --- GRID DE SERVICIOS (CORREGIDO) --- */
-        .services-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; 
-            padding: 60px 5%; 
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        #system-spec { margin-bottom: 2rem; color: var(--primary); font-size: 1.1rem; }
+        #system-spec strong { color: #fff; border-bottom: 1px solid var(--primary); }
         
-        .card {
-            background: #1a2537;
-            padding: 40px 30px;
-            border-radius: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .btn-ws:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
 
-        .card i {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 60px 5%; }
+        .card { background: var(--secondary); padding: 2.5rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; }
 
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-bottom: 3px solid var(--primary);
-            padding-bottom: 8px;
-            display: inline-block;
-        }
-
-        .card-text {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: #cbd5e1;
-            text-align: justify;
-            margin: 0;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-color: var(--primary);
-        }
-
-        /* --- MAPA --- */
         .map-section { padding: 60px 5%; text-align: center; }
         .map-container { border-radius: 1rem; overflow: hidden; border: 1px solid var(--secondary); max-width: 1000px; margin: 20px auto; height: 400px; }
-        
-        footer { text-align: center; padding: 40px; background: #020617; color: #94a3b8; }
+        .map-container iframe { width: 100%; height: 100%; border: 0; }
+
+        footer { text-align: center; padding: 50px 5%; color: #94a3b8; border-top: 1px solid var(--secondary); background: #020617; }
+        .social-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
+        .social-links a { color: var(--text); font-size: 1.5rem; transition: 0.3s; }
+        .social-links a:hover { color: var(--primary); }
     </style>
 <script type="application/ld+json">
 {
@@ -219,41 +249,26 @@
         </section>
 
         <section class="services-grid">
+            <div class="card"><i class="fas fa-gamepad"></i><h3>Consolas</h3><p>Especialistas en Reparación de Hardware de Nueva Generación
+No solo sustituimos piezas; diagnosticamos fallos críticos en sistemas PS5, Xbox Series X/S y Nintendo Switch. Desde problemas de sobrecalentamiento y conectores HDMI dañados, hasta fallas complejas en la lectura de datos. Devolvemos tu consola a sus especificaciones de fábrica con refacciones de alta calidad.</p></div>
+            <div class="card"><i class="fas fa-microchip"></i><h3>Micro-soldadura</h3><p>Intervención Electrónica a Nivel Componente
+Recuperamos hardware que otros dan por perdido. Realizamos reparaciones de alta precisión en placas base, incluyendo reballing, reconstrucción de pistas, sustitución de integrados (IC) y corrección de cortocircuitos. Aplicamos técnicas avanzadas bajo microscopio para garantizar la integridad de los circuitos impresos más complejos.</p></div>
+            <div class="card"><i class="fas fa-laptop-code"></i><h3>Cómputo</h3><p>Diagnóstico Avanzado y Optimización de Alto Rendimiento
+Servicio técnico especializado para laptops, estaciones de trabajo y equipos de alto desempeño (Gaming/Engineering). Nos enfocamos en la resolución de problemas de encendido, fallas en etapas de potencia y optimización de hardware para maximizar la eficiencia operativa. Análisis exhaustivo para asegurar un rendimiento estable y prolongar la vida útil de tu equipo.</p></div>    
+            <div class="card"><i class="fas fa-tools"></i><h3>Mantenimiento Preventivo y Térmico</h3><p>Optimización de Flujo Térmico y Limpieza Ultrasónica
+Prolongamos la vida útil de tus equipos mediante procesos de limpieza profunda. Utilizamos tina ultrasónica con alcohol isopropílico para eliminar corrosión y residuos en placas críticas. Especialistas en la aplicación de metal líquido y pastas térmicas de alta conductividad en consolas y computadoras de alto rendimiento, reduciendo drásticamente las temperaturas de operación y evitando el estrangulamiento térmico (thermal throttling).</p></div>
+        <div class="card">
+    <i class="fas fa-gamepad"></i>
+    <h3>Controles y Periféricos</h3>
+    <p>Solución Especializada a Fallas de Precisión
+    Corregimos problemas de <strong>drift</strong> en joysticks mediante el reemplazo de potenciómetros o instalación de sensores de efecto Hall para una mayor durabilidad. Reparamos botones gomosos, gatillos adaptativos (DualSense) y puertos de carga en controles de PS5, Xbox y Switch Pro. Calibramos cada mando para asegurar una respuesta exacta en el eje de movimiento.</p>
+</div>
             <div class="card">
-                <i class="fas fa-gamepad"></i>
-                <h3 class="card-title">Consolas</h3>
-                <p class="card-text">Especialistas en Reparación de Hardware de Nueva Generación. No solo sustituimos piezas; diagnosticamos fallos críticos en sistemas PS5, Xbox Series X/S y Nintendo Switch. Desde problemas de sobrecalentamiento y conectores HDMI dañados, hasta fallas complejas en la lectura de datos. Devolvemos tu consola a sus especificaciones de fábrica.</p>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-microchip"></i>
-                <h3 class="card-title">Micro-soldadura</h3>
-                <p class="card-text">Intervención Electrónica a Nivel Componente. Recuperamos hardware que otros dan por perdido. Realizamos reparaciones de alta precisión en placas base, incluyendo reballing, reconstrucción de pistas, sustitución de integrados (IC) y corrección de cortocircuitos bajo microscopio de alta resolución.</p>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-laptop-code"></i>
-                <h3 class="card-title">Cómputo</h3>
-                <p class="card-text">Diagnóstico Avanzado y Optimización de Alto Rendimiento. Servicio técnico especializado para laptops y estaciones de trabajo Gaming/Engineering. Nos enfocamos en la resolución de problemas de encendido, fallas en etapas de potencia y optimización de hardware para maximizar la eficiencia operativa.</p>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-tools"></i>
-                <h3 class="card-title">Mantenimiento</h3>
-                <p class="card-text">Optimización de Flujo Térmico y Limpieza Ultrasónica. Utilizamos tina ultrasónica con alcohol isopropílico para eliminar corrosión. Especialistas en aplicación de metal líquido y pastas térmicas de alta conductividad, reduciendo drásticamente las temperaturas de operación y evitando el thermal throttling.</p>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-gamepad"></i>
-                <h3 class="card-title">Controles</h3>
-                <p class="card-text">Solución Especializada a Fallas de Precisión. Corregimos problemas de drift en joysticks mediante el reemplazo de potenciómetros o sensores de efecto Hall. Reparamos botones, gatillos adaptativos y puertos de carga en controles de PS5, Xbox y Switch Pro con calibración exacta.</p>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-shield-alt"></i>
-                <h3 class="card-title">Garantía</h3>
-                <p class="card-text">Compromiso de Calidad en cada Intervención. Todas nuestras reparaciones cuentan con una garantía por escrito que respalda la mano de obra y refacciones. Realizamos pruebas de estrés antes de la entrega para asegurar que el equipo opere de forma estable bajo carga de trabajo real.</p>
-            </div>
+    <i class="fas fa-shield-alt"></i>
+    <h3>Garantía y Respaldo</h3>
+    <p>Compromiso de Calidad en cada Intervención
+    Todas nuestras reparaciones a nivel componente cuentan con una garantía por escrito que respalda la mano de obra y las refacciones instaladas. Realizamos pruebas de estrés y control de calidad antes de la entrega para asegurar que el equipo opere de forma estable bajo carga. Tu inversión está protegida por un diagnóstico honesto y un servicio técnico transparente.</p>
+</div>
         </section>
 
         <section class="map-section">
