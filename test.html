@@ -141,3 +141,151 @@
     </style>
 
     <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Zona Digital",
+      "image": "https://zdigital.mx/img/logo_zd.png",
+      "@id": "https://zdigital.mx",
+      "url": "https://zdigital.mx",
+      "telephone": "+525562491653",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Avenida México 1322, La Guadalupe",
+        "addressLocality": "La Magdalena Contreras",
+        "addressRegion": "CDMX",
+        "postalCode": "10820",
+        "addressCountry": "MX"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 19.31464,
+        "longitude": -99.22728
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Servicios de Reparación",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Reparación de Consolas PS5/Xbox" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Micro-soldadura Avanzada" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Reparación de Laptops y PC Gamer" } }
+        ]
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "19:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:00", "closes": "16:00" }
+      ]
+    }
+    </script>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div>
+            <span style="margin-right: 20px;"><i class="fas fa-phone"></i> 55 6249 1653</span>
+            <span><i class="fas fa-envelope"></i> contacto@zdigital.mx</span>
+        </div>
+        <div><i class="fas fa-clock"></i> Lun - Vie: 9am-7pm | Sáb: 10am-4pm</div>
+    </div>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/logo_zd.png" alt="Logo Zona Digital">
+            <span>Zona Digital</span>
+        </a>
+        <div class="menu-btn" id="menuBtn"><span></span><span></span><span></span></div>
+        <nav id="navMenu">
+            <a href="index.html">Inicio</a>
+            <a href="servicios.html">Servicios</a>
+            <a href="nosotros.html">Quiénes somos</a>
+            <a href="pregfrec.html">FAQ</a>
+            <a href="contacto.html">Contacto</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Ingeniería en Microelectrónica</h1>
+            <div id="system-spec">Analizando hardware...</div>
+            <p>Especialistas en reballing, micro-soldadura y mantenimiento de alto rendimiento en CDMX.</p>
+            <br>
+            <a href="https://wa.me/525562491653" target="_blank" class="btn-ws">
+                <i class="fab fa-whatsapp"></i> Cotizar por WhatsApp
+            </a>        
+        </section>
+
+        <section class="services-grid">
+            <div class="card">
+                <i class="fas fa-gamepad"></i>
+                <h2>Consolas de Videojuegos</h2>
+                <p>Reparación de PS5, Xbox Series y Switch. Especialistas en puertos HDMI, cambio de metal líquido y solución a errores de sistema.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-microchip"></i>
+                <h2>Micro-soldadura</h2>
+                <p>Reparación de placas base a nivel componente. Recuperamos equipos mojados o con cortos circuitos complejos mediante diagnóstico osciloscópico.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-laptop-code"></i>
+                <h2>Laptops & PC Gamer</h2>
+                <p>Mantenimiento preventivo avanzado, reballing de GPU, aumento de memoria y optimización de software profesional.</p>
+            </div>
+        </section>
+
+        <section class="map-section">
+            <h2>Ubicación del Laboratorio</h2>
+            <p>Av. México 1322, Colonia La Guadalupe, Magdalena Contreras, Ciudad de México.</p>
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m13!1m12!1m3!1d3765.111811657065!2d-99.22946868509506!3d19.31464008695123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1fffba3c00001%3A0x64e8e1957c5e2d6b!2sAv.%20M%C3%A9xico%201322%2C%20La%20Guadalupe%2C%20La%20Magdalena%20Contreras%2C%2010820%20Ciudad%20de%20M%C3%A9xico%2C%20CDMX!5e0!3m2!1ses-419!2smx!4v1700000000000!5m2!1ses-419!2smx" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://www.facebook.com/ZonaDigital106" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.tiktok.com/@zd1322" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <div class="copyright">© 2026 Zona Digital | Calidad técnica garantizada en cada reparación.</div>
+    </footer>
+
+    <script>
+        // Detección de hardware inteligente
+        function updateSystemSpecs() {
+            const ua = navigator.userAgent;
+            const target = document.getElementById('system-spec');
+            if(!target) return;
+
+            let os = "tu sistema", equipo = "dispositivo", sugerencia = "reparaciones expertas";
+
+            if (ua.includes("Windows")) { os = "Windows"; equipo = "PC Gamer"; sugerencia = "optimización y reballing"; }
+            else if (ua.includes("Mac OS")) { os = "macOS"; equipo = "MacBook"; sugerencia = "micro-soldadura de placa"; }
+            else if (ua.includes("Android")) { os = "Android"; equipo = "móvil"; sugerencia = "reparación electrónica"; }
+            else if (ua.includes("iPhone") || ua.includes("iPad")) { os = "iOS"; equipo = "dispositivo Apple"; sugerencia = "diagnóstico avanzado"; }
+            else if (ua.includes("PlayStation")) { os = "PS5/PS4"; equipo = "Consola"; sugerencia = "limpieza de metal líquido"; }
+            else if (ua.includes("Xbox")) { os = "Xbox"; equipo = "Consola"; sugerencia = "cambio de puerto HDMI"; }
+
+            target.innerHTML = `Detectamos <strong>${os}</strong> en tu <strong>${equipo}</strong>. Somos expertos en <strong>${sugerencia}</strong>.`;
+        }
+        window.addEventListener('load', updateSystemSpecs);
+
+        // Lógica de Menú Mobile
+        const menuBtn = document.getElementById('menuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+        });
+
+        // Cerrar menú al hacer click en enlaces
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('open');
+                menuBtn.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+</html>
