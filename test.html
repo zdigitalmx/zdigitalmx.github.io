@@ -92,6 +92,10 @@
 
         /* Mobile Adjustments */
         @media (max-width: 992px) {
+            .card {
+        flex: 1 1 100%;
+        min-width: unset;
+    }
             .top-bar { display: none; }
             .menu-btn { display: flex; }
             
@@ -134,8 +138,10 @@
         
         .btn-ws { display: inline-block; background: var(--accent); color: white; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.3s; }
         .btn-ws:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
-
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 60px 5%; }
+/*
+        .services-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; padding: 60px 5%; }
         
         .card { 
             background: var(--secondary); 
@@ -144,29 +150,69 @@
             border: 1px solid #334155;
             text-align: justify;
                 }
-        /* Resalte de los Títulos */
-.card-title {
+    
+   .card-title {
     font-size: 1.4rem;
-    font-weight: 700;         /* Muy negrita */
+    font-weight: 700;         
     color: #ffffff;
     margin: 20px 0;
-    text-transform: uppercase; /* Mayúsculas para más impacto */
-    letter-spacing: 2px;      /* Espaciado entre letras pro */
-    border-bottom: 2px solid #3498db; /* Línea decorativa bajo el título */
+    text-transform: uppercase; 
+    letter-spacing: 2px;      
+    border-bottom: 2px solid #3498db; 
     display: block;
     padding-bottom: 5px;
     width: fit-content;
 }
 
-/* Texto Justificado y Estético */
+
 .card-text {
     font-size: 0.95rem;
-    line-height: 1.6;         /* Mayor espacio entre líneas para lectura fácil */
+    line-height: 1.6;         
     color: #d1d8e0;
-    text-align: justify;      /* Justificado */
-    hyphens: auto;            /* Corta palabras si es necesario (opcional) */
+    text-align: justify;     
+    hyphens: auto;           
     margin-top: 15px;
 }
+        
+
+   */     
+.services-grid { 
+    display: flex;         /* Cambiamos Grid por Flex para mejor control de filas */
+    flex-wrap: wrap;      /* Permite que las tarjetas salten de línea */
+    gap: 25px; 
+    padding: 60px 5%; 
+    justify-content: center; /* Centra las tarjetas si hay espacios sobrantes */
+}
+
+/* Ajuste de las tarjetas */
+.card { 
+    background: var(--secondary); 
+    padding: 2.5rem; 
+    border-radius: 1rem; 
+    border: 1px solid #334155;
+    text-align: justify;
+    transition: all 0.3s ease;
+    
+    /* EL SECRETO: En PC intentará ocupar el 33% (3 columnas) */
+    /* El cálculo resta el gap para que quepan exactamente 3 */
+    flex: 1 1 calc(33.333% - 25px); 
+    min-width: 300px; /* Si la pantalla se achica, saltarán de fila */
+    max-width: 450px; /* Evita que una sola tarjeta se estire demasiado */
+}
+
+/* Resalte de los Títulos (Optimizado) */
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block; /* Para que la línea solo ocupe el texto */
+    padding-bottom: 5px;
+}
+        
         /* Efecto al pasar el mouse */
         .card:hover {
             transform: translateY(-10px);
