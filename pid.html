@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrumentación Virtual - Lazo Cerrado PID & Motor DC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        /* Contenedor principal tipo panel de LabVIEW */
+        .panel-frontal {
+            display: flex;
+            gap: 20px;
+            background-color: #e0e0e0;
+            border: 2px solid #999;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .columna-controles {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        fieldset {
+            border: 1px solid #999;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        legend {
+            font-weight: bold;
+            padding: 0 5px;
+        }
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+        }
+        .grid-inputs input {
+            width: 80px;
+            padding: 3px;
+            text-align: right;
+        }
+        /* Configuración del Slider de Setpoint (Vertical) */
+        .columna-setpoint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            border: 1px solid #999;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .slider-vertical {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            vertical-align: middle;
+            height: 300px;
+            width: 30px;
+            cursor: pointer;
+        }
+        .columna-grafica {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #999;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+        .btn-detener {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background-color: #f4f4f4;
+            color: red;
+            font-weight: bold;
+            border: 2px solid #999;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-detener:active {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Control en Lazo Cerrado - PID & Motor DC (Web VI)</h2>
+
+    <div class="panel-frontal">
+        
+        <div class="columna-controles">
+            <fieldset>
+                <legend>Parámetros del Controlador PID</legend>
+                <div class="grid-inputs">
+                    <label>Kc:</label><input type="number" id="kc" value="0.5" step="0.1">
+                    <label>Ti:</label><input type="number" id="ti" value="0.02" step="0.01">
+                    <label>Td:</label><input type="number" id="td" value="0.0001" step="0.0001">
+                    <label>Ts (s):</label><input type="number" id="ts" value="0.01" step="0.01" onchange="reiniciarTemporizador()">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Parámetros del Motor DC</legend>
+                <div class="grid-inputs">
+                    <label>Ra (ohm):</label><input type="number" id="ra" value="1.0" step="0.1">
+                    <label>La (H):</label><input type="number" id="la" value="0.002" step="0.001">
+                    <label>K (Nm/A):</label><input type="number" id="k_motor" value="0.5" step="0.1">
+                    <label>J (kg·m²):</label><input type="number" id="j" value="0.001" step="0.001">
+                    <label>B (N·m·s):</label><input type="number" id="b" value="0.005" step="0.001">
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="columna-setpoint">
+            <label style="font-weight: bold; font-size: 12px; margin-bottom: 10px;">Setpoint</label>
+            <input type="range" id="setpoint" class="slider-vertical" min="-10" max="10" value="6" step="1" oninput="actualizarSpLabel()">
+            <span id="sp_val" style="margin-top: 10px; font-weight: bold;">6.0</span>
+        </div>
+
+        <div class="columna-grafica">
+            <canvas id="chartSenales"></canvas>
+            <button class="btn-detener" onclick="detenerSimulacion()">DETENER SIMULACIÓN</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Variables de Estado (Shift Registers de LabVIEW) ---
+        let I1 = 0.0;
+        let e1 = 0.0;
+        let w1 = 0.0;
+        let w2 = 0.0;
+
+        let timeCounter = 0;
+        let maxPoints = 200;
+        let bcleInterval = null;
+
+        // Arreglos para almacenar el histórico del Waveform Chart
+        let labels = [];
+        let dataSetpoint = [];
+        let dataW = [];
+        let dataU = [];
+
+        // --- Configuración Inicial de Chart.js ---
+        const ctx = document.getElementById('chartSenales').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Voltaje de entrada (Setpoint)', data: dataSetpoint, borderColor: '#AAAAAA', borderWidth: 1.5, fill: false, pointRadius: 0 },
+                    { label: 'Velocidad angular (w)', data: dataW, borderColor: '#FF0000', borderWidth: 1.5, fill: false, pointRadius: 0 },
+                    { label: 'Esfuerzo del Controlador (u)', data: dataU, borderColor: '#00FF00', borderWidth: 1.5, fill: false, pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // Desactivar animaciones para máximo rendimiento en tiempo real
+                scales: {
+                    x: { title: { display: true, text: 'Muestras (k)' } },
+                    y: { title: { display: true, text: 'Amplitud' } }
+                }
+            }
+        });
+
+        function actualizarSpLabel() {
+            document.getElementById('sp_val').innerText = parseFloat(document.getElementById('setpoint').value).toFixed(1);
+        }
+
+        // --- El Bucle de Ejecución Semántico (While Loop) ---
+        function loopEjecucion() {
+            // Lectura de los controles numéricos de la interfaz web
+            const setpoint = parseFloat(document.getElementById('setpoint').value);
+            const kc = parseFloat(document.getElementById('kc').value);
+            const ti = parseFloat(document.getElementById('ti').value);
+            const td = parseFloat(document.getElementById('td').value);
+            const ts = parseFloat(document.getElementById('ts').value);
+
+            const ra = parseFloat(document.getElementById('ra').value);
+            const la = parseFloat(document.getElementById('la').value);
+            const k = parseFloat(document.getElementById('k_motor').value);
+            const j = parseFloat(document.getElementById('j').value);
+            const b = parseFloat(document.getElementById('b').value);
+
+            // Cálculo del error del lazo cerrado
+            let e = setpoint - w1;
+
+            // === 1. NODO DE FÓRMULA: CONTROLADOR PID ===
+            let P = kc * e;
+            let I = ti !== 0 ? I1 + (1 / ti) * ts * e : 0.0;
+            let D = ts !== 0 ? td * ((e - e1) / ts) : 0.0;
+            let u = P + I + D;
+
+            // === 2. NODO DE FÓRMULA: PLANTA (MOTOR DC) ===
+            let D_motor = (ra * j * ts) + (ra * b * ts * ts) + (la * j) + (la * b * ts) + (k * k * ts * ts);
+            let w = 0.0;
+
+            if (D_motor !== 0) {
+                let Ter1 = (k * ts * ts / D_motor) * u;
+                let Ter2 = ((ra * j * ts + 2 * la * j + la * b * ts) / D_motor) * w1;
+                let Ter3 = ((la * j) / D_motor) * w2;
+                w = Ter1 + Ter2 - Ter3;
+            }
+
+            // === 3. BUFFER DINÁMICO DEL CHART ===
+            labels.push(timeCounter);
+            dataSetpoint.push(setpoint);
+            dataW.push(w);
+            dataU.push(u);
+            timeCounter++;
+
+            if (labels.length > maxPoints) {
+                labels.shift(); // Equivalente a pop(0) en Python
+                dataSetpoint.shift();
+                dataW.shift();
+                dataU.shift();
+            }
+
+            // Refrescar el lienzo del gráfico en el navegador
+            chart.update();
+
+            // === 4. TRANSFERENCIA A SHIFT REGISTERS PARA LA PRÓXIMA ITERACIÓN ===
+            I1 = I;
+            e1 = e;
+            w2 = w1;
+            w1 = w;
+        }
+
+        // --- Control de Tiempos del Sistema ---
+        function arrancarBucle() {
+            const ts = parseFloat(document.getElementById('ts').value);
+            const ms = Math.max(10, parseInt(ts * 1000)); // Límite mínimo seguro de 10ms en navegadores
+            bcleInterval = setInterval(loopEjecucion, ms);
+        }
+
+        function reiniciarTemporizador() {
+            clearInterval(bcleInterval);
+            arrancarBucle();
+        }
+
+        function detenerSimulacion() {
+            clearInterval(bcleInterval);
+        }
+
+        // Inicialización al cargar la página
+        arrancarBucle();
+    </script>
+</body>
+</html>
