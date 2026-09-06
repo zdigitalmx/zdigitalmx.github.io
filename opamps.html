@@ -5,329 +5,380 @@
   <title>Simulador de Amplificadores Operacionales</title>
   <style>
     :root {
-      --bg-dark: #121418;
-      --panel-bg: #1c2026;
-      --border-color: #2e3440;
-      --accent: #00e5ff;
-      --ch1-color: #ffcc00;
-      --ch2-color: #00e5ff;
-      --text: #d8dee9;
+      --bg-main: #1e1e24;
+      --bg-panel: #2b2d42;
+      --bg-card: #181920;
+      --accent: #00adb5;
+      --text: #edf2f4;
+      --ch1-color: #00ff66;
+      --ch2-color: #ffea00;
+      --border: #3d405b;
     }
-    body {
-      margin: 0;
-      padding: 20px;
-      background-color: var(--bg-dark);
-      color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-    .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    #controls {
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    h2, h3 {
-      margin: 0 0 10px 0;
-      color: #88c0d0;
-      font-size: 1.1rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-    .group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    label {
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      color: #eceff4;
-    }
-    input, select {
-      background: #2e3440;
-      border: 1px solid #4c566a;
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    input[type="range"] {
-      padding: 0;
-      accent-color: var(--accent);
-    }
-    #screen-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    canvas {
-      background-color: #050b0e;
-      border: 2px solid #3b4252;
-      border-radius: 6px;
-    }
-    .legend {
-      display: flex;
-      gap: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .badge {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      margin-right: 6px;
-      vertical-align: middle;
-      border-radius: 2px;
-    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    header { background-color: var(--bg-card); padding: 10px 20px; border-bottom: 2px solid var(--border); font-size: 1.1rem; font-weight: bold; }
+
+    .main-container { display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 1fr 1fr; gap: 10px; padding: 10px; flex: 1; height: calc(100vh - 45px); }
+
+    .panel { background-color: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .panel-header { background-color: var(--bg-card); padding: 6px 12px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .panel-body { padding: 10px; flex: 1; overflow-y: auto; }
+
+    /* Selector Lateral */
+    .system-list { display: flex; flex-direction: column; gap: 8px; grid-row: 1 / 3; }
+    .system-btn { background-color: var(--bg-card); border: 2px solid var(--border); border-radius: 4px; padding: 10px; color: var(--text); cursor: pointer; text-align: left; transition: all 0.2s; }
+    .system-btn:hover { border-color: var(--accent); }
+    .system-btn.active { border-color: var(--accent); background-color: #1a3c40; font-weight: bold; }
+
+    /* Esquemático y Parámetros */
+    .top-right { display: grid; grid-template-columns: 1fr 280px; gap: 10px; }
+    .schematic-box { background-color: var(--bg-card); border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; }
+    svg { width: 100%; height: 100%; max-height: 280px; }
+
+    /* Controles de Formulario */
+    .control-group { margin-bottom: 10px; }
+    .control-group label { display: block; font-size: 0.75rem; margin-bottom: 3px; color: #a0aab2; }
+    .control-group input, .control-group select { width: 100%; background: var(--bg-card); border: 1px solid var(--border); color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; }
+
+    /* Zona Inferior: Generador y Osciloscopio */
+    .bottom-right { display: grid; grid-template-columns: 280px 1fr; gap: 10px; }
+    .scope-box { background: #000; border-radius: 4px; position: relative; display: flex; justify-content: center; align-items: center; }
+    canvas { background-color: #050b05; width: 100%; height: 100%; display: block; }
+    .legend { position: absolute; top: 8px; left: 12px; display: flex; gap: 15px; font-size: 0.75rem; font-family: monospace; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <div class="panel" id="controls">
-    <h2>Configuración</h2>
-    <div class="group">
-      <label for="topology">Circuito (Topología):</label>
-      <select id="topology">
-        <option value="1">Sistema 1: Integrador Inversor</option>
-        <option value="2">Sistema 2: No Inversor</option>
-        <option value="3">Sistema 3: Diferenciador Inversor</option>
-        <option value="4" selected>Sistema 4: Inversor</option>
-      </select>
+  <header>SIMULADOR DE AMPLIFICADORES OPERACIONALES</header>
+
+  <div class="main-container">
+    <div class="panel system-list">
+      <div class="panel-header">Sistemas Disponibles</div>
+      <div class="panel-body" style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="system-btn active" onclick="setSystem(1)">1. Integrador Inversor</button>
+        <button class="system-btn" onclick="setSystem(2)">2. Derivador</button>
+        <button class="system-btn" onclick="setSystem(3)">3. Inversor Escalar</button>
+        <button class="system-btn" onclick="setSystem(4)">4. No Inversor</button>
+      </div>
     </div>
 
-    <h3>Generador (XFG1)</h3>
-    <div class="group">
-      <label for="waveform">Forma de Onda:</label>
-      <select id="waveform">
-        <option value="sine">Senoidal</option>
-        <option value="square">Cuadrada</option>
-        <option value="triangle">Triangular</option>
-      </select>
-    </div>
-    <div class="group">
-      <label>Amplitud (Vp): <span id="val-amp">2.0 V</span></label>
-      <input type="range" id="amp" min="0.1" max="10" step="0.1" value="2">
-    </div>
-    <div class="group">
-      <label>Frecuencia: <span id="val-freq">100 Hz</span></label>
-      <input type="range" id="freq" min="10" max="1000" step="10" value="100">
+    <div class="panel top-right">
+      <div class="schematic-box">
+        <svg id="circuitSvg" viewBox="0 0 500 300"></svg>
+      </div>
+      <div>
+        <div class="panel-header">Componentes Pasivos</div>
+        <div class="panel-body" id="circuitControls">
+          </div>
+      </div>
     </div>
 
-    <h3>Componentes</h3>
-    <div class="group" id="grp-r1">
-      <label>R1 (Entrada/Tierra): <span id="val-r1">1000 Ω</span></label>
-      <input type="range" id="r1" min="100" max="50000" step="100" value="1000">
-    </div>
-    <div class="group" id="grp-r2">
-      <label>R2 (Potenciómetro): <span id="val-r2">5000 Ω</span></label>
-      <input type="range" id="r2" min="100" max="50000" step="100" value="5000">
-    </div>
-    <div class="group" id="grp-c1">
-      <label>C1: <span id="val-c1">1.0 µF</span></label>
-      <input type="range" id="c1" min="0.01" max="10" step="0.01" value="1.0">
-    </div>
-  </div>
+    <div class="panel bottom-right">
+      <div>
+        <div class="panel-header">Generador de Funciones</div>
+        <div class="panel-body">
+          <div class="control-group">
+            <label>Forma de Onda</label>
+            <select id="waveType" onchange="updateSim()">
+              <option value="sine">Senoidal</option>
+              <option value="square">Cuadrada</option>
+              <option value="triangle">Triangular</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Amplitud Pico (Vpk: 0.1V - 10V)</label>
+            <input type="number" id="genAmp" value="2" min="0.1" max="10" step="0.1" oninput="updateSim()">
+          </div>
+          <div class="control-group">
+            <label>Frecuencia (Hz: 10Hz - 5000Hz)</label>
+            <input type="number" id="genFreq" value="500" min="10" max="5000" step="10" oninput="updateSim()">
+          </div>
+        </div>
+      </div>
 
-  <div class="panel" id="screen-container">
-    <h2>Osciloscopio (XSC1)</h2>
-    <canvas id="scope" width="700" height="420"></canvas>
-    <div class="legend">
-      <span><span class="badge" style="background: var(--ch1-color);"></span>Canal A: Vin</span>
-      <span><span class="badge" style="background: var(--ch2-color);"></span>Canal B: Vout</span>
-      <span style="color:#888;">Alimentación: ±15V (Sat: ±14V)</span>
+      <div class="scope-box">
+        <div class="legend">
+          <span style="color: var(--ch1-color)"><span class="dot" style="background: var(--ch1-color)"></span> CH1: Entrada (Vin)</span>
+          <span style="color: var(--ch2-color)"><span class="dot" style="background: var(--ch2-color)"></span> CH2: Salida (Vout)</span>
+        </div>
+        <canvas id="scopeCanvas"></canvas>
+      </div>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('scope');
+    let currentSystem = 1;
+    const VCC = 15;
+    const VEE = -15;
+
+    const canvas = document.getElementById('scopeCanvas');
     const ctx = canvas.getContext('2d');
 
-    const topoSel = document.getElementById('topology');
-    const waveSel = document.getElementById('waveform');
-    const ampInput = document.getElementById('amp');
-    const freqInput = document.getElementById('freq');
-    const r1Input = document.getElementById('r1');
-    const r2Input = document.getElementById('r2');
-    const c1Input = document.getElementById('c1');
-
-    const grpR1 = document.getElementById('grp-r1');
-    const grpR2 = document.getElementById('grp-r2');
-    const grpC1 = document.getElementById('grp-c1');
-
-    const V_SAT = 14.0; // Saturación para op-amp alimentado con +-15V
-
-    function updateVisibility() {
-      const topo = parseInt(topoSel.value);
-      grpR1.style.display = (topo === 3) ? 'none' : 'flex';
-      grpR2.style.display = (topo === 1) ? 'none' : 'flex';
-      grpC1.style.display = (topo === 2 || topo === 4) ? 'none' : 'flex';
-    }
-
-    function getVin(t, type, A, f) {
-      const T = 1 / f;
-      const tau = (t % T) / T;
-      if (type === 'sine') {
-        return A * Math.sin(2 * Math.PI * f * t);
-      } else if (type === 'square') {
-        return tau < 0.5 ? A : -A;
-      } else if (type === 'triangle') {
-        return tau < 0.5 ? A * (4 * tau - 1) : A * (3 - 4 * tau);
+    const circuitDefs = {
+      1: {
+        name: "Integrador Inversor",
+        params: [
+          { id: 'R1', label: 'Resistor R1 (Ω)', val: 10000, min: 100, max: 1000000 },
+          { id: 'C1', label: 'Capacitor C (µF)', val: 0.1, min: 0.001, max: 100 }
+        ]
+      },
+      2: {
+        name: "Derivador",
+        params: [
+          { id: 'C1', label: 'Capacitor C (µF)', val: 0.05, min: 0.001, max: 100 },
+          { id: 'Rf', label: 'Resistor Rf (Ω)', val: 20000, min: 100, max: 1000000 }
+        ]
+      },
+      3: {
+        name: "Amplificador Inversor",
+        params: [
+          { id: 'R1', label: 'Resistor R1 (Ω)', val: 10000, min: 100, max: 1000000 },
+          { id: 'Rf', label: 'Resistor Rf (Ω)', val: 20000, min: 100, max: 1000000 }
+        ]
+      },
+      4: {
+        name: "Amplificador No Inversor",
+        params: [
+          { id: 'R1', label: 'Resistor R1 (Ω)', val: 10000, min: 100, max: 1000000 },
+          { id: 'Rf', label: 'Resistor Rf (Ω)', val: 10000, min: 100, max: 1000000 }
+        ]
       }
-      return 0;
-    }
+    };
 
-    function render() {
-      // Labels UI
-      document.getElementById('val-amp').innerText = `${parseFloat(ampInput.value).toFixed(1)} V`;
-      document.getElementById('val-freq').innerText = `${freqInput.value} Hz`;
-      document.getElementById('val-r1').innerText = `${r1Input.value} Ω`;
-      document.getElementById('val-r2').innerText = `${r2Input.value} Ω`;
-      document.getElementById('val-c1').innerText = `${parseFloat(c1Input.value).toFixed(2)} µF`;
-
-      const topo = parseInt(topoSel.value);
-      const wave = waveSel.value;
-      const A = parseFloat(ampInput.value);
-      const f = parseFloat(freqInput.value);
-      const R1 = parseFloat(r1Input.value);
-      const R2 = parseFloat(r2Input.value);
-      const C1 = parseFloat(c1Input.value) * 1e-6;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Grid (10x8 divs estilo osciloscopio)
-      ctx.strokeStyle = '#1b2b34';
-      ctx.lineWidth = 1;
-      const xDivs = 10;
-      const yDivs = 8;
-      for (let i = 0; i <= xDivs; i++) {
-        const x = (canvas.width / xDivs) * i;
-        ctx.beginPath();
-        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      for (let j = 0; j <= yDivs; j++) {
-        const y = (canvas.height / yDivs) * j;
-        ctx.beginPath();
-        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
-
-      // Eje central
-      ctx.strokeStyle = '#2c404d';
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
-
-      // Ventana de tiempo: 2 ciclos completos
-      const cycles = 2;
-      const totalTime = cycles / f;
-      const points = 700;
-      const dt = totalTime / points;
-
-      const vinArr = new Float32Array(points);
-      const voutArr = new Float32Array(points);
-
-      // Cálculo de vin
-      for (let i = 0; i < points; i++) {
-        vinArr[i] = getVin(i * dt, wave, A, f);
-      }
-
-      // Cálculo de vout
-      if (topo === 4) {
-        // Inversor
-        const gain = -(R2 / R1);
-        for (let i = 0; i < points; i++) voutArr[i] = gain * vinArr[i];
-      } else if (topo === 2) {
-        // No Inversor
-        const gain = 1 + (R2 / R1);
-        for (let i = 0; i < points; i++) voutArr[i] = gain * vinArr[i];
-      } else if (topo === 1) {
-        // Integrador: -1/(R1*C1) * integral(vin dt)
-        const RC = R1 * C1;
-        let vCap = 0;
-        // Warm-up de 1 periodo para estabilizar el offset DC numérico
-        const warmSteps = Math.floor((1 / f) / dt);
-        for (let i = 0; i < warmSteps; i++) {
-          const v = getVin(i * dt, wave, A, f);
-          vCap += (v / RC) * dt;
-          vCap *= 0.999; // Fuga realista para evitar deriva infinita
-        }
-        for (let i = 0; i < points; i++) {
-          vCap += (vinArr[i] / RC) * dt;
-          vCap *= 0.999;
-          voutArr[i] = -vCap;
-        }
-      } else if (topo === 3) {
-        // Diferenciador: -R2*C1 * d(vin)/dt (con filtro paso bajo parásito para estabilidad)
-        const factor = -R2 * C1;
-        for (let i = 1; i < points; i++) {
-          const dV = (vinArr[i] - vinArr[i - 1]) / dt;
-          voutArr[i] = factor * dV;
-        }
-        voutArr[0] = voutArr[1];
-      }
-
-      // Aplicar saturación de riel
-      for (let i = 0; i < points; i++) {
-        if (voutArr[i] > V_SAT) voutArr[i] = V_SAT;
-        if (voutArr[i] < -V_SAT) voutArr[i] = -V_SAT;
-      }
-
-      // Escala vertical: fijada en ±16V para observar saturaciones
-      const vMaxDisplay = 16.0;
-      const centerY = canvas.height / 2;
-      const scaleY = (canvas.height / 2) / vMaxDisplay;
-
-      // Graficar CH1: Vin
-      ctx.strokeStyle = '#ffcc00';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < points; i++) {
-        const x = (i / points) * canvas.width;
-        const y = centerY - vinArr[i] * scaleY;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      // Graficar CH2: Vout
-      ctx.strokeStyle = '#00e5ff';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < points; i++) {
-        const x = (i / points) * canvas.width;
-        const y = centerY - voutArr[i] * scaleY;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    [topoSel, waveSel, ampInput, freqInput, r1Input, r2Input, c1Input].forEach(el => {
-      el.addEventListener('input', () => {
-        updateVisibility();
-        render();
+    function setSystem(id) {
+      currentSystem = id;
+      document.querySelectorAll('.system-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx + 1 === id);
       });
+      renderControls();
+      renderSVG();
+      updateSim();
+    }
+
+    function renderControls() {
+      const container = document.getElementById('circuitControls');
+      container.innerHTML = '';
+      circuitDefs[currentSystem].params.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'control-group';
+        div.innerHTML = `
+          <label>${p.label}</label>
+          <input type="number" id="${p.id}" value="${p.val}" min="${p.min}" max="${p.max}" oninput="updateSim()">
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderSVG() {
+      const svg = document.getElementById('circuitSvg');
+      let elements = `
+        <defs>
+          <marker id="dot" markerWidth="6" markerHeight="6" refX="3" refY="3"><circle cx="3" cy="3" r="3" fill="#edf2f4"/></marker>
+        </defs>
+        <polygon points="260,110 260,190 340,150" fill="none" stroke="#edf2f4" stroke-width="2"/>
+        <text x="268" y="132" fill="#edf2f4" font-size="14" font-weight="bold">-</text>
+        <text x="268" y="175" fill="#edf2f4" font-size="14" font-weight="bold">+</text>
+        <line x1="340" y1="150" x2="420" y2="150" stroke="#edf2f4" stroke-width="2"/>
+        <text x="425" y="155" fill="#edf2f4" font-size="12">Vout</text>
+      `;
+
+      if (currentSystem === 1 || currentSystem === 2 || currentSystem === 3) {
+        // Configuraciones Inversoras (Pin + a Tierra)
+        elements += `
+          <line x1="260" y1="170" x2="230" y2="170" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="230" y1="170" x2="230" y2="200" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="220" y1="200" x2="240" y2="200" stroke="#edf2f4" stroke-width="2"/>
+          
+          <line x1="100" y1="130" x2="150" y2="130" stroke="#edf2f4" stroke-width="2"/>
+          <text x="65" y="135" fill="#edf2f4" font-size="12">Vin</text>
+          <line x1="210" y1="130" x2="260" y2="130" stroke="#edf2f4" stroke-width="2"/>
+
+          <line x1="230" y1="130" x2="230" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="230" y1="70" x2="270" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="330" y1="70" x2="370" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="370" y1="70" x2="370" y2="150" stroke="#edf2f4" stroke-width="2"/>
+        `;
+
+        if (currentSystem === 1) { // Integrador
+          elements += drawResistor(150, 130, 'R1');
+          elements += drawCapacitor(270, 70, 'C');
+        } else if (currentSystem === 2) { // Derivador
+          elements += drawCapacitor(150, 130, 'C');
+          elements += drawResistor(270, 70, 'Rf');
+        } else { // Inversor
+          elements += drawResistor(150, 130, 'R1');
+          elements += drawResistor(270, 70, 'Rf');
+        }
+      } else {
+        // No Inversor
+        elements += `
+          <line x1="100" y1="170" x2="260" y2="170" stroke="#edf2f4" stroke-width="2"/>
+          <text x="65" y="175" fill="#edf2f4" font-size="12">Vin</text>
+
+          <line x1="260" y1="130" x2="230" y2="130" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="230" y1="130" x2="230" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="230" y1="70" x2="270" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="330" y1="70" x2="370" y2="70" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="370" y1="70" x2="370" y2="150" stroke="#edf2f4" stroke-width="2"/>
+          ${drawResistor(270, 70, 'Rf')}
+
+          <line x1="230" y1="130" x2="200" y2="130" stroke="#edf2f4" stroke-width="2"/>
+          ${drawResistor(140, 130, 'R1')}
+          <line x1="140" y1="130" x2="120" y2="130" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="120" y1="130" x2="120" y2="150" stroke="#edf2f4" stroke-width="2"/>
+          <line x1="110" y1="150" x2="130" y2="150" stroke="#edf2f4" stroke-width="2"/>
+        `;
+      }
+
+      svg.innerHTML = elements;
+    }
+
+    function drawResistor(x, y, label) {
+      return `
+        <path d="M ${x} ${y} l 5 -5 l 10 10 l 10 -10 l 10 10 l 10 -10 l 10 10 l 5 -5" fill="none" stroke="#edf2f4" stroke-width="2"/>
+        <text x="${x + 20}" y="${y - 10}" fill="#00adb5" font-size="12" text-anchor="middle">${label}</text>
+      `;
+    }
+
+    function drawCapacitor(x, y, label) {
+      return `
+        <line x1="${x}" y1="${y}" x2="${x + 25}" y2="${y}" stroke="#edf2f4" stroke-width="2"/>
+        <line x1="${x + 25}" y1="${y - 12}" x2="${x + 25}" y2="${y + 12}" stroke="#edf2f4" stroke-width="2"/>
+        <line x1="${x + 35}" y1="${y - 12}" x2="${x + 35}" y2="${y + 12}" stroke="#edf2f4" stroke-width="2"/>
+        <line x1="${x + 35}" y1="${y}" x2="${x + 60}" y2="${y}" stroke="#edf2f4" stroke-width="2"/>
+        <text x="${x + 30}" y="${y - 15}" fill="#00adb5" font-size="12" text-anchor="middle">${label}</text>
+      `;
+    }
+
+    function updateSim() {
+      const type = document.getElementById('waveType').value;
+      const amp = parseFloat(document.getElementById('genAmp').value) || 1;
+      const freq = parseFloat(document.getElementById('genFreq').value) || 100;
+
+      const N = 600;
+      const tStop = 2 / freq; 
+      const dt = tStop / N;
+
+      let vin = new Float32Array(N);
+      let vout = new Float32Array(N);
+
+      // Generación Vin
+      for (let i = 0; i < N; i++) {
+        let t = i * dt;
+        let phase = 2 * Math.PI * freq * t;
+        if (type === 'sine') {
+          vin[i] = amp * Math.sin(phase);
+        } else if (type === 'square') {
+          vin[i] = Math.sin(phase) >= 0 ? amp : -amp;
+        } else if (type === 'triangle') {
+          vin[i] = (2 * amp / Math.PI) * Math.asin(Math.sin(phase));
+        }
+      }
+
+      // Procesamiento de salida según topología
+      if (currentSystem === 1) { // Integrador: Vout = -1/(RC) * integral(Vin dt)
+        const R = parseFloat(document.getElementById('R1').value);
+        const C = parseFloat(document.getElementById('C1').value) * 1e-6;
+        const k = -1 / (R * C);
+        let acc = 0;
+        for (let i = 0; i < N; i++) {
+          acc += vin[i] * dt;
+          vout[i] = Math.max(VEE, Math.min(VCC, k * acc));
+        }
+      } else if (currentSystem === 2) { // Derivador: Vout = -RC * (dVin/dt)
+        const C = parseFloat(document.getElementById('C1').value) * 1e-6;
+        const R = parseFloat(document.getElementById('Rf').value);
+        const k = -R * C;
+        vout[0] = 0;
+        for (let i = 1; i < N; i++) {
+          let dV = (vin[i] - vin[i - 1]) / dt;
+          vout[i] = Math.max(VEE, Math.min(VCC, k * dV));
+        }
+      } else if (currentSystem === 3) { // Inversor: Vout = -(Rf/R1) * Vin
+        const R1 = parseFloat(document.getElementById('R1').value);
+        const Rf = parseFloat(document.getElementById('Rf').value);
+        const gain = -Rf / R1;
+        for (let i = 0; i < N; i++) {
+          vout[i] = Math.max(VEE, Math.min(VCC, gain * vin[i]));
+        }
+      } else if (currentSystem === 4) { // No inversor: Vout = (1 + Rf/R1) * Vin
+        const R1 = parseFloat(document.getElementById('R1').value);
+        const Rf = parseFloat(document.getElementById('Rf').value);
+        const gain = 1 + (Rf / R1);
+        for (let i = 0; i < N; i++) {
+          vout[i] = Math.max(VEE, Math.min(VCC, gain * vin[i]));
+        }
+      }
+
+      drawScope(vin, vout);
+    }
+
+    function drawScope(ch1, ch2) {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const midY = h / 2;
+
+      // Limpiar fondo
+      ctx.fillStyle = "#050b05";
+      ctx.fillRect(0, 0, w, h);
+
+      // Cuadrícula
+      ctx.strokeStyle = "#132a13";
+      ctx.lineWidth = 1;
+      const gridX = 10, gridY = 8;
+      for (let i = 0; i <= gridX; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * (w / gridX), 0);
+        ctx.lineTo(i * (w / gridX), h);
+        ctx.stroke();
+      }
+      for (let i = 0; i <= gridY; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * (h / gridY));
+        ctx.lineTo(w, i * (h / gridY));
+        ctx.stroke();
+      }
+
+      // Escala: ±15V en pantalla vertical
+      const vScale = (h / 2) / 16;
+
+      // Trazo Canal 1 (Vin - Verde)
+      ctx.strokeStyle = "#00ff66";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < ch1.length; i++) {
+        let x = (i / (ch1.length - 1)) * w;
+        let y = midY - (ch1[i] * vScale);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Trazo Canal 2 (Vout - Amarillo)
+      ctx.strokeStyle = "#ffea00";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < ch2.length; i++) {
+        let x = (i / (ch2.length - 1)) * w;
+        let y = midY - (ch2[i] * vScale);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    window.addEventListener('resize', () => {
+      drawScope([], []);
+      updateSim();
     });
 
-    updateVisibility();
-    render();
+    setSystem(1);
   </script>
 </body>
 </html>
