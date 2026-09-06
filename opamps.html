@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Amplificadores Operacionales</title>
+  <style>
+    :root {
+      --bg-dark: #121418;
+      --panel-bg: #1c2026;
+      --border-color: #2e3440;
+      --accent: #00e5ff;
+      --ch1-color: #ffcc00;
+      --ch2-color: #00e5ff;
+      --text: #d8dee9;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    #controls {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h2, h3 {
+      margin: 0 0 10px 0;
+      color: #88c0d0;
+      font-size: 1.1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      color: #eceff4;
+    }
+    input, select {
+      background: #2e3440;
+      border: 1px solid #4c566a;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    input[type="range"] {
+      padding: 0;
+      accent-color: var(--accent);
+    }
+    #screen-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    canvas {
+      background-color: #050b0e;
+      border: 2px solid #3b4252;
+      border-radius: 6px;
+    }
+    .legend {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 6px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel" id="controls">
+    <h2>Configuración</h2>
+    <div class="group">
+      <label for="topology">Circuito (Topología):</label>
+      <select id="topology">
+        <option value="1">Sistema 1: Integrador Inversor</option>
+        <option value="2">Sistema 2: No Inversor</option>
+        <option value="3">Sistema 3: Diferenciador Inversor</option>
+        <option value="4" selected>Sistema 4: Inversor</option>
+      </select>
+    </div>
+
+    <h3>Generador (XFG1)</h3>
+    <div class="group">
+      <label for="waveform">Forma de Onda:</label>
+      <select id="waveform">
+        <option value="sine">Senoidal</option>
+        <option value="square">Cuadrada</option>
+        <option value="triangle">Triangular</option>
+      </select>
+    </div>
+    <div class="group">
+      <label>Amplitud (Vp): <span id="val-amp">2.0 V</span></label>
+      <input type="range" id="amp" min="0.1" max="10" step="0.1" value="2">
+    </div>
+    <div class="group">
+      <label>Frecuencia: <span id="val-freq">100 Hz</span></label>
+      <input type="range" id="freq" min="10" max="1000" step="10" value="100">
+    </div>
+
+    <h3>Componentes</h3>
+    <div class="group" id="grp-r1">
+      <label>R1 (Entrada/Tierra): <span id="val-r1">1000 Ω</span></label>
+      <input type="range" id="r1" min="100" max="50000" step="100" value="1000">
+    </div>
+    <div class="group" id="grp-r2">
+      <label>R2 (Potenciómetro): <span id="val-r2">5000 Ω</span></label>
+      <input type="range" id="r2" min="100" max="50000" step="100" value="5000">
+    </div>
+    <div class="group" id="grp-c1">
+      <label>C1: <span id="val-c1">1.0 µF</span></label>
+      <input type="range" id="c1" min="0.01" max="10" step="0.01" value="1.0">
+    </div>
+  </div>
+
+  <div class="panel" id="screen-container">
+    <h2>Osciloscopio (XSC1)</h2>
+    <canvas id="scope" width="700" height="420"></canvas>
+    <div class="legend">
+      <span><span class="badge" style="background: var(--ch1-color);"></span>Canal A: Vin</span>
+      <span><span class="badge" style="background: var(--ch2-color);"></span>Canal B: Vout</span>
+      <span style="color:#888;">Alimentación: ±15V (Sat: ±14V)</span>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('scope');
+    const ctx = canvas.getContext('2d');
+
+    const topoSel = document.getElementById('topology');
+    const waveSel = document.getElementById('waveform');
+    const ampInput = document.getElementById('amp');
+    const freqInput = document.getElementById('freq');
+    const r1Input = document.getElementById('r1');
+    const r2Input = document.getElementById('r2');
+    const c1Input = document.getElementById('c1');
+
+    const grpR1 = document.getElementById('grp-r1');
+    const grpR2 = document.getElementById('grp-r2');
+    const grpC1 = document.getElementById('grp-c1');
+
+    const V_SAT = 14.0; // Saturación para op-amp alimentado con +-15V
+
+    function updateVisibility() {
+      const topo = parseInt(topoSel.value);
+      grpR1.style.display = (topo === 3) ? 'none' : 'flex';
+      grpR2.style.display = (topo === 1) ? 'none' : 'flex';
+      grpC1.style.display = (topo === 2 || topo === 4) ? 'none' : 'flex';
+    }
+
+    function getVin(t, type, A, f) {
+      const T = 1 / f;
+      const tau = (t % T) / T;
+      if (type === 'sine') {
+        return A * Math.sin(2 * Math.PI * f * t);
+      } else if (type === 'square') {
+        return tau < 0.5 ? A : -A;
+      } else if (type === 'triangle') {
+        return tau < 0.5 ? A * (4 * tau - 1) : A * (3 - 4 * tau);
+      }
+      return 0;
+    }
+
+    function render() {
+      // Labels UI
+      document.getElementById('val-amp').innerText = `${parseFloat(ampInput.value).toFixed(1)} V`;
+      document.getElementById('val-freq').innerText = `${freqInput.value} Hz`;
+      document.getElementById('val-r1').innerText = `${r1Input.value} Ω`;
+      document.getElementById('val-r2').innerText = `${r2Input.value} Ω`;
+      document.getElementById('val-c1').innerText = `${parseFloat(c1Input.value).toFixed(2)} µF`;
+
+      const topo = parseInt(topoSel.value);
+      const wave = waveSel.value;
+      const A = parseFloat(ampInput.value);
+      const f = parseFloat(freqInput.value);
+      const R1 = parseFloat(r1Input.value);
+      const R2 = parseFloat(r2Input.value);
+      const C1 = parseFloat(c1Input.value) * 1e-6;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Grid (10x8 divs estilo osciloscopio)
+      ctx.strokeStyle = '#1b2b34';
+      ctx.lineWidth = 1;
+      const xDivs = 10;
+      const yDivs = 8;
+      for (let i = 0; i <= xDivs; i++) {
+        const x = (canvas.width / xDivs) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j <= yDivs; j++) {
+        const y = (canvas.height / yDivs) * j;
+        ctx.beginPath();
+        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Eje central
+      ctx.strokeStyle = '#2c404d';
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+
+      // Ventana de tiempo: 2 ciclos completos
+      const cycles = 2;
+      const totalTime = cycles / f;
+      const points = 700;
+      const dt = totalTime / points;
+
+      const vinArr = new Float32Array(points);
+      const voutArr = new Float32Array(points);
+
+      // Cálculo de vin
+      for (let i = 0; i < points; i++) {
+        vinArr[i] = getVin(i * dt, wave, A, f);
+      }
+
+      // Cálculo de vout
+      if (topo === 4) {
+        // Inversor
+        const gain = -(R2 / R1);
+        for (let i = 0; i < points; i++) voutArr[i] = gain * vinArr[i];
+      } else if (topo === 2) {
+        // No Inversor
+        const gain = 1 + (R2 / R1);
+        for (let i = 0; i < points; i++) voutArr[i] = gain * vinArr[i];
+      } else if (topo === 1) {
+        // Integrador: -1/(R1*C1) * integral(vin dt)
+        const RC = R1 * C1;
+        let vCap = 0;
+        // Warm-up de 1 periodo para estabilizar el offset DC numérico
+        const warmSteps = Math.floor((1 / f) / dt);
+        for (let i = 0; i < warmSteps; i++) {
+          const v = getVin(i * dt, wave, A, f);
+          vCap += (v / RC) * dt;
+          vCap *= 0.999; // Fuga realista para evitar deriva infinita
+        }
+        for (let i = 0; i < points; i++) {
+          vCap += (vinArr[i] / RC) * dt;
+          vCap *= 0.999;
+          voutArr[i] = -vCap;
+        }
+      } else if (topo === 3) {
+        // Diferenciador: -R2*C1 * d(vin)/dt (con filtro paso bajo parásito para estabilidad)
+        const factor = -R2 * C1;
+        for (let i = 1; i < points; i++) {
+          const dV = (vinArr[i] - vinArr[i - 1]) / dt;
+          voutArr[i] = factor * dV;
+        }
+        voutArr[0] = voutArr[1];
+      }
+
+      // Aplicar saturación de riel
+      for (let i = 0; i < points; i++) {
+        if (voutArr[i] > V_SAT) voutArr[i] = V_SAT;
+        if (voutArr[i] < -V_SAT) voutArr[i] = -V_SAT;
+      }
+
+      // Escala vertical: fijada en ±16V para observar saturaciones
+      const vMaxDisplay = 16.0;
+      const centerY = canvas.height / 2;
+      const scaleY = (canvas.height / 2) / vMaxDisplay;
+
+      // Graficar CH1: Vin
+      ctx.strokeStyle = '#ffcc00';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        const x = (i / points) * canvas.width;
+        const y = centerY - vinArr[i] * scaleY;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Graficar CH2: Vout
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        const x = (i / points) * canvas.width;
+        const y = centerY - voutArr[i] * scaleY;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    [topoSel, waveSel, ampInput, freqInput, r1Input, r2Input, c1Input].forEach(el => {
+      el.addEventListener('input', () => {
+        updateVisibility();
+        render();
+      });
+    });
+
+    updateVisibility();
+    render();
+  </script>
+</body>
+</html>
