@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Respuesta de Sistema RLC (2do Orden)</title>
+    <style>
+        :root {
+            --bg-color: #1e1e24;
+            --panel-bg: #2b2b36;
+            --text-color: #e0e0e0;
+            --accent-color: #00ffcc;
+            --scope-bg: #051a15;
+            --scope-grid: #0f4d3d;
+            --scope-trace: #00ffcc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .oscilloscope-container {
+            flex: 2;
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 600px;
+        }
+
+        canvas {
+            background-color: var(--scope-bg);
+            border: 2px solid #333;
+            border-radius: 5px;
+            width: 100%;
+            height: 400px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .stats-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .stats-box p {
+            margin: 8px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .time-controls {
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simulador de Circuito RLC (Respuesta al Escalón)</h1>
+
+    <div class="container">
+        <!-- Panel Izquierdo: Controles y Generador -->
+        <div class="panel">
+            <h2>Generador de Funciones y Parámetros</h2>
+            
+            <div class="control-group">
+                <label>Voltaje de Entrada (V): <span id="valV">5 V</span></label>
+                <input type="range" id="inputV" min="1" max="12" step="0.5" value="5">
+            </div>
+
+            <div class="control-group">
+                <label>Resistencia (R): <span id="valR">500 Ω</span></label>
+                <input type="range" id="inputR" min="0" max="2500" step="10" value="500">
+            </div>
+
+            <div class="control-group">
+                <label>Inductancia (L): <span id="valL">50 mH</span></label>
+                <input type="range" id="inputL" min="1" max="200" step="1" value="50">
+            </div>
+
+            <div class="control-group">
+                <label>Capacitancia (C): <span id="valC">0.22 μF</span></label>
+                <input type="range" id="inputC" min="0.01" max="5" step="0.01" value="0.22">
+            </div>
+
+            <div class="stats-box">
+                <h2>Análisis del Sistema</h2>
+                <p>Tipo: <span id="sysType" class="highlight">Calculando...</span></p>
+                <p>Factor de Amort. (ζ): <span id="sysZeta" class="highlight">0</span></p>
+                <p>Frec. Natural (ω<sub>n</sub>): <span id="sysWn" class="highlight">0</span> rad/s</p>
+                <p>Raíces (s<sub>1,2</sub>):</p>
+                <p id="sysRoots" class="highlight" style="font-size: 0.95rem;">0</p>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Osciloscopio -->
+        <div class="oscilloscope-container">
+            <h2>Osciloscopio: Voltaje del Capacitor V<sub>c</sub>(t)</h2>
+            <canvas id="scopeCanvas" width="800" height="400"></canvas>
+            
+            <div class="control-group time-controls">
+                <label>Base de Tiempo (escala X): <span id="valTime">5 ms</span></label>
+                <input type="range" id="inputTime" min="1" max="50" step="1" value="5">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Referencias a elementos del DOM
+        const inputs = {
+            V: document.getElementById('inputV'),
+            R: document.getElementById('inputR'),
+            L: document.getElementById('inputL'),
+            C: document.getElementById('inputC'),
+            Time: document.getElementById('inputTime')
+        };
+
+        const displays = {
+            V: document.getElementById('valV'),
+            R: document.getElementById('valR'),
+            L: document.getElementById('valL'),
+            C: document.getElementById('valC'),
+            Time: document.getElementById('valTime'),
+            Type: document.getElementById('sysType'),
+            Zeta: document.getElementById('sysZeta'),
+            Wn: document.getElementById('sysWn'),
+            Roots: document.getElementById('sysRoots')
+        };
+
+        const canvas = document.getElementById('scopeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Función principal de actualización
+        function updateSimulation() {
+            // 1. Obtener valores de los sliders
+            const V = parseFloat(inputs.V.value);
+            const R = parseFloat(inputs.R.value);
+            const L_mH = parseFloat(inputs.L.value);
+            const C_uF = parseFloat(inputs.C.value);
+            const timeBase_ms = parseFloat(inputs.Time.value);
+
+            // Actualizar etiquetas visuales
+            displays.V.innerText = `${V} V`;
+            displays.R.innerText = `${R} Ω`;
+            displays.L.innerText = `${L_mH} mH`;
+            displays.C.innerText = `${C_uF} μF`;
+            displays.Time.innerText = `${timeBase_ms} ms`;
+
+            // Convertir a unidades estándar (Henrios y Faradios)
+            const L = L_mH * 1e-3;
+            const C = C_uF * 1e-6;
+            const timeBase = timeBase_ms * 1e-3;
+
+            // 2. Cálculos Matemáticos
+            const wn = 1 / Math.sqrt(L * C); // Frecuencia natural
+            const alpha = R / (2 * L);       // Factor de atenuación (Neper)
+            const zeta = alpha / wn;         // Coeficiente de amortiguamiento
+
+            let typeStr = "";
+            let rootsStr = "";
+
+            // Manejo de imprecisiones de punto flotante para zeta == 1
+            const isCriticallyDamped = Math.abs(zeta - 1) < 0.005;
+
+            if (R === 0) {
+                typeStr = "Oscilatorio (Sin Amortiguar)";
+                rootsStr = `± j${wn.toFixed(2)}`;
+            } else if (isCriticallyDamped) {
+                typeStr = "Críticamente Amortiguado (ζ = 1)";
+                rootsStr = `s₁ = s₂ = -${alpha.toFixed(2)}`;
+            } else if (zeta > 1) {
+                typeStr = "Sobreamortiguado (ζ > 1)";
+                const val = Math.sqrt(alpha * alpha - wn * wn);
+                const s1 = -alpha + val;
+                const s2 = -alpha - val;
+                rootsStr = `s₁ = ${s1.toFixed(2)}<br>s₂ = ${s2.toFixed(2)}`;
+            } else {
+                typeStr = "Subamortiguado (0 < ζ < 1)";
+                const wd = Math.sqrt(wn * wn - alpha * alpha);
+                rootsStr = `-${alpha.toFixed(2)} ± j${wd.toFixed(2)}`;
+            }
+
+            // Actualizar panel de análisis
+            displays.Type.innerText = typeStr;
+            displays.Zeta.innerText = zeta.toFixed(4);
+            displays.Wn.innerText = wn.toFixed(2);
+            displays.Roots.innerHTML = rootsStr;
+
+            // 3. Dibujar en el Osciloscopio
+            drawScope(V, alpha, wn, zeta, timeBase);
+        }
+
+        function drawScope(V, alpha, wn, zeta, timeBase) {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Limpiar canvas
+            ctx.fillStyle = '#051a15';
+            ctx.fillRect(0, 0, width, height);
+
+            // Dibujar cuadrícula
+            ctx.strokeStyle = '#0f4d3d';
+            ctx.lineWidth = 1;
+            const gridCellsX = 10;
+            const gridCellsY = 8;
+            
+            for (let i = 0; i <= gridCellsX; i++) {
+                const x = (width / gridCellsX) * i;
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+            }
+            for (let i = 0; i <= gridCellsY; i++) {
+                const y = (height / gridCellsY) * i;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+            }
+
+            // Ejes centrales virtuales
+            ctx.strokeStyle = '#167a61';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, height); ctx.lineTo(width, height); ctx.stroke(); // Eje X (Abajo)
+
+            // Configurar trazo de señal
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+
+            const dt = timeBase / width;
+            const maxY = Math.max(V * 2.5, 12); // Escala vertical (dinámica o fija)
+            const scaleY = height / maxY;
+
+            // Evaluar ecuación diferencial para Vc(t)
+            for (let px = 0; px < width; px++) {
+                const t = px * dt;
+                let vc = 0;
+
+                if (alpha === 0) { // Oscilatorio puro
+                    vc = V * (1 - Math.cos(wn * t));
+                } else if (Math.abs(zeta - 1) < 0.005) { // Crítico
+                    vc = V * (1 - (1 + alpha * t) * Math.exp(-alpha * t));
+                } else if (zeta > 1) { // Sobreamortiguado
+                    const s1 = -alpha + Math.sqrt(alpha * alpha - wn * wn);
+                    const s2 = -alpha - Math.sqrt(alpha * alpha - wn * wn);
+                    vc = V * (1 - (s2 * Math.exp(s1 * t) - s1 * Math.exp(s2 * t)) / (s2 - s1));
+                } else { // Subamortiguado
+                    const wd = Math.sqrt(wn * wn - alpha * alpha);
+                    vc = V * (1 - Math.exp(-alpha * t) * (Math.cos(wd * t) + (alpha / wd) * Math.sin(wd * t)));
+                }
+
+                // Mapear Vc a coordenadas Y del canvas (invertido porque Y crece hacia abajo)
+                const py = height - (vc * scaleY);
+                
+                if (px === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            
+            ctx.stroke();
+
+            // Dibujar referencia de voltaje entrada (Escalón)
+            ctx.strokeStyle = 'rgba(255, 204, 0, 0.6)';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 2;
+            const vInY = height - (V * scaleY);
+            ctx.beginPath();
+            ctx.moveTo(0, vInY);
+            ctx.lineTo(width, vInY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Texto de escala
+            ctx.fillStyle = '#00ffcc';
+            ctx.font = '14px Arial';
+            ctx.fillText(`Entrada Escalón: ${V}V`, 10, vInY - 10);
+        }
+
+        // Agregar Event Listeners a los inputs
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', updateSimulation);
+        });
+
+        // Inicializar
+        updateSimulation();
+
+    </script>
+</body>
+</html>
