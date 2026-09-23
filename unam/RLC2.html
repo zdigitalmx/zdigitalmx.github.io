@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador RLC Avanzado con Generador de Funciones</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e24;
+            --text-color: #e0e0e0;
+            --accent-color: #ff3366;
+            --secondary-color: #00e5ff;
+            --scope-bg: #00110c;
+            --scope-grid: #003322;
+            --scope-trace1: #00e5ff; /* Voltaje Capacitor */
+            --scope-trace2: #ffcc00; /* Voltaje Entrada */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 320px;
+        }
+
+        .oscilloscope {
+            flex: 2;
+            min-width: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            background-color: var(--scope-bg);
+            border: 2px solid #333;
+            border-radius: 5px;
+            width: 100%;
+            height: 450px;
+            cursor: crosshair;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 5px;
+            flex: 1.5;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: #2b2b36;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 5px;
+            font-family: monospace;
+        }
+
+        select {
+            background: #2b2b36;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .stats-box {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .stats-box p {
+            margin: 5px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+        }
+
+        .highlight { color: var(--secondary-color); font-weight: bold; }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .leg-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 12px; height: 12px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <h1>Simulador RLC Interactivo (Numérico)</h1>
+
+    <div class="container">
+        <!-- Panel Izquierdo -->
+        <div class="panel">
+            <h2>Generador de Funciones</h2>
+            <div class="input-group">
+                <label>Tipo de Onda:</label>
+                <select id="waveType">
+                    <option value="step">Escalón (DC)</option>
+                    <option value="sine">Senoidal (AC)</option>
+                    <option value="triangle">Triangular</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Amplitud (V):</label>
+                <div class="input-controls">
+                    <input type="number" id="inAmp" value="5" min="0.1" step="0.1">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Frecuencia:</label>
+                <div class="input-controls">
+                    <input type="number" id="inFreq" value="1" min="0" max="200000" step="0.1">
+                    <select id="unitFreq">
+                        <option value="1">Hz</option>
+                        <option value="1000" selected>kHz</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 20px;">Parámetros RLC</h2>
+            <div class="input-group">
+                <label>Resistencia (R):</label>
+                <div class="input-controls">
+                    <input type="number" id="inR" value="500" min="0" step="1">
+                    <select id="unitR">
+                        <option value="1">Ω</option>
+                        <option value="1000">kΩ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Inductancia (L):</label>
+                <div class="input-controls">
+                    <input type="number" id="inL" value="50" min="0.000001" step="0.1">
+                    <select id="unitL">
+                        <option value="1">H</option>
+                        <option value="0.001" selected>mH</option>
+                        <option value="0.000001">μH</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Capacitancia (C):</label>
+                <div class="input-controls">
+                    <input type="number" id="inC" value="0.22" min="0.000001" step="0.01">
+                    <select id="unitC">
+                        <option value="0.001">mF</option>
+                        <option value="0.000001" selected>μF</option>
+                        <option value="0.000000001">nF</option>
+                        <option value="0.000000000001">pF</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-box">
+                <p>Tipo: <span id="sysType" class="highlight">Calculando...</span></p>
+                <p>Factor Amort. (ζ): <span id="sysZeta" class="highlight">0</span></p>
+                <p>Frec. Natural (f<sub>n</sub>): <span id="sysFn" class="highlight">0</span> Hz</p>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Osciloscopio -->
+        <div class="panel oscilloscope">
+            <h2>Osciloscopio Digital</h2>
+            
+            <div class="input-group" style="background: none; padding: 0;">
+                <label style="flex: 0.3;">Tiempo Final (X):</label>
+                <div class="input-controls" style="flex: 0.7;">
+                    <input type="number" id="inTime" value="5" min="0.0001" step="0.1">
+                    <select id="unitTime">
+                        <option value="1">Segundos (s)</option>
+                        <option value="0.001" selected>Milisegundos (ms)</option>
+                        <option value="0.000001">Microsegundos (μs)</option>
+                    </select>
+                </div>
+            </div>
+
+            <canvas id="scope" width="900" height="450"></canvas>
+            
+            <div class="legend">
+                <div class="leg-item"><div class="box" style="background: var(--scope-trace2);"></div> Entrada (V_in)</div>
+                <div class="leg-item"><div class="box" style="background: var(--scope-trace1);"></div> Capacitor (V_c)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Referencias UI
+        const ui = {
+            wave: document.getElementById('waveType'),
+            amp: document.getElementById('inAmp'),
+            freq: document.getElementById('inFreq'),
+            uFreq: document.getElementById('unitFreq'),
+            R: document.getElementById('inR'),
+            uR: document.getElementById('unitR'),
+            L: document.getElementById('inL'),
+            uL: document.getElementById('unitL'),
+            C: document.getElementById('inC'),
+            uC: document.getElementById('unitC'),
+            Time: document.getElementById('inTime'),
+            uTime: document.getElementById('unitTime'),
+            Type: document.getElementById('sysType'),
+            Zeta: document.getElementById('sysZeta'),
+            Fn: document.getElementById('sysFn'),
+            canvas: document.getElementById('scope')
+        };
+
+        const ctx = ui.canvas.getContext('2d');
+
+        // Generador de señal (Vin)
+        function getVin(t, type, amp, freq) {
+            if (type === 'step') return amp;
+            if (freq === 0) return amp; // DC si no hay frecuencia
+            
+            const period = 1 / freq;
+            if (type === 'sine') {
+                return amp * Math.sin(2 * Math.PI * freq * t);
+            }
+            if (type === 'triangle') {
+                const phase = (t % period) / period;
+                if (phase < 0.25) return amp * (4 * phase);
+                if (phase < 0.75) return amp * (1 - 4 * (phase - 0.25));
+                return amp * (-1 + 4 * (phase - 0.75));
+            }
+            return 0;
+        }
+
+        function updateSimulation() {
+            // Leer y convertir valores a unidades base (SI)
+            const V_amp = parseFloat(ui.amp.value) || 0;
+            const Freq = (parseFloat(ui.freq.value) || 0) * parseFloat(ui.uFreq.value);
+            const wave = ui.wave.value;
+
+            const R = parseFloat(ui.R.value) * parseFloat(ui.uR.value);
+            const L = Math.max(parseFloat(ui.L.value) * parseFloat(ui.uL.value), 1e-12); // Prevenir L=0
+            const C = Math.max(parseFloat(ui.C.value) * parseFloat(ui.uC.value), 1e-15); // Prevenir C=0
+            const T_max = Math.max(parseFloat(ui.Time.value) * parseFloat(ui.uTime.value), 1e-9);
+
+            // Cálculos del Sistema (Analíticos)
+            const wn = 1 / Math.sqrt(L * C);
+            const fn = wn / (2 * Math.PI);
+            const alpha = R / (2 * L);
+            const zeta = alpha / wn;
+
+            // Actualizar etiquetas
+            const isCriticallyDamped = Math.abs(zeta - 1) < 0.02;
+            if (R === 0) ui.Type.innerText = "Oscilatorio Puro";
+            else if (isCriticallyDamped) ui.Type.innerText = "Críticamente Amortiguado";
+            else if (zeta > 1) ui.Type.innerText = "Sobreamortiguado";
+            else ui.Type.innerText = "Subamortiguado";
+
+            ui.Zeta.innerText = zeta.toFixed(4);
+            
+            // Formatear Fn
+            if(fn > 1e6) ui.Fn.innerText = (fn/1e6).toFixed(2) + " M";
+            else if (fn > 1e3) ui.Fn.innerText = (fn/1e3).toFixed(2) + " k";
+            else ui.Fn.innerText = fn.toFixed(2) + " ";
+
+            simulateAndDraw(V_amp, Freq, wave, R, L, C, T_max);
+        }
+
+        function simulateAndDraw(V, f, wave, R, L, C, T_max) {
+            const width = ui.canvas.width;
+            const height = ui.canvas.height;
+            
+            // Limpiar fondo
+            ctx.fillStyle = '#00110c';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Dibujar Cuadrícula
+            ctx.strokeStyle = '#003322';
+            ctx.lineWidth = 1;
+            for(let i=0; i<=10; i++) {
+                let x = (width/10)*i; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
+            }
+            for(let i=0; i<=8; i++) {
+                let y = (height/8)*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
+            }
+
+            // Integración Numérica RK4
+            // Variables de estado: y[0] = Vc, y[1] = dVc/dt
+            let y = [0, 0];
+            
+            // Paso de integración (dinámico para no saltar dinámicas rápidas)
+            // Tomamos el período más pequeño entre la señal de entrada y la frecuencia natural
+            let highest_freq = Math.max(f, 1 / (2 * Math.PI * Math.sqrt(L * C)));
+            if (highest_freq === 0) highest_freq = 1;
+            
+            // Aseguramos al menos 100 puntos por el ciclo más rápido, y no más de T_max / 50000 para rendimiento
+            let dt = Math.min(1 / (100 * highest_freq), T_max / 2000); 
+            if (dt <= 0 || isNaN(dt)) dt = T_max / 1000;
+
+            const dataPoints_Vc = [];
+            const dataPoints_Vin = [];
+            
+            // Función derivada d/dt
+            const f_der = (t, y_state) => {
+                const vin = getVin(t, wave, V, f);
+                const dy0 = y_state[1];
+                // L*C*Vc'' + R*C*Vc' + Vc = Vin  =>  Vc'' = (Vin - Vc - R*C*Vc') / (L*C)
+                const dy1 = (vin - y_state[0] - R * C * y_state[1]) / (L * C);
+                return [dy0, dy1];
+            };
+
+            // Bucle principal de RK4
+            let t = 0;
+            const targetPoints = width; // Dibujamos un punto por píxel de ancho
+            const renderStep = T_max / targetPoints;
+            let nextRenderTime = 0;
+
+            while (t <= T_max && dataPoints_Vc.length < width) {
+                // Guardar punto para renderizar
+                if (t >= nextRenderTime) {
+                    dataPoints_Vc.push(y[0]);
+                    dataPoints_Vin.push(getVin(t, wave, V, f));
+                    nextRenderTime += renderStep;
+                }
+
+                // Paso RK4
+                let k1 = f_der(t, y);
+                let k2 = f_der(t + dt/2, [y[0] + k1[0]*dt/2, y[1] + k1[1]*dt/2]);
+                let k3 = f_der(t + dt/2, [y[0] + k2[0]*dt/2, y[1] + k2[1]*dt/2]);
+                let k4 = f_der(t + dt, [y[0] + k3[0]*dt, y[1] + k3[1]*dt]);
+
+                y[0] += (dt/6) * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
+                y[1] += (dt/6) * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
+                t += dt;
+            }
+
+            // Escala Y dinámica
+            const maxVal = Math.max(V * 1.5, Math.max(...dataPoints_Vc.map(Math.abs)) * 1.1, 1);
+            
+            // Eje central
+            const centerY = height / 2;
+            ctx.strokeStyle = '#005533';
+            ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(width, centerY); ctx.stroke();
+
+            function drawTrace(data, color, lineWidth) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                for (let i = 0; i < data.length; i++) {
+                    const px = i;
+                    const py = centerY - (data[i] / maxVal) * (height / 2);
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            // Dibujar trazados
+            drawTrace(dataPoints_Vin, 'rgba(255, 204, 0, 0.5)', 2); // Vin
+            drawTrace(dataPoints_Vc, '#00e5ff', 3); // Vc
+
+            // Textos de escala
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.fillText(`Escala Y: ±${maxVal.toFixed(2)} V`, 10, 20);
+        }
+
+        // Asignar listeners a todas las entradas
+        const allInputs = document.querySelectorAll('input, select');
+        allInputs.forEach(input => {
+            input.addEventListener('input', updateSimulation);
+            input.addEventListener('change', updateSimulation);
+        });
+
+        // Inicio
+        updateSimulation();
+
+    </script>
+</body>
+</html>
