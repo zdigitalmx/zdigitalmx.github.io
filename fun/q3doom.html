@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Q3A vs Doom Animación</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #050505; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: #fff; 
+            font-family: 'Courier New', Courier, monospace; 
+            overflow: hidden;
+        }
+        canvas { 
+            border: 4px solid #333; 
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4); 
+            background: linear-gradient(to bottom, #2b1d1d 0%, #1a0f0f 60%, #301f1f 100%); /* Simulación de arena oscura */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="arena" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('arena');
+        const ctx = canvas.getContext('2d');
+        
+        let startTime = null;
+        let particles = [];
+        let gibs = [];
+        
+        // Sistemas de partículas para explosiones y sangre
+        class Particle {
+            constructor(x, y, color, speed, size) {
+                this.x = x; this.y = y;
+                this.vx = (Math.random() - 0.5) * speed;
+                this.vy = (Math.random() - 0.5) * speed;
+                this.color = color;
+                this.size = Math.random() * size + 2;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.vy += 0.2; // Gravedad
+                this.life -= this.decay;
+            }
+            draw(ctx) {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function createExplosion(x, y, color, count, speed, size) {
+            for(let i=0; i<count; i++) {
+                particles.push(new Particle(x, y, color, speed, size));
+            }
+        }
+
+        function drawDoomguy(x, y, aiming, weapon) {
+            // Cuerpo y armadura (Verde clásico)
+            ctx.fillStyle = "#2E5C31";
+            ctx.fillRect(x - 20, y - 40, 40, 50); // Torso
+            ctx.fillStyle = "#1B381E";
+            ctx.fillRect(x - 15, y + 10, 10, 40); // Pierna izq
+            ctx.fillRect(x + 5, y + 10, 10, 40);  // Pierna der
+            
+            // Casco
+            ctx.fillStyle = "#3F7C43";
+            ctx.fillRect(x - 15, y - 65, 30, 25);
+            ctx.fillStyle = "#4A90E2"; // Visor
+            ctx.fillRect(x - 5, y - 60, 20, 10);
+
+            // Arma
+            if (weapon === 'railgun') {
+                ctx.fillStyle = "#777";
+                ctx.fillRect(x, y - 30, 60, 10);
+                ctx.fillStyle = "#0f0"; // Núcleo
+                ctx.fillRect(x + 10, y - 28, 40, 4);
+            } else if (weapon === 'rocket') {
+                ctx.fillStyle = "#555";
+                ctx.fillRect(x, y - 35, 70, 15);
+                ctx.fillStyle = "#900";
+                ctx.fillRect(x + 60, y - 35, 10, 15);
+            }
+        }
+
+        function drawCacodemon(x, y, isDead) {
+            if (isDead) return;
+            // Cuerpo esférico (Doom Eternal style)
+            ctx.beginPath();
+            ctx.arc(x, y, 40, 0, Math.PI * 2);
+            ctx.fillStyle = "#B30000";
+            ctx.fill();
+            ctx.strokeStyle = "#4A0000";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Ojo verde
+            ctx.beginPath();
+            ctx.arc(x - 15, y - 10, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "#00FF00";
+            ctx.fill();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(x - 18, y - 12, 4, 4); // Pupila
+
+            // Boca azulada
+            ctx.fillStyle = "#1A1A4A";
+            ctx.beginPath();
+            ctx.ellipse(x - 10, y + 20, 20, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cuernos blancos
+            ctx.fillStyle = "#DDD";
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 35); ctx.lineTo(x + 30, y - 60); ctx.lineTo(x + 25, y - 30);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 38); ctx.lineTo(x - 20, y - 65); ctx.lineTo(x, y - 35);
+            ctx.fill();
+        }
+
+        function drawPainElemental(x, y, isDead) {
+            if (isDead) return;
+            // Doom 64 style Pain Elemental (Marrón, múltiples cuernos)
+            ctx.beginPath();
+            ctx.arc(x, y, 35, 0, Math.PI * 2);
+            ctx.fillStyle = "#5C4033";
+            ctx.fill();
+            
+            // Ojo rojo central
+            ctx.fillStyle = "#FF0000";
+            ctx.beginPath();
+            ctx.arc(x - 10, y - 5, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Cuernos oscuros
+            ctx.fillStyle = "#221100";
+            ctx.fillRect(x, y - 50, 8, 20);
+            ctx.fillRect(x + 20, y - 45, 8, 20);
+            
+            // Manos/Garras flotantes
+            ctx.fillStyle = "#4A3020";
+            ctx.fillRect(x - 40, y + 20, 15, 10);
+            ctx.fillRect(x + 20, y + 25, 15, 10);
+        }
+
+        function drawRailgunBeam(startX, startY, endX, endY) {
+            // Estilo Quake 3: Núcleo sólido con espiral simulada
+            ctx.strokeStyle = "#00FF00";
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        }
+
+        function drawRocket(x, y) {
+            ctx.fillStyle = "#888";
+            ctx.fillRect(x, y, 20, 8);
+            ctx.fillStyle = "#FF4500"; // Fuego trasero
+            ctx.fillRect(x - 15, y + 1, 15, 6);
+            ctx.fillStyle = "#FFFF00";
+            ctx.fillRect(x - 10, y + 2, 10, 4);
+        }
+
+        // Estado del motor
+        let cacodemonDead = false;
+        let painElementalDead = false;
+        let rocketPos = { x: 0, y: 0, active: false };
+
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            let t = (timestamp - startTime) / 1000; // Tiempo en segundos
+
+            if (t > 20) {
+                // Pantalla final a los 20 segundos
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#FF0000";
+                ctx.font = "bold 48px Courier New";
+                ctx.textAlign = "center";
+                ctx.fillText("EXCELLENT", canvas.width / 2, canvas.height / 2);
+                return; // Detener bucle
+            }
+
+            // Limpiar lienzo
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Posiciones dinámicas base
+            let doomX = 150;
+            let doomY = 280;
+            let cacoX = 600 + Math.sin(t * 2) * 20; // Hover
+            let cacoY = 150 + Math.cos(t * 3) * 15;
+            let painX = 700 + Math.sin(t * 1.5) * 30;
+            let painY = 100 + Math.cos(t * 2.5) * 20;
+            
+            let weapon = 'railgun';
+
+            // Lógica temporal (Timeline de 20s)
+            if (t < 2) {
+                doomX = 50 + (t * 50); // Camina hacia la arena
+            } else if (t >= 2 && t < 4) {
+                doomY = 280; // Apuntando
+            } else if (t >= 4 && t < 5) {
+                // Disparo de Railgun a Cacodemon
+                if (!cacodemonDead) {
+                    drawRailgunBeam(doomX + 60, doomY - 25, cacoX, cacoY);
+                    createExplosion(cacoX, cacoY, "#990000", 50, 15, 6); // Gibs Q3A
+                    createExplosion(cacoX, cacoY, "#FF0000", 30, 10, 4);
+                    cacodemonDead = true;
+                }
+            } else if (t >= 5 && t < 10) {
+                weapon = 'rocket'; // Cambia de arma
+                // Strafe jump simulado
+                doomX = 150 + Math.sin(t * 4) * 40;
+                doomY = 280 - Math.abs(Math.cos(t * 4)) * 30; 
+                // Pain Elemental avanza
+                painX -= (t - 5) * 10;
+            } else if (t >= 10 && t < 12) {
+                weapon = 'rocket';
+                doomX = 200;
+                doomY = 280;
+                painX = 550;
+                
+                // Lanza cohete
+                if (!rocketPos.active) {
+                    rocketPos = { x: doomX + 70, y: doomY - 30, active: true };
+                }
+                rocketPos.x += 15; // Velocidad del cohete
+                drawRocket(rocketPos.x, rocketPos.y);
+
+                // Colisión cohete vs Pain Elemental
+                if (rocketPos.x >= painX - 30 && !painElementalDead) {
+                    createExplosion(painX, painY, "#FF8C00", 80, 20, 8); // Explosión de fuego
+                    createExplosion(painX, painY, "#FFFF00", 40, 10, 5);
+                    painElementalDead = true;
+                    rocketPos.active = false;
+                }
+            } else if (t >= 12) {
+                weapon = 'rocket';
+                doomX = 200;
+            }
+
+            // Dibujar entidades vivas
+            drawPainElemental(painX, painY, painElementalDead);
+            drawCacodemon(cacoX, cacoY, cacodemonDead);
+            drawDoomguy(doomX, doomY, true, weapon);
+
+            // Actualizar y dibujar partículas (Blood/Gibs/Explosiones)
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw(ctx);
+                if (p.life <= 0) particles.splice(index, 1);
+            });
+
+            // HUD tipo Quake 3
+            ctx.fillStyle = "#FFD700";
+            ctx.font = "20px monospace";
+            ctx.textAlign = "left";
+            ctx.fillText("HEALTH: 100", 20, 380);
+            ctx.fillText("ARMOR: 200", 180, 380);
+            ctx.textAlign = "right";
+            ctx.fillText("AMMO: " + (t > 4 ? (t > 10 ? "48" : "49") : "10"), 780, 380);
+            
+            // Temporizador
+            ctx.fillStyle = "#FFF";
+            ctx.textAlign = "center";
+            ctx.fillText("T: " + t.toFixed(1) + "s", 400, 30);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar motor de renderizado
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
