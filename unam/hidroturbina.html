@@ -27,7 +27,6 @@
     h1 { font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
     p.lead { color: var(--text-muted); font-size: 0.95rem; }
 
-    /* Secciones colapsables o contenedores */
     .section-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -45,7 +44,6 @@
       gap: 8px;
     }
 
-    /* Diagrama SVG */
     .diagram-container {
       background-color: var(--code-bg);
       border-radius: 6px;
@@ -64,7 +62,6 @@
     svg .arrow-fb { fill: #fbbf24; }
     svg .label-var { fill: #f8fafc; font-weight: bold; font-size: 12px; }
 
-    /* Matemáticas */
     .math-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -89,7 +86,6 @@
       overflow-x: auto;
     }
 
-    /* Layout de Simulación */
     .workspace-grid {
       display: grid;
       grid-template-columns: 360px 1fr;
@@ -99,7 +95,6 @@
       .workspace-grid { grid-template-columns: 1fr; }
     }
 
-    /* Panel de Parámetros */
     .param-group {
       margin-bottom: 18px;
       background: #182234;
@@ -114,9 +109,7 @@
       color: var(--text-muted);
       margin-bottom: 12px;
     }
-    .param-row {
-      margin-bottom: 12px;
-    }
+    .param-row { margin-bottom: 12px; }
     .param-label-wrap {
       display: flex;
       justify-content: space-between;
@@ -177,7 +170,6 @@
     }
     .btn-run:hover { background: var(--accent-hover); }
 
-    /* Área de Gráficas */
     .charts-wrapper {
       display: flex;
       flex-direction: column;
@@ -208,7 +200,6 @@
       background: #090d16;
     }
 
-    /* KPIs */
     .kpi-deck {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -233,13 +224,12 @@
     <p class="lead">Modelado dinámico de turbina hidráulica, efecto del cero en el semiplano derecho (RHP) y gobernador PID.</p>
   </header>
 
-  <!-- SECCIÓN 1: JUSTIFICACIÓN MATEMÁTICA -->
   <section class="section-card">
     <div class="section-title">1. Justificación Matemática del Proceso y Dinámica No Mínima</div>
     <p style="font-size: 0.9rem; color: #cbd5e1;">
       El control de velocidad/frecuencia ($\Delta \omega$) en centrales hidroeléctricas enfrenta un fenómeno de 
       <strong>fase no mínima</strong>. Debido a la inercia del agua en la tubería forzada, al abrir la compuerta para aumentar la potencia mecánica, 
-      la presión neta en la entrada de la turbina cae temporalmente antes de que la columna de agua adquiera aceleración. Como resultado, 
+      la presión neta en la entrada de la turbina cae temporalmente antes de que la columna adquiera aceleración. Como resultado, 
       <strong>la potencia mecánica producida ($P_m$) decae inicialmente antes de comenzar a subir</strong>.
     </p>
 
@@ -248,7 +238,7 @@
         <h4>A. Actuador de Compuerta (1er Orden)</h4>
         <p>Relaciona la señal del regulador $u(t)$ con la posición de la compuerta $g(t)$:</p>
         <div class="equation">T_g · (dg/dt) + g(t) = u(t)</div>
-        <p style="color:var(--text-muted); font-size: 0.78rem;">Sujeto a saturación [0, 1] pu y límite de pendiente de carrera (|dg/dt| ≤ vel_max).</p>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">Sujeto a saturación incremental y límite de pendiente (|dg/dt| ≤ vel_max).</p>
       </div>
 
       <div class="math-item">
@@ -256,7 +246,7 @@
         <p>Segunda ley de Newton para columna incompresible y orificio linealizado:</p>
         <div class="equation">G_t(s) = ΔP_m(s) / ΔG(s) = (1 - T_w·s) / (1 + 0.5·T_w·s)</div>
         <p style="color:var(--text-muted); font-size: 0.78rem;">
-          Presenta un <strong>cero en el semiplano derecho</strong> en $s = +1/T_w$. Este cero limita estrictamente la ganancia máxima permisible en lazo cerrado para evitar inestabilidad.
+          En variables de estado: 0.5·T_w·(dq/dt) + q = g, con salida desacoplada P_m = 3·q - 2·g (Ganancia estática = 1.0, Cero en +1/T_w).
         </p>
       </div>
 
@@ -265,20 +255,19 @@
         <p>Balance electromecánico de par y amortiguamiento:</p>
         <div class="equation">2H · (dΔω/dt) + D · Δω(t) = P_m(t) - ΔP_L(t)</div>
         <p style="color:var(--text-muted); font-size: 0.78rem;">
-          Donde $H$ es la inercia del grupo, $D$ el amortiguamiento de carga frente a frecuencia y $\Delta P_L(t)$ la perturbación externa de demanda eléctrica.
+          Donde $H$ es la inercia del grupo, $D$ el amortiguamiento de carga y $\Delta P_L(t)$ la perturbación externa de demanda eléctrica.
         </p>
       </div>
 
       <div class="math-item">
-        <h4>D. Controlador Gobernador PID con Filtro</h4>
-        <p>Acción de regulación con polo de atenuación de ruido:</p>
+        <h4>D. Gobernador PID con Anti-Windup</h4>
+        <p>Acción de regulación con filtro de polo en alta frecuencia:</p>
         <div class="equation">u(s) = [ K_p + K_i/s + (K_d·s)/(1 + (K_d/N)·s) ] · e(s)</div>
-        <p style="color:var(--text-muted); font-size: 0.78rem;">Donde $e(t) = \Delta \omega_{ref}(t) - \Delta \omega(t)$.</p>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">Con congelamiento condicional de integración durante saturación de pendiente.</p>
       </div>
     </div>
   </section>
 
-  <!-- SECCIÓN 2: DIAGRAMA DE BLOQUES SVG -->
   <section class="section-card">
     <div class="section-title">2. Diagrama de Bloques Multivariable y Lazo de Control</div>
     <div class="diagram-container">
@@ -292,72 +281,57 @@
           </marker>
         </defs>
 
-        <!-- Entrada Referencia -->
         <text x="15" y="65" class="label-var">Δω_ref(t)</text>
         <text x="20" y="82" style="fill: #64748b; font-size: 10px;">[pu / Hz]</text>
         <line x1="80" y1="70" x2="114" y2="70" class="wire" marker-end="url(#m-arr)" />
 
-        <!-- Sumador de Error -->
         <circle cx="125" cy="70" r="11" class="sum" />
         <text x="121" y="74" style="fill:#fff; font-size: 13px;">+</text>
         <text x="121" y="93" style="fill:#fbbf24; font-size: 12px;">−</text>
         <text x="142" y="63" class="label-var">e(t)</text>
 
-        <!-- Conexión a PID -->
         <line x1="136" y1="70" x2="175" y2="70" class="wire" marker-end="url(#m-arr)" />
 
-        <!-- Bloque 1: Controlador PID -->
         <rect x="175" y="42" width="145" height="56" rx="5" class="block-ctrl" />
         <text x="200" y="65" style="fill:#4ade80; font-weight:bold;">Controlador PID</text>
         <text x="187" y="84">Kp + Ki/s + Kd·s/(1+s/N)</text>
 
-        <!-- Conexión PID a Actuador -->
         <line x1="320" y1="70" x2="360" y2="70" class="wire" marker-end="url(#m-arr)" />
         <text x="325" y="63" class="label-var">u(t)</text>
 
-        <!-- Bloque 2: Actuador Servo -->
         <rect x="360" y="42" width="135" height="56" rx="5" class="block" />
         <text x="375" y="64" style="fill:#38bdf8; font-weight:bold;">Actuador Compuerta</text>
         <text x="400" y="84">1 / (Tg·s + 1)</text>
 
-        <!-- Conexión Actuador a Turbina -->
         <line x1="495" y1="70" x2="535" y2="70" class="wire" marker-end="url(#m-arr)" />
         <text x="502" y="63" class="label-var">g(t)</text>
 
-        <!-- Bloque 3: Columna de Agua y Turbina -->
         <rect x="535" y="42" width="155" height="56" rx="5" class="block" style="stroke: #f43f5e;" />
         <text x="550" y="64" style="fill:#f43f5e; font-weight:bold;">Turbina / Inercia Hídrica</text>
         <text x="562" y="84">(1 - Tw·s) / (1 + 0.5·Tw·s)</text>
 
-        <!-- Conexión Turbina a Sumador Mecánico -->
         <line x1="690" y1="70" x2="729" y2="70" class="wire" marker-end="url(#m-arr)" />
         <text x="696" y="63" class="label-var">Pm(t)</text>
 
-        <!-- Sumador Mecánico con Perturbación -->
         <circle cx="740" cy="70" r="11" class="sum" />
         <text x="736" y="74" style="fill:#fff; font-size: 13px;">+</text>
         <text x="746" y="58" style="fill:#f43f5e; font-size: 12px;">−</text>
 
-        <!-- Perturbación Exógena Delta PL -->
         <line x1="740" y1="12" x2="740" y2="59" class="wire" style="stroke:#f43f5e;" marker-end="url(#m-arr)" />
         <text x="750" y="25" style="fill:#f43f5e; font-weight:bold;">ΔP_L(t) [Carga Red]</text>
 
-        <!-- Conexión a Dinámica de Rotor -->
         <line x1="751" y1="70" x2="785" y2="70" class="wire" marker-end="url(#m-arr)" />
         <text x="754" y="87" style="fill:#94a3b8; font-size:10px;">Pm − Pe</text>
 
-        <!-- Bloque 4: Generador y Red -->
         <rect x="785" y="42" width="125" height="56" rx="5" class="block" />
         <text x="797" y="64" style="fill:#38bdf8; font-weight:bold;">Generador / Red</text>
         <text x="808" y="84">1 / (2H·s + D)</text>
 
-        <!-- Salida Principal -->
         <line x1="910" y1="70" x2="960" y2="70" class="wire" marker-end="url(#m-arr)" />
         <circle cx="935" cy="70" r="3" style="fill:#38bdf8;" />
         <text x="918" y="63" class="label-var" style="fill:#38bdf8;">Δω(t)</text>
         <text x="918" y="85" style="fill: #64748b; font-size: 10px;">[pu / Hz]</text>
 
-        <!-- Lazo de Realimentación -->
         <line x1="935" y1="70" x2="935" y2="185" class="wire-feedback" />
         <line x1="935" y1="185" x2="125" y2="185" class="wire-feedback" />
         <line x1="125" y1="185" x2="125" y2="82" class="wire-feedback" marker-end="url(#m-arr-fb)" />
@@ -366,9 +340,7 @@
     </div>
   </section>
 
-  <!-- SECCIÓN 3: WORKSPACE DE SIMULACIÓN -->
   <div class="workspace-grid">
-    <!-- PANEL DE ENTRADAS Y PARÁMETROS -->
     <aside>
       <div class="preset-bar">
         <button class="btn active" id="btn-pre-stable" onclick="setPreset('stable')">Nominal Estable</button>
@@ -376,7 +348,6 @@
         <button class="btn" id="btn-pre-agg" onclick="setPreset('unstable')">PID Agresivo (Oscilante)</button>
       </div>
 
-      <!-- Parámetros de Planta -->
       <div class="param-group">
         <h3>1. Parámetros de la Planta</h3>
         
@@ -430,13 +401,12 @@
             <span class="param-unit">[pu/s]</span>
           </div>
           <div class="param-controls">
-            <input type="range" id="rng_gDotMax" min="0.05" max="0.40" step="0.01" value="0.15" oninput="sync('gDotMax', this.value)">
-            <input type="number" id="num_gDotMax" min="0.05" max="0.40" step="0.01" value="0.15" oninput="sync('gDotMax', this.value)">
+            <input type="range" id="rng_gDotMax" min="0.05" max="0.50" step="0.01" value="0.20" oninput="sync('gDotMax', this.value)">
+            <input type="number" id="num_gDotMax" min="0.05" max="0.50" step="0.01" value="0.20" oninput="sync('gDotMax', this.value)">
           </div>
         </div>
       </div>
 
-      <!-- Parámetros de Control -->
       <div class="param-group">
         <h3>2. Sintonización del Gobernador</h3>
 
@@ -446,8 +416,8 @@
             <span class="param-unit">[pu/pu]</span>
           </div>
           <div class="param-controls">
-            <input type="range" id="rng_Kp" min="0.1" max="6.0" step="0.1" value="1.8" oninput="sync('Kp', this.value)">
-            <input type="number" id="num_Kp" min="0.1" max="6.0" step="0.1" value="1.8" oninput="sync('Kp', this.value)">
+            <input type="range" id="rng_Kp" min="0.1" max="6.0" step="0.1" value="1.5" oninput="sync('Kp', this.value)">
+            <input type="number" id="num_Kp" min="0.1" max="6.0" step="0.1" value="1.5" oninput="sync('Kp', this.value)">
           </div>
         </div>
 
@@ -457,8 +427,8 @@
             <span class="param-unit">[1/s]</span>
           </div>
           <div class="param-controls">
-            <input type="range" id="rng_Ki" min="0.01" max="1.5" step="0.01" value="0.40" oninput="sync('Ki', this.value)">
-            <input type="number" id="num_Ki" min="0.01" max="1.5" step="0.01" value="0.40" oninput="sync('Ki', this.value)">
+            <input type="range" id="rng_Ki" min="0.01" max="1.5" step="0.01" value="0.30" oninput="sync('Ki', this.value)">
+            <input type="number" id="num_Ki" min="0.01" max="1.5" step="0.01" value="0.30" oninput="sync('Ki', this.value)">
           </div>
         </div>
 
@@ -468,13 +438,12 @@
             <span class="param-unit">[s]</span>
           </div>
           <div class="param-controls">
-            <input type="range" id="rng_Kd" min="0.0" max="2.0" step="0.05" value="0.5" oninput="sync('Kd', this.value)">
-            <input type="number" id="num_Kd" min="0.0" max="2.0" step="0.05" value="0.5" oninput="sync('Kd', this.value)">
+            <input type="range" id="rng_Kd" min="0.0" max="2.0" step="0.05" value="0.4" oninput="sync('Kd', this.value)">
+            <input type="number" id="num_Kd" min="0.0" max="2.0" step="0.05" value="0.4" oninput="sync('Kd', this.value)">
           </div>
         </div>
       </div>
 
-      <!-- Escenario y Perturbación -->
       <div class="param-group">
         <h3>3. Perturbación y Simulación</h3>
 
@@ -515,25 +484,22 @@
       </div>
     </aside>
 
-    <!-- PANEL DE RESULTADOS GRÁFICOS Y KPIS -->
     <main>
       <div class="charts-wrapper">
-        <!-- Gráfica 1: Frecuencia -->
         <div class="chart-container">
           <div class="chart-header">
             <span class="chart-title">Desviación de Frecuencia / Velocidad Angular: Δω(t)</span>
             <div class="chart-legend">
-              <div class="legend-tag"><span class="legend-color" style="background:#94a3b8;"></span> Ref: Δω_ref</div>
+              <div class="legend-tag"><span class="legend-color" style="background:#64748b;"></span> Ref: 0 pu</div>
               <div class="legend-tag"><span class="legend-color" style="background:var(--chart-cyan);"></span> Salida: Δω(t) [pu]</div>
             </div>
           </div>
           <canvas id="canvasOmega"></canvas>
         </div>
 
-        <!-- Gráfica 2: Potencia Mecánica vs Eléctrica -->
         <div class="chart-container">
           <div class="chart-header">
-            <span class="chart-title">Balance de Potencias: P_m(t) vs P_e(t) (Nótese la respuesta inversa en Pm)</span>
+            <span class="chart-title">Balance de Potencias: P_m(t) vs Demanda Eléctrica (Efecto Fase No Mínima)</span>
             <div class="chart-legend">
               <div class="legend-tag"><span class="legend-color" style="background:var(--chart-rose);"></span> Demanda: ΔP_L [pu]</div>
               <div class="legend-tag"><span class="legend-color" style="background:var(--chart-green);"></span> Potencia Mecánica: P_m [pu]</div>
@@ -542,19 +508,17 @@
           <canvas id="canvasPower"></canvas>
         </div>
 
-        <!-- Gráfica 3: Actuador y Compuerta -->
         <div class="chart-container">
           <div class="chart-header">
             <span class="chart-title">Acción de Control y Carrera de Compuerta</span>
             <div class="chart-legend">
-              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-amber);"></span> Salida Controlador: u(t)</div>
+              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-amber);"></span> Salida PID: u(t)</div>
               <div class="legend-tag"><span class="legend-color" style="background:#a78bfa;"></span> Posición Compuerta: g(t) [pu]</div>
             </div>
           </div>
           <canvas id="canvasGate"></canvas>
         </div>
 
-        <!-- TABLERO DE MÉTRICAS / KPIS -->
         <div class="kpi-deck">
           <div class="kpi-card">
             <div class="kpi-label">Frecuencia Nadir</div>
@@ -569,7 +533,7 @@
             <div class="kpi-value" id="kpi-os">--</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Asentamiento ts (2%)</div>
+            <div class="kpi-label">Asentamiento ts (±0.002 pu)</div>
             <div class="kpi-value" id="kpi-ts">--</div>
           </div>
           <div class="kpi-card">
@@ -582,16 +546,15 @@
   </div>
 
   <script>
-    // --- ESTADO Y PARÁMETROS GLOBALES ---
     const params = {
       Tw: 1.2,
       H: 3.5,
       D: 1.0,
       Tg: 0.20,
-      gDotMax: 0.15,
-      Kp: 1.8,
-      Ki: 0.40,
-      Kd: 0.5,
+      gDotMax: 0.20,
+      Kp: 1.5,
+      Ki: 0.30,
+      Kd: 0.4,
       N: 10.0,
       dPL: 0.10,
       tStep: 2.0,
@@ -611,15 +574,15 @@
       if (type === 'stable') {
         document.getElementById('btn-pre-stable').classList.add('active');
         params.Tw = 1.0; params.H = 4.0; params.D = 1.0; params.Tg = 0.2;
-        params.Kp = 1.8; params.Ki = 0.35; params.Kd = 0.6; params.dPL = 0.10;
+        params.Kp = 1.5; params.Ki = 0.30; params.Kd = 0.4; params.dPL = 0.10;
       } else if (type === 'highRhp') {
         document.getElementById('btn-pre-rhp').classList.add('active');
-        params.Tw = 2.4; params.H = 3.0; params.D = 0.8; params.Tg = 0.25;
-        params.Kp = 1.2; params.Ki = 0.18; params.Kd = 0.4; params.dPL = 0.12;
+        params.Tw = 2.4; params.H = 3.5; params.D = 0.8; params.Tg = 0.25;
+        params.Kp = 0.9; params.Ki = 0.12; params.Kd = 0.25; params.dPL = 0.10;
       } else if (type === 'unstable') {
         document.getElementById('btn-pre-agg').classList.add('active');
-        params.Tw = 1.6; params.H = 3.0; params.D = 0.5; params.Tg = 0.15;
-        params.Kp = 4.5; params.Ki = 1.10; params.Kd = 1.2; params.dPL = 0.10;
+        params.Tw = 1.5; params.H = 3.0; params.D = 0.5; params.Tg = 0.15;
+        params.Kp = 3.8; params.Ki = 0.80; params.Kd = 0.9; params.dPL = 0.10;
       }
 
       for (const [key, val] of Object.entries(params)) {
@@ -630,15 +593,15 @@
       runSimulation();
     }
 
-    // --- SOLVER NUMÉRICO RUNGE-KUTTA 4 (RK4) ---
-    // Variables de estado del sistema:
-    // x[0] = g (posición física de la compuerta)
-    // x[1] = q (desviación de caudal en tubería forzada)
-    // x[2] = dw (desviación de velocidad angular/frecuencia)
-    // x[3] = xi (estado integral del PID)
-    // x[4] = xd (estado del filtro derivativo)
+    // --- SOLVER NUMÉRICO RK4 ---
+    // Variables de estado:
+    // x[0] = g  (Apertura compuerta)
+    // x[1] = q  (Estado interno turbina hídrica)
+    // x[2] = dw (Desviación velocidad rotor / frecuencia)
+    // x[3] = xi (Estado integral del gobernador)
+    // x[4] = xd (Estado filtro polo derivativo)
     function runSimulation() {
-      const dt = 0.005; // Paso de integración fijo de 5 ms
+      const dt = 0.005;
       const steps = Math.floor(params.tFinal / dt);
 
       const tArr = new Float64Array(steps);
@@ -648,7 +611,6 @@
       const gArr = new Float64Array(steps);
       const uArr = new Float64Array(steps);
 
-      // Condiciones iniciales en estado estacionario normalizado
       let x = [0.0, 0.0, 0.0, 0.0, 0.0];
 
       function derivatives(t, state) {
@@ -658,36 +620,39 @@
         const xi = state[3];
         const xd = state[4];
 
-        // Perturbación escalón de carga
         const dPL = (t >= params.tStep) ? params.dPL : 0.0;
-
-        // Error de lazo: delta_omega_ref = 0
         const error = 0.0 - dw;
 
-        // Ecuaciones del controlador PID con filtro derivador:
-        // u = Kp*e + Ki*xi + N*(Kd*e - xd)
-        const d_term = params.N * (params.Kd * error - xd);
-        let u = params.Kp * error + params.Ki * xi + d_term;
+        // Gobernador PID con derivador filtrado
+        const dTerm = (params.Kd > 0.0) ? (params.N * (params.Kd * error - xd)) : 0.0;
+        const u = params.Kp * error + params.Ki * xi + dTerm;
 
-        // Dinámica del servomotor de compuerta con saturación de slew-rate
-        let gDot = (u - g) / params.Tg;
-        if (gDot > params.gDotMax) gDot = params.gDotMax;
-        if (gDot < -params.gDotMax) gDot = -params.gDotMax;
+        // Dinámica servomotor y límite slew-rate
+        const gDotRaw = (u - g) / params.Tg;
+        let gDot = gDotRaw;
+        let saturated = false;
 
-        // Dinámica de columna de agua:
-        // dq/dt = -(2/Tw)*q + (2/Tw)*g
-        const qDot = -(2.0 / params.Tw) * q + (2.0 / params.Tw) * g;
+        if (gDot > params.gDotMax) {
+          gDot = params.gDotMax;
+          saturated = true;
+        } else if (gDot < -params.gDotMax) {
+          gDot = -params.gDotMax;
+          saturated = true;
+        }
 
-        // Potencia mecánica: Pm = 1.5*q - g (Cero RHP explícito)
-        const Pm = 1.5 * q - g;
+        // Anti-windup condicional: congelar integral si satura en la misma dirección del error
+        let xiDot = error;
+        if (saturated && ((gDotRaw > 0 && error > 0) || (gDotRaw < 0 && error < 0))) {
+          xiDot = 0.0;
+        }
 
-        // Dinámica de oscilación del generador:
-        // 2H * d(dw)/dt + D*dw = Pm - dPL
+        // Dinámica turbina hídrica: Gt(s) = (1 - Tw*s)/(1 + 0.5*Tw*s)
+        const qDot = (g - q) / (0.5 * params.Tw);
+        const Pm = 3.0 * q - 2.0 * g;
+
+        // Balance de oscilación del generador
         const dwDot = (Pm - dPL - params.D * dw) / (2.0 * params.H);
-
-        // Dinámica interna del controlador
-        const xiDot = error;
-        const xdDot = d_term;
+        const xdDot = dTerm;
 
         return [gDot, qDot, dwDot, xiDot, xdDot, u, Pm, dPL];
       }
@@ -696,7 +661,6 @@
         const t = i * dt;
         tArr[i] = t;
 
-        // Registro de salidas
         const out = derivatives(t, x);
         gArr[i] = x[0];
         dwArr[i] = x[2];
@@ -704,9 +668,7 @@
         pmArr[i] = out[6];
         plArr[i] = out[7];
 
-        // RK4 Integration
         const k1 = derivatives(t, x);
-        
         const x_k2 = [
           x[0] + 0.5 * dt * k1[0],
           x[1] + 0.5 * dt * k1[1],
@@ -739,12 +701,11 @@
         }
       }
 
-      // Procesar KPIs y graficar
       computeKPIs(tArr, dwArr);
       drawPlot('canvasOmega', tArr, [
         { data: new Float64Array(steps).fill(0.0), color: '#64748b', dashed: true },
         { data: dwArr, color: '#38bdf8' }
-      ], 'pu (Δf / f0)');
+      ], 'pu (Δω)');
 
       drawPlot('canvasPower', tArr, [
         { data: plArr, color: '#f43f5e' },
@@ -757,7 +718,6 @@
       ], 'pu (Apertura)');
     }
 
-    // --- CÁLCULO DE MÉTRICAS DINÁMICAS (KPIS) ---
     function computeKPIs(t, dw) {
       let minVal = 0.0;
       let minIdx = 0;
@@ -771,20 +731,18 @@
       }
 
       const nadirVal = minVal;
-      const tNadir = t[minIdx] - params.tStep;
+      const tNadir = (minIdx >= startIndex) ? (t[minIdx] - params.tStep) : 0.0;
 
-      // Buscar overshoot en recuperación (pico positivo posterior al nadir)
       let maxValAfterNadir = nadirVal;
       for (let i = minIdx; i < dw.length; i++) {
         if (dw[i] > maxValAfterNadir) maxValAfterNadir = dw[i];
       }
       const overshoot = (maxValAfterNadir > 0.0) ? (maxValAfterNadir * 100).toFixed(2) + ' %' : '0.00 %';
 
-      // Tiempo de asentamiento al 2% del nadir
-      const band = Math.abs(nadirVal) * 0.05;
+      const band = 0.002;
       let ts = '> ' + params.tFinal.toFixed(0) + ' s';
       for (let i = dw.length - 1; i >= minIdx; i--) {
-        if (Math.abs(dw[i]) > Math.max(band, 0.001)) {
+        if (Math.abs(dw[i]) > band) {
           if (i < dw.length - 5) {
             ts = (t[i] - params.tStep).toFixed(2) + ' s';
           }
@@ -801,7 +759,6 @@
       document.getElementById('kpi-ess').innerText = ess;
     }
 
-    // --- MOTOR DE DIBUJO EN HTML5 CANVAS NATIVO ---
     function drawPlot(canvasId, time, seriesList, yLabel) {
       const canvas = document.getElementById(canvasId);
       const ctx = canvas.getContext('2d');
@@ -813,12 +770,10 @@
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
 
-      // Márgenes
       const padL = 60, padR = 20, padT = 15, padB = 25;
       const plotW = width - padL - padR;
       const plotH = height - padT - padB;
 
-      // Límites Y globales
       let yMin = Infinity, yMax = -Infinity;
       seriesList.forEach(s => {
         for (let i = 0; i < s.data.length; i++) {
@@ -827,7 +782,6 @@
         }
       });
 
-      // Asegurar rango simétrico o mínimo
       if (Math.abs(yMax - yMin) < 0.02) { yMax += 0.02; yMin -= 0.02; }
       const ySpan = (yMax - yMin) * 1.15;
       const yMid = (yMax + yMin) / 2;
@@ -836,7 +790,6 @@
 
       const tMax = time[time.length - 1];
 
-      // Fondo y rejilla
       ctx.fillStyle = '#090d16';
       ctx.fillRect(0, 0, width, height);
 
@@ -845,7 +798,6 @@
       ctx.font = '10px monospace';
       ctx.fillStyle = '#64748b';
 
-      // Rejilla Horizontal (Y)
       const yTicks = 4;
       for (let i = 0; i <= yTicks; i++) {
         const val = yPlotMin + (i / yTicks) * (yPlotMax - yPlotMin);
@@ -857,7 +809,6 @@
         ctx.fillText(val.toFixed(3), 8, yPx + 3);
       }
 
-      // Rejilla Vertical (X)
       const xTicks = 6;
       for (let i = 0; i <= xTicks; i++) {
         const tVal = (i / xTicks) * tMax;
@@ -869,7 +820,6 @@
         ctx.fillText(tVal.toFixed(0) + 's', xPx - 8, height - 8);
       }
 
-      // Línea de Cero (si está dentro del rango)
       if (yPlotMin < 0 && yPlotMax > 0) {
         const yZero = padT + plotH - ((0 - yPlotMin) / (yPlotMax - yPlotMin)) * plotH;
         ctx.strokeStyle = '#334155';
@@ -880,7 +830,6 @@
         ctx.stroke();
       }
 
-      // Render de Curvas
       seriesList.forEach(s => {
         ctx.strokeStyle = s.color;
         ctx.lineWidth = s.dashed ? 1.5 : 2;
@@ -897,7 +846,6 @@
         ctx.stroke();
       });
 
-      // Etiqueta vertical Y
       ctx.save();
       ctx.translate(14, padT + plotH / 2);
       ctx.rotate(-Math.PI / 2);
@@ -907,15 +855,8 @@
       ctx.restore();
     }
 
-    // Inicializar simulación al cargar la página
-    window.onload = () => {
-      runSimulation();
-    };
-
-    // Re-render al cambiar el tamaño de pantalla
-    window.onresize = () => {
-      runSimulation();
-    };
+    window.onload = () => { runSimulation(); };
+    window.onresize = () => { runSimulation(); };
   </script>
 </body>
 </html>
