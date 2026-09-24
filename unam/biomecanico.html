@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador Biomecánico MIMO: Pierna humana</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 { color: #2c3e50; }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: auto;
+        }
+        .panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .math-box {
+            background: #eef2f5;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        canvas {
+            background: #fff;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        input[type="range"] { width: 100%; }
+        .value-display { font-weight: normal; color: #e74c3c; }
+        .legend span { display: inline-block; margin-right: 15px; font-weight: bold; }
+        .color-t { color: #e74c3c; } /* Tobillo */
+        .color-r { color: #2ecc71; } /* Rodilla */
+        .color-c { color: #3498db; } /* Cadera */
+    </style>
+</head>
+<body>
+
+    <h1>Simulador Biomecánico: Modelo de 3 Grados de Libertad</h1>
+    
+    <div class="panel" style="margin-bottom: 20px;">
+        <h2>Justificación Matemática</h2>
+        <p>El sistema se modela como un manipulador robótico de tres eslabones interactuando con la gravedad. La dinámica no lineal se obtiene mediante la formulación de Euler-Lagrange:</p>
+        
+        <div class="math-box">
+            M(θ)θ'' + C(θ, θ')θ' + G(θ) = τ
+        </div>
+        
+        <p>Donde:</p>
+        <ul>
+            <li><b>θ</b> = [θ<sub>1</sub>, θ<sub>2</sub>, θ<sub>3</sub>]<sup>T</sup> es el vector de coordenadas generalizadas (ángulos absolutos respecto a la vertical).</li>
+            <li><b>M(θ)</b> es la matriz de inercia (3x3), simétrica y definida positiva.</li>
+            <li><b>C(θ, θ')</b> es la matriz de fuerzas centrípetas y de Coriolis (3x3).</li>
+            <li><b>G(θ)</b> es el vector de pares gravitacionales, dependiente de la masa del tronco <i>M<sub>T</sub></i>.</li>
+            <li><b>τ</b> = [τ<sub>1</sub>, τ<sub>2</sub>, τ<sub>3</sub>]<sup>T</sup> es el vector de torques de entrada en las articulaciones (tobillo, rodilla, cadera).</li>
+        </ul>
+
+        <p>Para el análisis en la licenciatura, el sistema se linealiza alrededor de un punto de equilibrio (postura vertical, θ ≈ 0), obteniendo la representación en espacio de estados:</p>
+        <div class="math-box">
+            Δx' = A·Δx + B·Δu<br>
+            Δy = C·Δx + D·Δu
+        </div>
+        <p>Para estabilizar la planta (que naturalmente tiene polos en el semiplano derecho), implementamos un control en lazo cerrado <b>τ = K<sub>p</sub>(θ<sub>ref</sub> - θ) - K<sub>d</sub>θ' + G(θ)</b>, que emula la rigidez muscular, el amortiguamiento viscoso y la propiocepción del sistema biológico.</p>
+    </div>
+
+    <div class="container">
+        <!-- Columna Izquierda: Animación -->
+        <div class="panel">
+            <h2>Animación del Sistema</h2>
+            <canvas id="simCanvas" width="600" height="500"></canvas>
+            <p><i>La base representa el pie apoyado. Los eslabones son: Tibia (rojo), Fémur (verde), Tronco (azul).</i></p>
+        </div>
+
+        <!-- Columna Derecha: Gráficas y Controles -->
+        <div class="panel">
+            <h2>Respuesta Transitoria (Ángulos)</h2>
+            <div class="legend">
+                <span class="color-t">■ θ1 (Tobillo)</span>
+                <span class="color-r">■ θ2 (Rodilla)</span>
+                <span class="color-c">■ θ3 (Cadera)</span>
+            </div>
+            <canvas id="graphCanvas" width="600" height="200"></canvas>
+
+            <h2>Panel de Control (Lazo Cerrado)</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>Masa del Tronco M<sub>T</sub> (kg): <span id="val_masa" class="value-display">40</span></label>
+                    <input type="range" id="slider_masa" min="10" max="90" step="1" value="40">
+                </div>
+                <div class="control-group">
+                    <label>Amortiguamiento biológico K<sub>d</sub>: <span id="val_kd" class="value-display">50</span></label>
+                    <input type="range" id="slider_kd" min="5" max="150" step="1" value="50">
+                </div>
+                <div class="control-group">
+                    <label>Ref. Tobillo θ<sub>1</sub> (grados): <span id="val_t1" class="value-display">0</span></label>
+                    <input type="range" id="slider_t1" min="-30" max="30" step="1" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Ref. Rodilla θ<sub>2</sub> (grados): <span id="val_t2" class="value-display">0</span></label>
+                    <input type="range" id="slider_t2" min="-30" max="30" step="1" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Ref. Cadera θ<sub>3</sub> (grados): <span id="val_t3" class="value-display">0</span></label>
+                    <input type="range" id="slider_t3" min="-45" max="45" step="1" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parámetros Físicos Biomecánicos (Aproximados)
+        const g = 9.81;
+        const L1 = 0.45; // Longitud tibia (m)
+        const L2 = 0.45; // Longitud fémur (m)
+        const L3 = 0.60; // Longitud tronco (m)
+        
+        let m1 = 3.5;  // Masa tibia
+        let m2 = 7.0;  // Masa fémur
+        let m3 = 40.0; // Masa tronco (Variable)
+
+        // Estados del sistema [theta, omega] (Ángulos absolutos desde la vertical)
+        let th1 = 0, th2 = 0, th3 = 0;
+        let w1 = 0, w2 = 0, w3 = 0;
+
+        // Referencias de control
+        let ref1 = 0, ref2 = 0, ref3 = 0;
+
+        // Ganancias del controlador PD biológico (Rigidez y Viscosidad)
+        let Kp = 2000; 
+        let Kd = 50;
+
+        // Historial para gráficas
+        const historySize = 300;
+        let hist1 = new Array(historySize).fill(0);
+        let hist2 = new Array(historySize).fill(0);
+        let hist3 = new Array(historySize).fill(0);
+
+        // Referencias al DOM
+        const simCanvas = document.getElementById('simCanvas');
+        const simCtx = simCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
+
+        // Escuchadores de eventos para los sliders
+        document.getElementById('slider_masa').addEventListener('input', function(e) {
+            m3 = parseFloat(e.target.value);
+            document.getElementById('val_masa').innerText = m3;
+        });
+        document.getElementById('slider_kd').addEventListener('input', function(e) {
+            Kd = parseFloat(e.target.value);
+            document.getElementById('val_kd').innerText = Kd;
+        });
+        document.getElementById('slider_t1').addEventListener('input', function(e) {
+            ref1 = parseFloat(e.target.value) * Math.PI / 180;
+            document.getElementById('val_t1').innerText = e.target.value;
+        });
+        document.getElementById('slider_t2').addEventListener('input', function(e) {
+            ref2 = parseFloat(e.target.value) * Math.PI / 180;
+            document.getElementById('val_t2').innerText = e.target.value;
+        });
+        document.getElementById('slider_t3').addEventListener('input', function(e) {
+            ref3 = parseFloat(e.target.value) * Math.PI / 180;
+            document.getElementById('val_t3').innerText = e.target.value;
+        });
+
+        // Ecuaciones de Movimiento y Motor de Integración (Euler Semi-implícito)
+        const dt = 0.01; // Paso de simulación (s)
+
+        function updatePhysics() {
+            // Momentos de inercia aproximados (eslabones como barras uniformes alrededor del extremo)
+            let I1 = (1/3)*m1*L1*L1 + m2*L1*L1 + m3*L1*L1; 
+            let I2 = (1/3)*m2*L2*L2 + m3*L2*L2;
+            let I3 = (1/3)*m3*L3*L3;
+
+            // Torques gravitacionales G(θ)
+            let G1 = (m1/2 + m2 + m3) * g * L1 * Math.sin(th1);
+            let G2 = (m2/2 + m3) * g * L2 * Math.sin(th2);
+            let G3 = (m3/2) * g * L3 * Math.sin(th3);
+
+            // Ley de Control: PD + Compensación de Gravedad
+            let tau1 = Kp * (ref1 - th1) - Kd * w1 + G1;
+            let tau2 = Kp * (ref2 - th2) - Kd * w2 + G2;
+            let tau3 = Kp * (ref3 - th3) - Kd * w3 + G3;
+
+            // Aceleraciones angulares (Simplificación diagonalizando M(θ) para integración en tiempo real)
+            // En un modelo MIMO estricto, aquí se invierte la matriz M(θ)
+            let alpha1 = (tau1 - G1) / I1; 
+            let alpha2 = (tau2 - G2) / I2;
+            let alpha3 = (tau3 - G3) / I3;
+
+            // Integración de Euler semi-implícita
+            w1 += alpha1 * dt;
+            w2 += alpha2 * dt;
+            w3 += alpha3 * dt;
+
+            th1 += w1 * dt;
+            th2 += w2 * dt;
+            th3 += w3 * dt;
+
+            // Actualizar historial
+            hist1.push(th1); hist1.shift();
+            hist2.push(th2); hist2.shift();
+            hist3.push(th3); hist3.shift();
+        }
+
+        // Renderizado del Péndulo
+        function drawSimulation() {
+            simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+            
+            // Origen (Tobillo)
+            const ox = simCanvas.width / 2;
+            const oy = simCanvas.height - 50;
+            const scale = 250; // pixeles por metro
+
+            // Cinemática directa
+            const kneeX = ox + L1 * scale * Math.sin(th1);
+            const kneeY = oy - L1 * scale * Math.cos(th1);
+
+            const hipX = kneeX + L2 * scale * Math.sin(th2);
+            const hipY = kneeY - L2 * scale * Math.cos(th2);
+
+            const headX = hipX + L3 * scale * Math.sin(th3);
+            const headY = hipY - L3 * scale * Math.cos(th3);
+
+            simCtx.lineWidth = 12;
+            simCtx.lineCap = 'round';
+
+            // Dibujar Suelo / Pie
+            simCtx.strokeStyle = '#7f8c8d';
+            simCtx.beginPath();
+            simCtx.moveTo(ox - 30, oy);
+            simCtx.lineTo(ox + 50, oy);
+            simCtx.stroke();
+
+            // Dibujar Tibia (Tobillo a Rodilla)
+            simCtx.strokeStyle = '#e74c3c';
+            simCtx.beginPath();
+            simCtx.moveTo(ox, oy);
+            simCtx.lineTo(kneeX, kneeY);
+            simCtx.stroke();
+
+            // Dibujar Fémur (Rodilla a Cadera)
+            simCtx.strokeStyle = '#2ecc71';
+            simCtx.beginPath();
+            simCtx.moveTo(kneeX, kneeY);
+            simCtx.lineTo(hipX, hipY);
+            simCtx.stroke();
+
+            // Dibujar Tronco (Cadera a Cabeza)
+            simCtx.strokeStyle = '#3498db';
+            simCtx.lineWidth = 16;
+            simCtx.beginPath();
+            simCtx.moveTo(hipX, hipY);
+            simCtx.lineTo(headX, headY);
+            simCtx.stroke();
+
+            // Dibujar Articulaciones
+            simCtx.fillStyle = '#2c3e50';
+            [ [ox, oy], [kneeX, kneeY], [hipX, hipY] ].forEach(pos => {
+                simCtx.beginPath();
+                simCtx.arc(pos[0], pos[1], 8, 0, 2*Math.PI);
+                simCtx.fill();
+            });
+        }
+
+        // Renderizado de la Gráfica de Señales
+        function drawGraph() {
+            graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+            const height = graphCanvas.height;
+            const width = graphCanvas.width;
+            
+            // Eje central (0 grados)
+            graphCtx.strokeStyle = '#ccc';
+            graphCtx.lineWidth = 1;
+            graphCtx.beginPath();
+            graphCtx.moveTo(0, height/2);
+            graphCtx.lineTo(width, height/2);
+            graphCtx.stroke();
+
+            function plotSignal(data, color) {
+                graphCtx.strokeStyle = color;
+                graphCtx.lineWidth = 2;
+                graphCtx.beginPath();
+                for(let i=0; i<data.length; i++) {
+                    const x = (i / historySize) * width;
+                    // Escalar: +-1 rad mapeado a altura total
+                    const y = height/2 - (data[i] * (height/2)); 
+                    if(i===0) graphCtx.moveTo(x, y);
+                    else graphCtx.lineTo(x, y);
+                }
+                graphCtx.stroke();
+            }
+
+            plotSignal(hist1, '#e74c3c'); // Tibia
+            plotSignal(hist2, '#2ecc71'); // Fémur
+            plotSignal(hist3, '#3498db'); // Tronco
+        }
+
+        // Bucle Principal
+        function loop() {
+            // Se actualiza la física varias veces por frame para mayor estabilidad numérica
+            for(let i=0; i<5; i++) {
+                updatePhysics();
+            }
+            drawSimulation();
+            drawGraph();
+            requestAnimationFrame(loop);
+        }
+
+        // Iniciar
+        loop();
+    </script>
+</body>
+</html>
