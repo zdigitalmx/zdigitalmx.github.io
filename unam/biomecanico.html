@@ -31,9 +31,10 @@
             padding: 15px;
             border-left: 4px solid #3498db;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 1.05em;
+            font-size: 1em;
             margin-bottom: 15px;
             overflow-x: auto;
+            line-height: 1.5;
         }
         .matrix {
             display: inline-block;
@@ -43,12 +44,14 @@
             border-right: 2px solid #333;
             padding: 0 5px;
             border-radius: 5px / 10px;
+            margin: 0 5px;
         }
         canvas {
             background: #fff;
             border: 1px solid #bdc3c7;
             border-radius: 4px;
             width: 100%;
+            margin-bottom: 10px;
         }
         .controls {
             display: grid;
@@ -56,10 +59,11 @@
             gap: 15px;
             margin-top: 15px;
         }
-        .control-group { display: flex; flex-direction: column; }
+        .control-group { display: flex; flex-direction: column; background: #fafafa; padding: 10px; border: 1px solid #eee; border-radius: 5px;}
         label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
         input[type="range"] { width: 100%; }
         .value-display { font-weight: normal; color: #e74c3c; }
+        .legend { font-size: 0.9em; margin-bottom: 5px; }
         .legend span { display: inline-block; margin-right: 15px; font-weight: bold; }
         .color-t { color: #e74c3c; } 
         .color-r { color: #2ecc71; } 
@@ -83,50 +87,59 @@
         }
         .radio-group { margin-top: 10px; display: flex; gap: 20px; font-size: 1.1em; }
         .hidden { display: none !important; }
+        .tuning-section { border-left: 4px solid #e67e22; background: #fff3e0; }
     </style>
 </head>
 <body>
 
-    <h1>Simulador Biomecánico: Modelo de 3 Grados de Libertad (Pierna)</h1>
+    <h1>Simulador Biomecánico MIMO: Dinámica y Control de Marcha</h1>
 
     <div class="panel">
-        <h2>1. Justificación Matemática y Dinámica del Sistema</h2>
-        <p>El sistema se modela como un manipulador robótico de tres eslabones interactuando con la gravedad en el plano sagital. La dinámica no lineal se obtiene mediante la formulación clásica de Euler-Lagrange:</p>
-        
+        <h2>1. Justificación Teórica y Modelado Matemático</h2>
+        <p>El sistema representa una pierna humana interactuando con la masa del cuerpo (tronco). Se clasifica como un manipulador planar subactuado en su base (péndulo invertido de 3 grados de libertad). Las variables físicas fundamentales son:</p>
+        <ul>
+            <li><b>L<sub>i</sub>, m<sub>i</sub>, I<sub>i</sub></b>: Longitud, masa y momento de inercia del eslabón <i>i</i> (1: Tibia, 2: Fémur, 3: Tronco).</li>
+            <li><b>θ<sub>i</sub></b>: Variable de estado. Ángulo absoluto del eslabón <i>i</i> respecto a la vertical.</li>
+            <li><b>τ<sub>i</sub></b>: Variable manipulada. Torque aplicado en la articulación (esfuerzo muscular).</li>
+        </ul>
+
+        <h3>Dinámica de Eslabones Múltiples (Euler-Lagrange)</h3>
+        <p>La ecuación de movimiento que rige la planta biomecánica es fuertemente no lineal y acoplada:</p>
         <div class="math-box">
             M(θ)θ'' + C(θ, θ')θ' + G(θ) = τ
         </div>
-        
-        <p>Donde <b>θ</b> = [θ<sub>1</sub>, θ<sub>2</sub>, θ<sub>3</sub>]<sup>T</sup> es el vector de ángulos articulares. La estabilización se logra mediante un control multivariable en lazo cerrado que emula el sistema neuromuscular:</p>
+        <p><b>Desglose de los términos:</b></p>
+        <ul>
+            <li><b>M(θ) ∈ ℝ<sup>3x3</sup> (Matriz de Inercia):</b> Define la resistencia del sistema a ser acelerado. Los términos fuera de la diagonal (M<sub>ij</sub>) representan el acoplamiento inercial (cómo la aceleración de la rodilla afecta al tobillo).</li>
+            <li><b>C(θ, θ')θ' ∈ ℝ<sup>3</sup> (Vector de Coriolis y Fuerzas Centrífugas):</b> Surge de los marcos de referencia en rotación relativa durante velocidades articulares altas (carrera rápida).</li>
+            <li><b>G(θ) ∈ ℝ<sup>3</sup> (Vector Gravitacional):</b> Almacena la energía potencial. Depende de las masas (especialmente M<sub>T</sub>, masa del tronco) y jala el sistema hacia el colapso (θ=0 es un equilibrio inestable).</li>
+        </ul>
+
+        <h3>Ley de Control (Sistema Neuromotor)</h3>
+        <p>Para estabilizar el colapso inminente, el control de lazo cerrado se aproxima como un control de impedancia (PD multivariable) con compensación de gravedad estática. Las ganancias simulan las propiedades pasivas y activas del músculo:</p>
         <div class="math-box">
-            Control de Impedancia Biológica:<br>
             τ = K<sub>p</sub>(θ<sub>ref</sub> - θ) - K<sub>d</sub>θ' + G(θ)
         </div>
+        <ul>
+            <li><b>θ<sub>ref</sub> (Set Point):</b> Trayectoria angular deseada generada por la corteza motora.</li>
+            <li><b>K<sub>p</sub> (Sintonización Proporcional):</b> Emula la rigidez del tendón/músculo. Un K<sub>p</sub> mayor reduce el error de estado estable pero puede causar oscilaciones.</li>
+            <li><b>K<sub>d</sub> (Sintonización Derivativa):</b> Emula la viscosidad muscular. Aporta amortiguamiento crítico para disipar la energía de los transitorios y evitar resonancia.</li>
+        </ul>
 
-        <h3>Cinemática Directa</h3>
-        <p>Define la posición final del centro de masa del tronco (X<sub>T</sub>, Y<sub>T</sub>) a partir de los ángulos articulares. Si la base (pie) está en (0,0):</p>
+        <h3>Cinemática Directa e Inversa</h3>
+        <p>La cinemática directa proyecta el espacio articular (θ) al espacio cartesiano (X, Y) para localizar el Centro de Gravedad del tronco:</p>
         <div class="math-box">
-            X<sub>T</sub> = L<sub>1</sub>·sin(θ<sub>1</sub>) + L<sub>2</sub>·sin(θ<sub>2</sub>) + L<sub>3</sub>·sin(θ<sub>3</sub>)<br>
-            Y<sub>T</sub> = L<sub>1</sub>·cos(θ<sub>1</sub>) + L<sub>2</sub>·cos(θ<sub>2</sub>) + L<sub>3</sub>·cos(θ<sub>3</sub>)
+            X<sub>CG</sub> = L<sub>1</sub>sin(θ<sub>1</sub>) + L<sub>2</sub>sin(θ<sub>2</sub>) + L<sub>3</sub>sin(θ<sub>3</sub>) <br>
+            Y<sub>CG</sub> = L<sub>1</sub>cos(θ<sub>1</sub>) + L<sub>2</sub>cos(θ<sub>2</sub>) + L<sub>3</sub>cos(θ<sub>3</sub>)
         </div>
-
-        <h3>Cinemática Inversa y Redundancia</h3>
-        <p>Dado que tenemos 3 grados de libertad (n=3) para posicionar el centro de masa en un plano 2D (m=2), el sistema es redundante. Para hallar las velocidades articulares θ' necesarias para una trayectoria X' deseada, se emplea el Jacobiano J(θ) y la matriz pseudoinversa de Moore-Penrose J<sup>†</sup>:</p>
+        <p>Para la cinemática inversa diferencial (seguir una trayectoria cartesiana del tronco), se requiere el Jacobiano <b>J(θ)</b>. Al ser 3 articulaciones controlando 2 dimensiones cartesianas, el sistema es redundante. Se utiliza la pseudoinversa de Moore-Penrose para optimizar el esfuerzo:</p>
         <div class="math-box">
-            X' = J(θ)·θ'  =>  θ' = J<sup>†</sup>(θ)·X'<br><br>
-            Donde: J<sup>†</sup> = J<sup>T</sup>(J·J<sup>T</sup>)<sup>-1</sup>
-            <br><br>
-            J(θ) = 
-            <div class="matrix">
-                L<sub>1</sub>cos(θ<sub>1</sub>) &nbsp;&nbsp; L<sub>2</sub>cos(θ<sub>2</sub>) &nbsp;&nbsp; L<sub>3</sub>cos(θ<sub>3</sub>)<br>
-                -L<sub>1</sub>sin(θ<sub>1</sub>) &nbsp; -L<sub>2</sub>sin(θ<sub>2</sub>) &nbsp; -L<sub>3</sub>sin(θ<sub>3</sub>)
-            </div>
+            θ' = J<sup>†</sup>(θ) X' &nbsp;&nbsp; con &nbsp;&nbsp; J<sup>†</sup> = J<sup>T</sup>(J J<sup>T</sup>)<sup>-1</sup>
         </div>
     </div>
 
-    <!-- Diagrama a Bloques del Sistema -->
     <div class="panel">
-        <h2>2. Diagrama a Bloques (Lazo Cerrado MIMO)</h2>
+        <h2>2. Diagrama a Bloques (Arquitectura MIMO)</h2>
         <div class="diagram-container">
             <svg width="900" height="200" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -137,17 +150,18 @@
                 
                 <rect x="10" y="70" width="120" height="60" fill="#eef2f5" stroke="#3498db" stroke-width="2" />
                 <text x="70" y="95" font-family="sans-serif" font-size="12" text-anchor="middle">Generador de</text>
-                <text x="70" y="115" font-family="sans-serif" font-size="12" text-anchor="middle">Marcha</text>
+                <text x="70" y="115" font-family="sans-serif" font-size="12" text-anchor="middle">Trayectorias (Modos)</text>
                 
                 <line x1="130" y1="100" x2="160" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="145" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ<tspan dy="5" font-size="10">ref</tspan></text>
+                <text x="145" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Set Point</text>
 
                 <circle cx="180" cy="100" r="15" fill="white" stroke="#333" stroke-width="2" />
                 <text x="165" y="95" font-family="sans-serif" font-size="12">+</text>
                 <text x="175" y="125" font-family="sans-serif" font-size="12">-</text>
 
                 <line x1="195" y1="100" x2="240" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="217" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e</text>
+                <text x="217" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e(t)</text>
 
                 <rect x="240" y="60" width="180" height="80" fill="#fff" stroke="#e74c3c" stroke-width="2" />
                 <text x="330" y="80" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Controlador PD + G(θ)</text>
@@ -155,6 +169,7 @@
 
                 <line x1="420" y1="100" x2="480" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="450" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">τ</text>
+                <text x="450" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Esfuerzo</text>
 
                 <rect x="480" y="50" width="220" height="100" fill="#fff" stroke="#2c3e50" stroke-width="2" />
                 <text x="590" y="75" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Planta Biomecánica</text>
@@ -162,11 +177,12 @@
 
                 <line x1="700" y1="100" x2="800" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="750" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ, θ'</text>
+                <text x="750" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Salida</text>
 
                 <line x1="730" y1="100" x2="730" y2="170" stroke="#333" stroke-width="2" />
                 <line x1="730" y1="170" x2="180" y2="170" stroke="#333" stroke-width="2" />
                 <line x1="180" y1="170" x2="180" y2="115" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="450" y="160" font-family="sans-serif" font-size="12" text-anchor="middle">Propiocepción (Husos musculares / Órganos tendinosos de Golgi)</text>
+                <text x="450" y="160" font-family="sans-serif" font-size="12" text-anchor="middle">Lazo de Propiocepción Biológica</text>
             </svg>
         </div>
     </div>
@@ -176,77 +192,92 @@
         <div class="panel">
             <h2>Simulación Cinemática</h2>
             <canvas id="simCanvas" width="600" height="500"></canvas>
-            <p><i>La base representa el tobillo. Enlaces: Tibia (rojo), Fémur (verde), Tronco (azul).</i></p>
+            <p><i>Base = Tobillo. Eslabones: Tibia (rojo), Fémur (verde), Tronco (azul).</i></p>
+            
+            <div class="mode-selector">
+                <b>Modo de Operación y Asignación de Set Point:</b>
+                <div class="radio-group">
+                    <label><input type="radio" name="modo" value="manual" checked> Manual (Punto Fijo)</label>
+                    <label><input type="radio" name="modo" value="auto"> Automático (Trayectoria Dinámica)</label>
+                </div>
+            </div>
+            
+            <!-- Controles Modo Automático -->
+            <div class="control-group auto-ctrl hidden">
+                <label>Macropuerta / Comando de Velocidad (m/s): <span id="val_velocidad" class="value-display">1.5</span></label>
+                <input type="range" id="slider_velocidad" min="0.5" max="6.0" step="0.1" value="1.5">
+                <small><i>Genera set points sinusoidales periódicos $\theta_{ref}(t)$ acoplados a la fase de marcha.</i></small>
+            </div>
         </div>
 
         <!-- Columna Derecha: Gráficas y Controles -->
         <div class="panel">
-            <h2>Respuesta del Sistema (Ángulos $\theta$)</h2>
+            <h2>Seguimiento: Variable Salida (θ) vs Set Point (θ<sub>ref</sub>)</h2>
             <div class="legend">
-                <span class="color-t">■ θ1 (Tobillo)</span>
-                <span class="color-r">■ θ2 (Rodilla)</span>
-                <span class="color-c">■ θ3 (Cadera)</span>
+                <span class="color-t">■ Tobillo (Línea Sólida: θ, Punteada: θ_ref)</span><br>
+                <span class="color-r">■ Rodilla (Línea Sólida: θ, Punteada: θ_ref)</span><br>
+                <span class="color-c">■ Cadera (Línea Sólida: θ, Punteada: θ_ref)</span>
             </div>
-            <canvas id="graphCanvas" width="600" height="150"></canvas>
+            <canvas id="graphAngles" width="600" height="150"></canvas>
 
-            <h2>Panel de Control</h2>
-            
-            <div class="mode-selector">
-                <b>Modo de Operación:</b>
-                <div class="radio-group">
-                    <label><input type="radio" name="modo" value="manual" checked> Manual (Punto a Punto)</label>
-                    <label><input type="radio" name="modo" value="auto"> Automático (Ciclo de Marcha)</label>
-                </div>
+            <h2>Esfuerzo de Control: Variable Manipulada (τ)</h2>
+            <div class="legend">
+                <small><i>Torques requeridos en las articulaciones (Nm aproximados)</i></small>
             </div>
+            <canvas id="graphTorques" width="600" height="150"></canvas>
 
+            <h2>Panel de Sintonización y Parámetros</h2>
             <div class="controls">
-                <div class="control-group">
-                    <label>Masa del Tronco M<sub>T</sub> (kg): <span id="val_masa" class="value-display">40</span></label>
-                    <input type="range" id="slider_masa" min="10" max="90" step="1" value="40">
+                <!-- Sintonización PID -->
+                <div class="control-group tuning-section">
+                    <label>Ganancia Proporcional K<sub>p</sub> (Rigidez): <span id="val_kp" class="value-display">3500</span></label>
+                    <input type="range" id="slider_kp" min="500" max="8000" step="100" value="3500">
                 </div>
+                <div class="control-group tuning-section">
+                    <label>Ganancia Derivativa K<sub>d</sub> (Amortiguamiento): <span id="val_kd" class="value-display">100</span></label>
+                    <input type="range" id="slider_kd" min="10" max="400" step="10" value="100">
+                </div>
+                
+                <!-- Planta Física -->
                 <div class="control-group">
-                    <label>Amortiguamiento K<sub>d</sub>: <span id="val_kd" class="value-display">100</span></label>
-                    <input type="range" id="slider_kd" min="20" max="250" step="1" value="100">
+                    <label>Perturbación: Masa del Tronco M<sub>T</sub> (kg): <span id="val_masa" class="value-display">40</span></label>
+                    <input type="range" id="slider_masa" min="10" max="90" step="1" value="40">
                 </div>
 
                 <!-- Controles Modo Manual -->
                 <div class="control-group manual-ctrl">
-                    <label>Ref. Tobillo θ<sub>1</sub> (grados): <span id="val_t1" class="value-display">0</span></label>
+                    <label>Set Point Tobillo θ<sub>ref1</sub> (grados): <span id="val_t1" class="value-display">0</span></label>
                     <input type="range" id="slider_t1" min="-45" max="45" step="1" value="0">
                 </div>
                 <div class="control-group manual-ctrl">
-                    <label>Ref. Rodilla θ<sub>2</sub> (grados): <span id="val_t2" class="value-display">0</span></label>
+                    <label>Set Point Rodilla θ<sub>ref2</sub> (grados): <span id="val_t2" class="value-display">0</span></label>
                     <input type="range" id="slider_t2" min="-45" max="45" step="1" value="0">
                 </div>
                 <div class="control-group manual-ctrl">
-                    <label>Ref. Cadera θ<sub>3</sub> (grados): <span id="val_t3" class="value-display">0</span></label>
+                    <label>Set Point Cadera θ<sub>ref3</sub> (grados): <span id="val_t3" class="value-display">0</span></label>
                     <input type="range" id="slider_t3" min="-60" max="60" step="1" value="0">
-                </div>
-
-                <!-- Controles Modo Automático -->
-                <div class="control-group auto-ctrl hidden" style="grid-column: span 2;">
-                    <label>Velocidad de Carrera (m/s): <span id="val_velocidad" class="value-display">1.5</span></label>
-                    <input type="range" id="slider_velocidad" min="0.5" max="6.0" step="0.1" value="1.5">
-                    <small><i>Genera automáticamente referencias sinusoidales desfasadas para simular la biomecánica de la carrera.</i></small>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Parámetros Físicos Biomecánicos
+        // Parámetros Físicos de la Planta
         const g = 9.81;
-        const L1 = 0.45; 
-        const L2 = 0.45; 
-        const L3 = 0.60; 
-        
+        const L1 = 0.45; const L2 = 0.45; const L3 = 0.60; 
         let m1 = 3.5, m2 = 7.0, m3 = 40.0; 
 
+        // Variables de Estado (Salidas)
         let th1 = 0, th2 = 0, th3 = 0;
         let w1 = 0, w2 = 0, w3 = 0;
 
+        // Variables de Referencia (Set Points)
         let ref1 = 0, ref2 = 0, ref3 = 0;
 
+        // Variables Manipuladas (Torques)
+        let tau1 = 0, tau2 = 0, tau3 = 0;
+
+        // Parámetros de Sintonización del Controlador
         let Kp = 3500; 
         let Kd = 100;
 
@@ -254,16 +285,20 @@
         let linearSpeed = 1.5;
         let gaitPhase = 0;
 
-        const historySize = 300;
-        let hist1 = new Array(historySize).fill(0);
-        let hist2 = new Array(historySize).fill(0);
-        let hist3 = new Array(historySize).fill(0);
+        // Historiales para las gráficas
+        const histSize = 300;
+        let h_th1 = new Array(histSize).fill(0), h_th2 = new Array(histSize).fill(0), h_th3 = new Array(histSize).fill(0);
+        let h_ref1 = new Array(histSize).fill(0), h_ref2 = new Array(histSize).fill(0), h_ref3 = new Array(histSize).fill(0);
+        let h_tau1 = new Array(histSize).fill(0), h_tau2 = new Array(histSize).fill(0), h_tau3 = new Array(histSize).fill(0);
 
-        const simCanvas = document.getElementById('simCanvas');
-        const simCtx = simCanvas.getContext('2d');
-        const graphCanvas = document.getElementById('graphCanvas');
-        const graphCtx = graphCanvas.getContext('2d');
+        // Contextos de Canvas
+        const simCtx = document.getElementById('simCanvas').getContext('2d');
+        const cvsAngles = document.getElementById('graphAngles');
+        const ctxAngles = cvsAngles.getContext('2d');
+        const cvsTorques = document.getElementById('graphTorques');
+        const ctxTorques = cvsTorques.getContext('2d');
 
+        // Escuchadores de UI
         document.querySelectorAll('input[name="modo"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 isAutoMode = this.value === 'auto';
@@ -282,6 +317,7 @@
         });
 
         document.getElementById('slider_masa').addEventListener('input', e => { m3 = parseFloat(e.target.value); document.getElementById('val_masa').innerText = m3; });
+        document.getElementById('slider_kp').addEventListener('input', e => { Kp = parseFloat(e.target.value); document.getElementById('val_kp').innerText = Kp; });
         document.getElementById('slider_kd').addEventListener('input', e => { Kd = parseFloat(e.target.value); document.getElementById('val_kd').innerText = Kd; });
         document.getElementById('slider_t1').addEventListener('input', e => { if(!isAutoMode) { ref1 = parseFloat(e.target.value) * Math.PI / 180; document.getElementById('val_t1').innerText = e.target.value; }});
         document.getElementById('slider_t2').addEventListener('input', e => { if(!isAutoMode) { ref2 = parseFloat(e.target.value) * Math.PI / 180; document.getElementById('val_t2').innerText = e.target.value; }});
@@ -295,6 +331,7 @@
             gaitPhase += 2 * Math.PI * freq * dt;
             let amp = Math.min(linearSpeed * 0.2, 0.8); 
             
+            // Generación de trayectorias variables en el tiempo (Set Points dinámicos)
             ref3 = amp * 0.5 * Math.sin(gaitPhase); 
             ref2 = ref3 + amp * 0.8 * Math.abs(Math.cos(gaitPhase + Math.PI/4)); 
             ref1 = ref2 - amp * 0.4 * Math.sin(gaitPhase + Math.PI/2); 
@@ -311,9 +348,10 @@
             let G2 = (m2/2 + m3) * g * L2 * Math.sin(th2);
             let G3 = (m3/2) * g * L3 * Math.sin(th3);
 
-            let tau1 = Kp * (ref1 - th1) - Kd * w1 + G1;
-            let tau2 = Kp * (ref2 - th2) - Kd * w2 + G2;
-            let tau3 = Kp * (ref3 - th3) - Kd * w3 + G3;
+            // Ley de Control de Impedancia (Esfuerzo Manipulado τ)
+            tau1 = Kp * (ref1 - th1) - Kd * w1 + G1;
+            tau2 = Kp * (ref2 - th2) - Kd * w2 + G2;
+            tau3 = Kp * (ref3 - th3) - Kd * w3 + G3;
 
             let alpha1 = (tau1 - G1) / I1; 
             let alpha2 = (tau2 - G2) / I2;
@@ -322,18 +360,16 @@
             w1 += alpha1 * dt; w2 += alpha2 * dt; w3 += alpha3 * dt;
             th1 += w1 * dt; th2 += w2 * dt; th3 += w3 * dt;
 
-            hist1.push(th1); hist1.shift();
-            hist2.push(th2); hist2.shift();
-            hist3.push(th3); hist3.shift();
+            // Actualizar historiales
+            h_th1.push(th1); h_th1.shift(); h_th2.push(th2); h_th2.shift(); h_th3.push(th3); h_th3.shift();
+            h_ref1.push(ref1); h_ref1.shift(); h_ref2.push(ref2); h_ref2.shift(); h_ref3.push(ref3); h_ref3.shift();
+            h_tau1.push(tau1); h_tau1.shift(); h_tau2.push(tau2); h_tau2.shift(); h_tau3.push(tau3); h_tau3.shift();
         }
 
         function drawSimulation() {
-            simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
-            const ox = simCanvas.width / 2;
-            const oy = simCanvas.height - 80;
-            const scale = 180; 
+            simCtx.clearRect(0, 0, 600, 500);
+            const ox = 300; const oy = 420; const scale = 180; 
 
-            // Cinemática Directa aplicada a la animación
             const kneeX = ox + L1 * scale * Math.sin(th1);
             const kneeY = oy - L1 * scale * Math.cos(th1);
             const hipX = kneeX + L2 * scale * Math.sin(th2);
@@ -341,8 +377,7 @@
             const headX = hipX + L3 * scale * Math.sin(th3);
             const headY = hipY - L3 * scale * Math.cos(th3);
 
-            simCtx.lineWidth = 14;
-            simCtx.lineCap = 'round';
+            simCtx.lineWidth = 14; simCtx.lineCap = 'round';
 
             simCtx.strokeStyle = '#7f8c8d';
             simCtx.beginPath(); simCtx.moveTo(ox - 60, oy); simCtx.lineTo(ox + 80, oy); simCtx.stroke();
@@ -363,31 +398,53 @@
             });
         }
 
-        function drawGraph() {
-            graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
-            const height = graphCanvas.height; const width = graphCanvas.width;
+        function plotSignal(ctx, width, height, data, color, isDashed = false, scaleFactor = 2.5) {
+            ctx.strokeStyle = color; 
+            ctx.lineWidth = isDashed ? 1.5 : 2.5;
+            if (isDashed) ctx.setLineDash([5, 5]); else ctx.setLineDash([]);
             
-            graphCtx.strokeStyle = '#ccc'; graphCtx.lineWidth = 1;
-            graphCtx.beginPath(); graphCtx.moveTo(0, height/2); graphCtx.lineTo(width, height/2); graphCtx.stroke();
-
-            function plotSignal(data, color) {
-                graphCtx.strokeStyle = color; graphCtx.lineWidth = 2.5;
-                graphCtx.beginPath();
-                for(let i=0; i<data.length; i++) {
-                    const x = (i / historySize) * width;
-                    const y = height/2 - (data[i] * (height/2.5)); 
-                    if(i===0) graphCtx.moveTo(x, y); else graphCtx.lineTo(x, y);
-                }
-                graphCtx.stroke();
+            ctx.beginPath();
+            for(let i=0; i<data.length; i++) {
+                const x = (i / histSize) * width;
+                const y = height/2 - (data[i] * (height / scaleFactor)); 
+                if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
             }
-            plotSignal(hist1, '#e74c3c'); 
-            plotSignal(hist2, '#2ecc71'); 
-            plotSignal(hist3, '#3498db'); 
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawGraphs() {
+            // Limpiar lienzos
+            ctxAngles.clearRect(0, 0, cvsAngles.width, cvsAngles.height);
+            ctxTorques.clearRect(0, 0, cvsTorques.width, cvsTorques.height);
+            
+            // Ejes centrales 0
+            [ctxAngles, ctxTorques].forEach(ctx => {
+                ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(0, 75); ctx.lineTo(600, 75); ctx.stroke();
+            });
+
+            // Gráfica de Ángulos (Salida vs Set Point) - Rango aprox +- 1.5 rad (scale=3)
+            plotSignal(ctxAngles, 600, 150, h_ref1, '#f1a9a0', true, 3); // Setpoint T
+            plotSignal(ctxAngles, 600, 150, h_th1, '#e74c3c', false, 3); // Output T
+            
+            plotSignal(ctxAngles, 600, 150, h_ref2, '#87d37c', true, 3); // Setpoint R
+            plotSignal(ctxAngles, 600, 150, h_th2, '#2ecc71', false, 3); // Output R
+            
+            plotSignal(ctxAngles, 600, 150, h_ref3, '#89c4f4', true, 3); // Setpoint C
+            plotSignal(ctxAngles, 600, 150, h_th3, '#3498db', false, 3); // Output C
+
+            // Gráfica de Torques (Esfuerzo Control) - Rango de visualización ajustable (scale=2000 Nm max)
+            const tauScale = 2000;
+            plotSignal(ctxTorques, 600, 150, h_tau1, '#e74c3c', false, tauScale);
+            plotSignal(ctxTorques, 600, 150, h_tau2, '#2ecc71', false, tauScale);
+            plotSignal(ctxTorques, 600, 150, h_tau3, '#3498db', false, tauScale);
         }
 
         function loop() {
             for(let i=0; i<3; i++) updatePhysics();
-            drawSimulation(); drawGraph();
+            drawSimulation(); 
+            drawGraphs();
             requestAnimationFrame(loop);
         }
 
