@@ -4,59 +4,14 @@
     <meta charset="UTF-8">
     <title>Simulador Biomecánico MIMO: Control Avanzado y Planta</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
         h1, h2, h3 { color: #2c3e50; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            max-width: 1400px;
-            margin: auto;
-        }
-        .panel {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .math-box {
-            background: #eef2f5;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.95em;
-            margin-bottom: 15px;
-            overflow-x: auto;
-            line-height: 1.6;
-        }
-        canvas {
-            background: #fff;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .control-group { 
-            display: flex; 
-            flex-direction: column; 
-            background: #fafafa; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px;
-        }
+        .container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1400px; margin: auto; }
+        .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .math-box { background: #eef2f5; padding: 15px; border-left: 4px solid #3498db; font-family: 'Courier New', Courier, monospace; font-size: 0.95em; margin-bottom: 15px; overflow-x: auto; line-height: 1.6; }
+        canvas { background: #fff; border: 1px solid #bdc3c7; border-radius: 4px; width: 100%; margin-bottom: 10px; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .control-group { display: flex; flex-direction: column; background: #fafafa; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
         label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
         input[type="range"] { width: 100%; margin-top: 5px; }
         input[type="number"] { width: 80px; padding: 3px; font-family: monospace; }
@@ -64,26 +19,9 @@
         .value-display { font-weight: bold; color: #e74c3c; }
         .legend { font-size: 0.85em; margin-bottom: 5px; }
         .legend span { display: inline-block; margin-right: 15px; font-weight: bold; }
-        .color-t { color: #e74c3c; } 
-        .color-r { color: #2ecc71; } 
-        .color-c { color: #3498db; }
-        
-        .diagram-container {
-            width: 100%;
-            overflow-x: auto;
-            text-align: center;
-            background: #fdfdfd;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px 0;
-        }
-        .mode-selector {
-            background: #eef2f5;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border-left: 4px solid #2ecc71;
-        }
+        .color-t { color: #e74c3c; } .color-r { color: #2ecc71; } .color-c { color: #3498db; }
+        .diagram-container { width: 100%; overflow-x: auto; text-align: center; background: #fdfdfd; border: 1px solid #ddd; border-radius: 4px; padding: 15px 0; }
+        .mode-selector { background: #eef2f5; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #2ecc71; }
         .radio-group { margin-top: 10px; display: flex; gap: 20px; font-size: 1.05em; }
         .hidden { display: none !important; }
         .tuning-section { border-left: 4px solid #e67e22; background: #fff3e0; }
@@ -96,7 +34,7 @@
 
     <div class="panel">
         <h2>1. Justificación Teórica y Modelado Matemático</h2>
-        <p>El sistema se modela como un manipulador planar subactuado en la base (pie). Para deducir las ecuaciones de movimiento, se emplea la formulación de Euler-Lagrange, basada en el principio de mínima acción. Se define el Lagrangiano <i>L = K - U</i>, donde <i>K</i> es la energía cinética total y <i>U</i> la energía potencial del sistema.</p>
+        <p>El sistema se modela como un manipulador planar subactuado en la base (pie). Para deducir las ecuaciones de movimiento, se emplea la formulación de Euler-Lagrange, basada en el principio de mínima acción. Se define el Lagrangiano <i>L = K - U</i>.</p>
         
         <div class="math-box">
             Energía Cinética: K = (1/2) Σ (m<sub>i</sub> v<sub>i</sub><sup>T</sup> v<sub>i</sub> + ω<sub>i</sub><sup>T</sup> I<sub>i</sub> ω<sub>i</sub>)<br>
@@ -104,142 +42,22 @@
             Lagrangiano: d/dt (∂L / ∂θ') - ∂L / ∂θ = τ
         </div>
 
-        <p>Aplicando las derivadas parciales, se obtiene la representación matricial de la dinámica de cuerpo rígido:</p>
+        <p>Aplicando las derivadas parciales, se obtiene la representación matricial de la dinámica de cuerpo rígido fuertemente acoplada:</p>
         <div class="math-box">
             M(θ)θ'' + C(θ, θ')θ' + G(θ) = τ
         </div>
-        <p><b>Análisis de Variables Físicas:</b></p>
+        <p><b>Análisis de Variables Físicas (Corregido a MIMO Real):</b></p>
         <ul>
-            <li><b>Vector de Estado θ ∈ ℝ<sup>3</sup>:</b> [θ<sub>tobillo</sub>, θ<sub>rodilla</sub>, θ<sub>cadera</sub>]<sup>T</sup>.</li>
-            <li><b>M(θ) (Matriz de Inercia 3x3):</b> Matriz simétrica y definida positiva. Los elementos de la diagonal M<sub>ii</sub> representan el momento de inercia efectivo de cada eslabón. Los no diagonales M<sub>ij</sub> modelan el acoplamiento inercial (ej. la aceleración de la cadera induce un torque parásito en el tobillo).</li>
-            <li><b>C(θ, θ') (Matriz de Coriolis y Centrífuga):</b> Modela las fuerzas ficticias en sistemas rotacionales no inerciales. Las centrífugas son proporcionales a (θ'<sub>i</sub>)<sup>2</sup> y las de Coriolis a (θ'<sub>i</sub> θ'<sub>j</sub>). Críticas a altas velocidades de marcha.</li>
-            <li><b>G(θ) (Vector Gravitacional):</b> Par generado por la masa de los eslabones y la carga del tronco. Es la perturbación principal a compensar.</li>
+            <li><b>M(θ) (Matriz de Inercia 3x3):</b> Los elementos de la diagonal M<sub>ii</sub> representan el momento de inercia efectivo. Los no diagonales M<sub>ij</sub> modelan el <b>acoplamiento inercial real</b>.</li>
+            <li><b>C(θ, θ') (Matriz de Coriolis y Centrífuga):</b> Modela las fuerzas ficticias resultantes de la transmisión de velocidad entre eslabones rotatorios acoplados.</li>
+            <li><b>G(θ) (Vector Gravitacional):</b> Par generado por la masa de los eslabones y la carga del tronco. Físicamente inestable (Péndulo Invertido).</li>
         </ul>
-
-        <h3>Cinemática Directa y Redundancia (Jacobiano)</h3>
-        <p>La posición (X, Y) del tronco depende de la cinemática directa. El mapeo de velocidades articulares a velocidades cartesianas se da por el Jacobiano <b>J(θ)</b>:</p>
-        <div class="math-box">
-            [X', Y']<sup>T</sup> = J(θ)·[θ<sub>1</sub>', θ<sub>2</sub>', θ<sub>3</sub>']<sup>T</sup>
-        </div>
-    </div>
-
-    <!-- Representación en Variables de Estado -->
-    <div class="panel">
-        <h2>2. Representación en Variables de Estado (MIMO)</h2>
-        <p>Para aplicar técnicas de control moderno (como linealización exacta, LQR multivariable o control predictivo), el sistema de ecuaciones diferenciales no lineales de segundo orden se transforma en un sistema de ecuaciones de primer orden. Definimos el vector de estado <b>x</b> ∈ ℝ<sup>6</sup> y el vector de entrada <b>u</b> ∈ ℝ<sup>3</sup>:</p>
-        
-        <div class="math-box">
-            <b>Vector de Estado:</b><br>
-            <b>x</b> = [ x<sub>1</sub>, x<sub>2</sub> ]<sup>T</sup> = [ θ, θ' ]<sup>T</sup> = [ θ<sub>1</sub>, θ<sub>2</sub>, θ<sub>3</sub>, ω<sub>1</sub>, ω<sub>2</sub>, ω<sub>3</sub> ]<sup>T</sup><br><br>
-            <b>Vector de Entrada (Esfuerzos de Control):</b><br>
-            <b>u</b> = τ = [ τ<sub>1</sub>, τ<sub>2</sub>, τ<sub>3</sub> ]<sup>T</sup>
-        </div>
-
-        <p>Despejando el vector de aceleraciones articulares θ'' de la dinámica de cuerpo rígido, y aprovechando que la matriz de inercia <b>M(θ)</b> es simétrica y definida positiva (lo que garantiza que siempre es invertible), obtenemos el modelo en el espacio de estados:</p>
-        
-        <div class="math-box">
-            <b>Ecuaciones de Estado:</b><br>
-            x<sub>1</sub>' = x<sub>2</sub><br>
-            x<sub>2</sub>' = M(x<sub>1</sub>)<sup>-1</sup> [ <b>u</b> - C(x<sub>1</sub>, x<sub>2</sub>)x<sub>2</sub> - G(x<sub>1</sub>) ]<br><br>
-            
-            <b>Ecuación de Salida (Propiocepción Articular):</b><br>
-            <b>y</b> = x<sub>1</sub>
-        </div>
-        <p>Esta estructura revela la naturaleza fuertemente acoplada del sistema: la derivada de cualquier velocidad ω<sub>i</sub> depende de las posiciones y velocidades de todos los demás eslabones a través de la matriz inversa <b>M<sup>-1</sup></b> y los términos de Coriolis <b>C</b>.</p>
-    </div>
-
-    <!-- Diagrama a Bloques Multivariable -->
-    <div class="panel">
-        <h2>3. Diagrama a Bloques del Sistema de Control Multivariable</h2>
-        <p>El esquema muestra un control por par desacoplado. Las líneas gruesas (con el símbolo <b>/ 3</b>) representan buses de señales multivariables (vectores en ℝ<sup>3</sup>). Se aprecia el lazo principal con matrices de ganancia PID diagonales y el lazo de prealimentación (feedforward) para compensar la no linealidad gravitacional <b>G(θ)</b>.</p>
-        <div class="diagram-container">
-            <svg width="900" height="300" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#333" />
-                    </marker>
-                </defs>
-                
-                <!-- Generador de Ref -->
-                <rect x="20" y="80" width="120" height="60" fill="#eef2f5" stroke="#3498db" stroke-width="2" />
-                <text x="80" y="105" font-family="sans-serif" font-size="12" text-anchor="middle">Planificador</text>
-                <text x="80" y="125" font-family="sans-serif" font-size="12" text-anchor="middle">de Marcha</text>
-                
-                <!-- Linea Ref -->
-                <line x1="140" y1="110" x2="190" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="160" y1="102" x2="168" y2="118" stroke="#333" stroke-width="2" />
-                <text x="165" y="98" font-family="sans-serif" font-size="10">3</text>
-                <text x="165" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ<tspan dy="5" font-size="10">ref</tspan></text>
-
-                <!-- Sumador 1 -->
-                <circle cx="210" cy="110" r="15" fill="white" stroke="#333" stroke-width="2" />
-                <text x="195" y="105" font-family="sans-serif" font-size="14">+</text>
-                <text x="205" y="135" font-family="sans-serif" font-size="14">-</text>
-
-                <!-- Linea Error -->
-                <line x1="225" y1="110" x2="270" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="242" y1="102" x2="250" y2="118" stroke="#333" stroke-width="2" />
-                <text x="247" y="98" font-family="sans-serif" font-size="10">3</text>
-                <text x="247" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e(t)</text>
-
-                <!-- Matriz PID -->
-                <rect x="270" y="70" width="160" height="80" fill="#fff3e0" stroke="#e67e22" stroke-width="2" />
-                <text x="350" y="95" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Ganancias PID</text>
-                <text x="350" y="125" font-family="sans-serif" font-size="12" text-anchor="middle">K<tspan dy="3" font-size="10">P</tspan><tspan dy="-3">e</tspan> + K<tspan dy="3" font-size="10">I</tspan><tspan dy="-3">∫e</tspan> + K<tspan dy="3" font-size="10">D</tspan><tspan dy="-3">e'</tspan></text>
-
-                <!-- Linea PID out -->
-                <line x1="430" y1="110" x2="480" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="450" y1="102" x2="458" y2="118" stroke="#333" stroke-width="2" />
-                <text x="455" y="98" font-family="sans-serif" font-size="10">3</text>
-
-                <!-- Sumador 2 (MIMO) -->
-                <circle cx="500" cy="110" r="15" fill="white" stroke="#333" stroke-width="2" />
-                <text x="485" y="105" font-family="sans-serif" font-size="14">+</text>
-                <text x="495" y="135" font-family="sans-serif" font-size="14">+</text>
-
-                <!-- Linea Torque Total -->
-                <line x1="515" y1="110" x2="570" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="535" y1="102" x2="543" y2="118" stroke="#333" stroke-width="2" />
-                <text x="540" y="98" font-family="sans-serif" font-size="10">3</text>
-                <text x="540" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">τ(t)</text>
-
-                <!-- Planta -->
-                <rect x="570" y="55" width="220" height="110" fill="#f5eef8" stroke="#8e44ad" stroke-width="2" />
-                <text x="680" y="80" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Planta Multivariable</text>
-                <text x="680" y="110" font-family="sans-serif" font-size="12" text-anchor="middle">x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3">'</tspan> = M<tspan dy="-5" font-size="10">-1</tspan><tspan dy="5">[τ - Cx</tspan><tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> - G]</tspan></text>
-                <text x="680" y="140" font-family="sans-serif" font-size="12" text-anchor="middle">∫x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3">'</tspan> = x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> , ∫x</tspan><tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> = x</tspan><tspan dy="3" font-size="10">1</tspan><tspan dy="-3"> (θ)</tspan></text>
-
-                <!-- Linea Salida Theta -->
-                <line x1="790" y1="110" x2="870" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="820" y1="102" x2="828" y2="118" stroke="#333" stroke-width="2" />
-                <text x="825" y="98" font-family="sans-serif" font-size="10">3</text>
-                <text x="840" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ(t)</text>
-
-                <!-- Feedback Line -->
-                <line x1="810" y1="110" x2="810" y2="250" stroke="#333" stroke-width="3" />
-                <line x1="810" y1="250" x2="210" y2="250" stroke="#333" stroke-width="3" />
-                <line x1="210" y1="250" x2="210" y2="125" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <line x1="500" y1="250" x2="508" y2="242" stroke="#333" stroke-width="2" />
-                <text x="504" y="238" font-family="sans-serif" font-size="10">3</text>
-                <text x="220" y="240" font-family="sans-serif" font-size="12">Propiocepción (x<tspan dy="3" font-size="10">1</tspan><tspan dy="-3"> = θ)</tspan></text>
-
-                <!-- Bloque Gravedad (Prealimentación) -->
-                <circle cx="500" cy="250" r="4" fill="#333" />
-                <line x1="500" y1="250" x2="500" y2="225" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-                <rect x="420" y="165" width="160" height="60" fill="#eef2f5" stroke="#2c3e50" stroke-width="2" stroke-dasharray="5,5" />
-                <text x="500" y="190" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">Prealimentación</text>
-                <text x="500" y="210" font-family="sans-serif" font-size="12" text-anchor="middle">Gravedad: G(θ)</text>
-                
-                <!-- Salida de Gravedad al Sumador 2 -->
-                <line x1="500" y1="165" x2="500" y2="125" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
-            </svg>
-        </div>
     </div>
 
     <div class="container">
         <!-- Columna Izquierda -->
         <div class="panel">
-            <h2>Simulación Cinemática</h2>
+            <h2>Simulación Cinemática Dinámica</h2>
             <canvas id="simCanvas" width="600" height="400"></canvas>
             
             <div class="mode-selector">
@@ -255,7 +73,7 @@
             <div class="controls">
                 <div class="control-group plant-section">
                     <div class="flex-row">
-                        <label>Masa del Tronco M<sub>T</sub> (Carga / kg):</label>
+                        <label>Masa del Tronco M<sub>T</sub> (kg):</label>
                         <input type="number" id="num_masa" value="40">
                     </div>
                     <input type="range" id="slider_masa" min="10" max="100" step="1" value="40">
@@ -267,16 +85,14 @@
                         <input type="number" id="num_g" value="9.81" step="0.1">
                     </div>
                     <input type="range" id="slider_g" min="1.6" max="25.0" step="0.1" value="9.81">
-                    <small><i>Tierra: 9.81 | Luna: 1.62 | Júpiter: 24.7</i></small>
                 </div>
 
                 <div class="control-group plant-section" style="grid-column: span 2;">
                     <div class="flex-row">
-                        <label>Longitud Eslabones L<sub>1</sub>, L<sub>2</sub> (Pierna / m):</label>
+                        <label>Longitud Eslabones L<sub>1</sub>, L<sub>2</sub> (m):</label>
                         <input type="number" id="num_L" value="0.45" step="0.01">
                     </div>
                     <input type="range" id="slider_L" min="0.25" max="0.75" step="0.01" value="0.45">
-                    <small><i>Altera la matriz de inercia y brazo de palanca de gravedad.</i></small>
                 </div>
             </div>
 
@@ -328,18 +144,17 @@
             <div class="controls auto-ctrl hidden">
                 <div class="control-group" style="grid-column: span 2; background: #e8f8f5; border-color:#1abc9c;">
                     <div class="flex-row">
-                        <label>Set Point (Macropuerta): V<sub>ref</sub> (m/s):</label>
+                        <label>Set Point: V<sub>ref</sub> (m/s):</label>
                         <span id="val_velocidad" class="value-display" style="color:#1abc9c;">1.5</span>
                     </div>
                     <input type="range" id="slider_velocidad" min="0.0" max="5.0" step="0.1" value="1.5">
-                    <small><i>Genera automáticamente los Set Points articulares oscilatorios.</i></small>
                 </div>
             </div>
         </div>
 
         <!-- Columna Derecha: Gráficas de Control -->
         <div class="panel">
-            <h2>1. Variables Controladas y Macropuerta (Set Point)</h2>
+            <h2>1. Variables Controladas (Ángulos y Tracking)</h2>
             <div class="legend">
                 <span class="color-t">■ Tobillo (Línea: θ, Punteada: θ<sub>ref</sub>)</span>
                 <span class="color-r">■ Rodilla</span>
@@ -362,7 +177,7 @@
         // Planta Física Variables
         let g = 9.81;
         let L1 = 0.45, L2 = 0.45; 
-        const L3 = 0.60; // Tronco fijo visualmente
+        const L3 = 0.60; 
         let m1 = 3.5, m2 = 7.0, m3 = 40.0; 
 
         // Estados y Referencias
@@ -371,18 +186,19 @@
         let ref1 = 0, ref2 = 0, ref3 = 0;
         let tau1 = 0, tau2 = 0, tau3 = 0;
 
-        // Errores Integrales (PID)
+        // Errores Integrales (PID Anti-windup)
         let ie1 = 0, ie2 = 0, ie3 = 0;
-        const max_ie = 80; // Anti-windup
+        const max_ie = 80;
 
         // Parámetros PID
-        let Kp = 3500; 
-        let Ki = 150;
-        let Kd = 120;
+        let Kp = 3500, Ki = 150, Kd = 120;
 
         let isAutoMode = false;
         let linearSpeed = 1.5;
         let gaitPhase = 0;
+        
+        // Paso de integración matemático (Alta resolución)
+        const dt = 0.001; 
 
         // Arrays Históricos
         const histSize = 300;
@@ -391,12 +207,10 @@
         let h_tau1 = new Array(histSize).fill(0), h_tau2 = new Array(histSize).fill(0), h_tau3 = new Array(histSize).fill(0);
         let h_vref = new Array(histSize).fill(0);
 
-        // Contextos
         const simCtx = document.getElementById('simCanvas').getContext('2d');
         const ctxAngles = document.getElementById('graphAngles').getContext('2d');
         const ctxTorques = document.getElementById('graphTorques').getContext('2d');
 
-        // Sincronización Inputs / Sliders
         function syncInput(sliderId, numId, callback) {
             const slider = document.getElementById(sliderId);
             const num = document.getElementById(numId);
@@ -404,12 +218,9 @@
             num.addEventListener('input', e => { slider.value = e.target.value; callback(parseFloat(e.target.value)); });
         }
 
-        // Enlazar Variables Físicas
         syncInput('slider_masa', 'num_masa', val => m3 = val);
         syncInput('slider_g', 'num_g', val => g = val);
         syncInput('slider_L', 'num_L', val => { L1 = val; L2 = val; });
-        
-        // Enlazar PID
         syncInput('slider_kp', 'num_kp', val => Kp = val);
         syncInput('slider_ki', 'num_ki', val => Ki = val);
         syncInput('slider_kd', 'num_kd', val => Kd = val);
@@ -419,7 +230,15 @@
                 isAutoMode = this.value === 'auto';
                 document.querySelectorAll('.manual-ctrl').forEach(el => el.classList.toggle('hidden', isAutoMode));
                 document.querySelectorAll('.auto-ctrl').forEach(el => el.classList.toggle('hidden', !isAutoMode));
-                if(!isAutoMode) linearSpeed = 0; 
+                
+                if(!isAutoMode) { 
+                    linearSpeed = 0; 
+                    ref1 = document.getElementById('slider_t1').value * Math.PI / 180;
+                    ref2 = document.getElementById('slider_t2').value * Math.PI / 180;
+                    ref3 = document.getElementById('slider_t3').value * Math.PI / 180;
+                } else {
+                    linearSpeed = parseFloat(document.getElementById('slider_velocidad').value);
+                }
             });
         });
 
@@ -432,8 +251,6 @@
             document.getElementById('val_velocidad').innerText = linearSpeed.toFixed(1); 
         });
 
-        const dt = 0.01; 
-
         function generateGaitCycle() {
             if (linearSpeed > 0) {
                 let freq = linearSpeed / 1.5; 
@@ -442,57 +259,82 @@
                 ref3 = amp * 0.5 * Math.sin(gaitPhase); 
                 ref2 = ref3 + amp * 0.8 * Math.abs(Math.cos(gaitPhase + Math.PI/4)); 
                 ref1 = ref2 - amp * 0.4 * Math.sin(gaitPhase + Math.PI/2); 
-            } else {
-                ref1 = 0; ref2 = 0; ref3 = 0; 
             }
         }
 
         function updatePhysics() {
             if (isAutoMode) generateGaitCycle();
 
-            let I1 = (1/3)*m1*L1*L1 + m2*L1*L1 + m3*L1*L1; 
-            let I2 = (1/3)*m2*L2*L2 + m3*L2*L2;
-            let I3 = (1/3)*m3*L3*L3;
+            let e1 = ref1 - th1; let e2 = ref2 - th2; let e3 = ref3 - th3;
+            
+            // CORRECCIÓN DERIVATIVE KICK: Derivada de la variable de proceso (-w)
+            // Evita que un cambio instantáneo de Referencia resulte en una aceleración infinita
+            let de1 = -w1; 
+            let de2 = -w2; 
+            let de3 = -w3; 
 
+            // Control Integral con límite de Windup
+            ie1 = Math.max(-max_ie, Math.min(max_ie, ie1 + e1 * dt));
+            ie2 = Math.max(-max_ie, Math.min(max_ie, ie2 + e2 * dt));
+            ie3 = Math.max(-max_ie, Math.min(max_ie, ie3 + e3 * dt));
+
+            // CORRECCIÓN PÉNDULO INVERTIDO: Fuerzas Gravitacionales verdaderas
             let G1 = (m1/2 + m2 + m3) * g * L1 * Math.sin(th1);
             let G2 = (m2/2 + m3) * g * L2 * Math.sin(th2);
             let G3 = (m3/2) * g * L3 * Math.sin(th3);
 
-            let e1 = ref1 - th1; let e2 = ref2 - th2; let e3 = ref3 - th3;
-            let de1 = -w1; let de2 = -w2; let de3 = -w3; 
+            // Ley de Control PID. Como la gravedad (+G) desestabiliza, el Feedforward la contrarresta (-G)
+            tau1 = Kp * e1 + Ki * ie1 + Kd * de1 - G1;
+            tau2 = Kp * e2 + Ki * ie2 + Kd * de2 - G2;
+            tau3 = Kp * e3 + Ki * ie3 + Kd * de3 - G3;
 
-            ie1 += e1 * dt; ie1 = Math.max(-max_ie, Math.min(max_ie, ie1));
-            ie2 += e2 * dt; ie2 = Math.max(-max_ie, Math.min(max_ie, ie2));
-            ie3 += e3 * dt; ie3 = Math.max(-max_ie, Math.min(max_ie, ie3));
+            // --- RESOLUCIÓN MATRIZ MIMO REAL (Euler-Lagrange) ---
+            let A12 = (m2/2 + m3) * L1 * L2;
+            let A13 = (m3/2) * L1 * L3;
+            let A23 = (m3/2) * L2 * L3;
 
-            tau1 = Kp * e1 + Ki * ie1 + Kd * de1 + G1;
-            tau2 = Kp * e2 + Ki * ie2 + Kd * de2 + G2;
-            tau3 = Kp * e3 + Ki * ie3 + Kd * de3 + G3;
+            let M11 = (m1/3 + m2 + m3) * L1 * L1;
+            let M22 = (m2/3 + m3) * L2 * L2;
+            let M33 = (m3/3) * L3 * L3;
+            let M12 = A12 * Math.cos(th1 - th2);
+            let M13 = A13 * Math.cos(th1 - th3);
+            let M23 = A23 * Math.cos(th2 - th3);
 
-            let alpha1 = (tau1 - G1) / I1; 
-            let alpha2 = (tau2 - G2) / I2;
-            let alpha3 = (tau3 - G3) / I3;
+            let V1 = A12 * Math.sin(th1 - th2) * w2 * w2 + A13 * Math.sin(th1 - th3) * w3 * w3;
+            let V2 = -A12 * Math.sin(th1 - th2) * w1 * w1 + A23 * Math.sin(th2 - th3) * w3 * w3;
+            let V3 = -A13 * Math.sin(th1 - th3) * w1 * w1 - A23 * Math.sin(th2 - th3) * w2 * w2;
 
+            // Vector B = τ - V + G (La gravedad suma al momento de desestabilización en un péndulo invertido)
+            let B0 = tau1 - V1 + G1;
+            let B1 = tau2 - V2 + G2;
+            let B2 = tau3 - V3 + G3;
+
+            // Inversión Analítica de Matriz 3x3 (Regla de Cramer)
+            let detM = M11*(M22*M33 - M23*M23) - M12*(M12*M33 - M23*M13) + M13*(M12*M23 - M22*M13);
+            
+            let alpha1 = 0, alpha2 = 0, alpha3 = 0;
+            if (Math.abs(detM) > 1e-6) {
+                alpha1 = ( B0*(M22*M33 - M23*M23) - M12*(B1*M33 - M23*B2) + M13*(B1*M23 - M22*B2) ) / detM;
+                alpha2 = ( M11*(B1*M33 - M23*B2) - B0*(M12*M33 - M23*M13) + M13*(M12*B2 - B1*M13) ) / detM;
+                alpha3 = ( M11*(M22*B2 - B1*M23) - M12*(M12*B2 - B1*M13) + B0*(M12*M23 - M22*M13) ) / detM;
+            }
+
+            // Integración Numérica Semi-implícita de Euler
             w1 += alpha1 * dt; w2 += alpha2 * dt; w3 += alpha3 * dt;
             th1 += w1 * dt; th2 += w2 * dt; th3 += w3 * dt;
-
-            h_th1.push(th1); h_th1.shift(); h_th2.push(th2); h_th2.shift(); h_th3.push(th3); h_th3.shift();
-            h_ref1.push(ref1); h_ref1.shift(); h_ref2.push(ref2); h_ref2.shift(); h_ref3.push(ref3); h_ref3.shift();
-            h_tau1.push(tau1); h_tau1.shift(); h_tau2.push(tau2); h_tau2.shift(); h_tau3.push(tau3); h_tau3.shift();
-            h_vref.push(isAutoMode ? linearSpeed : 0); h_vref.shift();
         }
 
         function drawSimulation() {
             simCtx.clearRect(0, 0, 600, 400);
             const ox = 300; const oy = 350; 
-            const visualScale = 140 * (0.45 / L1); 
+            const visualScale = 180; 
 
             const kneeX = ox + L1 * visualScale * Math.sin(th1);
             const kneeY = oy - L1 * visualScale * Math.cos(th1);
             const hipX = kneeX + L2 * visualScale * Math.sin(th2);
             const hipY = kneeY - L2 * visualScale * Math.cos(th2);
-            const headX = hipX + L3 * 140 * Math.sin(th3); 
-            const headY = hipY - L3 * 140 * Math.cos(th3);
+            const headX = hipX + L3 * visualScale * Math.sin(th3); 
+            const headY = hipY - L3 * visualScale * Math.cos(th3);
 
             simCtx.lineWidth = 14; simCtx.lineCap = 'round';
 
@@ -538,29 +380,34 @@
                 ctx.beginPath(); ctx.moveTo(0, 75); ctx.lineTo(600, 75); ctx.stroke();
             });
 
-            // Línea base visual para la velocidad en la parte inferior de la gráfica de ángulos
             ctxAngles.strokeStyle = '#eee'; ctxAngles.lineWidth = 1;
             ctxAngles.beginPath(); ctxAngles.moveTo(0, 125); ctxAngles.lineTo(600, 125); ctxAngles.stroke();
 
-            // 1. Ángulos (Scale 3.5 rad max) y Velocidad unificadas
             plotSignal(ctxAngles, 600, 150, h_ref1, '#f1a9a0', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th1, '#e74c3c', false, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_ref2, '#87d37c', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th2, '#2ecc71', false, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_ref3, '#89c4f4', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th3, '#3498db', false, 3.5); 
-            
-            // Set Point Velocidad con offset para situarla en el margen inferior de la misma gráfica
             plotSignal(ctxAngles, 600, 150, h_vref, '#1abc9c', false, 10, 50); 
 
-            // 2. Torques (Scale dinámico / 3000 Nm max)
-            plotSignal(ctxTorques, 600, 150, h_tau1, '#e74c3c', false, 3000);
-            plotSignal(ctxTorques, 600, 150, h_tau2, '#2ecc71', false, 3000);
-            plotSignal(ctxTorques, 600, 150, h_tau3, '#3498db', false, 3000);
+            plotSignal(ctxTorques, 600, 150, h_tau1, '#e74c3c', false, 5000);
+            plotSignal(ctxTorques, 600, 150, h_tau2, '#2ecc71', false, 5000);
+            plotSignal(ctxTorques, 600, 150, h_tau3, '#3498db', false, 5000);
         }
 
         function loop() {
-            for(let i=0; i<3; i++) updatePhysics();
+            // CORRECCIÓN VELOCIDAD: Se corre la física de alta resolución 15 veces por frame
+            for(let i=0; i<15; i++) {
+                updatePhysics();
+            }
+            
+            // CORRECCIÓN GRÁFICAS: Se empujan datos al histórico solo 1 vez por frame
+            h_th1.push(th1); h_th1.shift(); h_th2.push(th2); h_th2.shift(); h_th3.push(th3); h_th3.shift();
+            h_ref1.push(ref1); h_ref1.shift(); h_ref2.push(ref2); h_ref2.shift(); h_ref3.push(ref3); h_ref3.shift();
+            h_tau1.push(tau1); h_tau1.shift(); h_tau2.push(tau2); h_tau2.shift(); h_tau3.push(tau3); h_tau3.shift();
+            h_vref.push(isAutoMode ? linearSpeed : 0); h_vref.shift();
+
             drawSimulation(); 
             drawGraphs();
             requestAnimationFrame(loop);
