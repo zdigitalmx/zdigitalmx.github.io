@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador y Control de Hidro-Generador con Cero RHP</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --chart-cyan: #38bdf8;
+      --chart-green: #4ade80;
+      --chart-amber: #fbbf24;
+      --chart-rose: #f43f5e;
+      --code-bg: #090d16;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); line-height: 1.5; padding: 20px; }
+    
+    header { margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px; }
+    h1 { font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    p.lead { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Secciones colapsables o contenedores */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Diagrama SVG */
+    .diagram-container {
+      background-color: var(--code-bg);
+      border-radius: 6px;
+      padding: 15px;
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      text-align: center;
+    }
+    svg text { font-family: monospace; font-size: 12px; fill: #cbd5e1; }
+    svg .block { fill: #1e293b; stroke: #38bdf8; stroke-width: 1.5; }
+    svg .block-ctrl { fill: #1e293b; stroke: #4ade80; stroke-width: 1.5; }
+    svg .sum { fill: #334155; stroke: #f8fafc; stroke-width: 1.5; }
+    svg .wire { stroke: #94a3b8; stroke-width: 2; fill: none; }
+    svg .wire-feedback { stroke: #fbbf24; stroke-width: 2; stroke-dasharray: 4; fill: none; }
+    svg .arrow { fill: #94a3b8; }
+    svg .arrow-fb { fill: #fbbf24; }
+    svg .label-var { fill: #f8fafc; font-weight: bold; font-size: 12px; }
+
+    /* Matemáticas */
+    .math-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .math-item {
+      background: var(--code-bg);
+      padding: 14px;
+      border-radius: 6px;
+      border-left: 3px solid var(--accent);
+      font-size: 0.88rem;
+    }
+    .math-item h4 { color: #f1f5f9; margin-bottom: 6px; }
+    .equation {
+      background: #111827;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin: 6px 0;
+      font-family: "Courier New", Courier, monospace;
+      color: #38bdf8;
+      overflow-x: auto;
+    }
+
+    /* Layout de Simulación */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Panel de Parámetros */
+    .param-group {
+      margin-bottom: 18px;
+      background: #182234;
+      padding: 14px;
+      border-radius: 6px;
+      border: 1px solid #283548;
+    }
+    .param-group h3 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .param-row {
+      margin-bottom: 12px;
+    }
+    .param-label-wrap {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      margin-bottom: 4px;
+    }
+    .param-unit { color: var(--text-muted); }
+    .param-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      background: #334155;
+      height: 5px;
+      border-radius: 3px;
+    }
+    input[type="number"] {
+      width: 75px;
+      padding: 4px 6px;
+      background: #090d16;
+      border: 1px solid #475569;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      text-align: right;
+    }
+
+    .preset-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #334155;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #475569; }
+    .btn.active { background: var(--accent); color: #090d16; font-weight: bold; }
+    .btn-run {
+      background: var(--accent);
+      color: #090d16;
+      font-weight: bold;
+      width: 100%;
+      padding: 10px;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .btn-run:hover { background: var(--accent-hover); }
+
+    /* Área de Gráficas */
+    .charts-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chart-container {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 12px;
+      position: relative;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+    .chart-title { font-weight: 600; color: #e2e8f0; }
+    .chart-legend { display: flex; gap: 12px; font-size: 0.78rem; }
+    .legend-tag { display: flex; align-items: center; gap: 5px; }
+    .legend-color { width: 10px; height: 10px; border-radius: 2px; }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 180px;
+      background: #090d16;
+    }
+
+    /* KPIs */
+    .kpi-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .kpi-card {
+      background: #182234;
+      border: 1px solid #283548;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-top: 2px; }
+    .kpi-label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Simulador de Control de Frecuencia / Potencia en Hidro-Generador</h1>
+    <p class="lead">Modelado dinámico de turbina hidráulica, efecto del cero en el semiplano derecho (RHP) y gobernador PID.</p>
+  </header>
+
+  <!-- SECCIÓN 1: JUSTIFICACIÓN MATEMÁTICA -->
+  <section class="section-card">
+    <div class="section-title">1. Justificación Matemática del Proceso y Dinámica No Mínima</div>
+    <p style="font-size: 0.9rem; color: #cbd5e1;">
+      El control de velocidad/frecuencia ($\Delta \omega$) en centrales hidroeléctricas enfrenta un fenómeno de 
+      <strong>fase no mínima</strong>. Debido a la inercia del agua en la tubería forzada, al abrir la compuerta para aumentar la potencia mecánica, 
+      la presión neta en la entrada de la turbina cae temporalmente antes de que la columna de agua adquiera aceleración. Como resultado, 
+      <strong>la potencia mecánica producida ($P_m$) decae inicialmente antes de comenzar a subir</strong>.
+    </p>
+
+    <div class="math-grid">
+      <div class="math-item">
+        <h4>A. Actuador de Compuerta (1er Orden)</h4>
+        <p>Relaciona la señal del regulador $u(t)$ con la posición de la compuerta $g(t)$:</p>
+        <div class="equation">T_g · (dg/dt) + g(t) = u(t)</div>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">Sujeto a saturación [0, 1] pu y límite de pendiente de carrera (|dg/dt| ≤ vel_max).</p>
+      </div>
+
+      <div class="math-item">
+        <h4>B. Columna de Agua y Turbina (Cero RHP)</h4>
+        <p>Segunda ley de Newton para columna incompresible y orificio linealizado:</p>
+        <div class="equation">G_t(s) = ΔP_m(s) / ΔG(s) = (1 - T_w·s) / (1 + 0.5·T_w·s)</div>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">
+          Presenta un <strong>cero en el semiplano derecho</strong> en $s = +1/T_w$. Este cero limita estrictamente la ganancia máxima permisible en lazo cerrado para evitar inestabilidad.
+        </p>
+      </div>
+
+      <div class="math-item">
+        <h4>C. Generador y Red (Ecuación de Oscilación)</h4>
+        <p>Balance electromecánico de par y amortiguamiento:</p>
+        <div class="equation">2H · (dΔω/dt) + D · Δω(t) = P_m(t) - ΔP_L(t)</div>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">
+          Donde $H$ es la inercia del grupo, $D$ el amortiguamiento de carga frente a frecuencia y $\Delta P_L(t)$ la perturbación externa de demanda eléctrica.
+        </p>
+      </div>
+
+      <div class="math-item">
+        <h4>D. Controlador Gobernador PID con Filtro</h4>
+        <p>Acción de regulación con polo de atenuación de ruido:</p>
+        <div class="equation">u(s) = [ K_p + K_i/s + (K_d·s)/(1 + (K_d/N)·s) ] · e(s)</div>
+        <p style="color:var(--text-muted); font-size: 0.78rem;">Donde $e(t) = \Delta \omega_{ref}(t) - \Delta \omega(t)$.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: DIAGRAMA DE BLOQUES SVG -->
+  <section class="section-card">
+    <div class="section-title">2. Diagrama de Bloques Multivariable y Lazo de Control</div>
+    <div class="diagram-container">
+      <svg width="980" height="230" viewBox="0 0 980 230">
+        <defs>
+          <marker id="m-arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M 0 1 L 7 4 L 0 7 z" class="arrow" />
+          </marker>
+          <marker id="m-arr-fb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M 0 1 L 7 4 L 0 7 z" class="arrow-fb" />
+          </marker>
+        </defs>
+
+        <!-- Entrada Referencia -->
+        <text x="15" y="65" class="label-var">Δω_ref(t)</text>
+        <text x="20" y="82" style="fill: #64748b; font-size: 10px;">[pu / Hz]</text>
+        <line x1="80" y1="70" x2="114" y2="70" class="wire" marker-end="url(#m-arr)" />
+
+        <!-- Sumador de Error -->
+        <circle cx="125" cy="70" r="11" class="sum" />
+        <text x="121" y="74" style="fill:#fff; font-size: 13px;">+</text>
+        <text x="121" y="93" style="fill:#fbbf24; font-size: 12px;">−</text>
+        <text x="142" y="63" class="label-var">e(t)</text>
+
+        <!-- Conexión a PID -->
+        <line x1="136" y1="70" x2="175" y2="70" class="wire" marker-end="url(#m-arr)" />
+
+        <!-- Bloque 1: Controlador PID -->
+        <rect x="175" y="42" width="145" height="56" rx="5" class="block-ctrl" />
+        <text x="200" y="65" style="fill:#4ade80; font-weight:bold;">Controlador PID</text>
+        <text x="187" y="84">Kp + Ki/s + Kd·s/(1+s/N)</text>
+
+        <!-- Conexión PID a Actuador -->
+        <line x1="320" y1="70" x2="360" y2="70" class="wire" marker-end="url(#m-arr)" />
+        <text x="325" y="63" class="label-var">u(t)</text>
+
+        <!-- Bloque 2: Actuador Servo -->
+        <rect x="360" y="42" width="135" height="56" rx="5" class="block" />
+        <text x="375" y="64" style="fill:#38bdf8; font-weight:bold;">Actuador Compuerta</text>
+        <text x="400" y="84">1 / (Tg·s + 1)</text>
+
+        <!-- Conexión Actuador a Turbina -->
+        <line x1="495" y1="70" x2="535" y2="70" class="wire" marker-end="url(#m-arr)" />
+        <text x="502" y="63" class="label-var">g(t)</text>
+
+        <!-- Bloque 3: Columna de Agua y Turbina -->
+        <rect x="535" y="42" width="155" height="56" rx="5" class="block" style="stroke: #f43f5e;" />
+        <text x="550" y="64" style="fill:#f43f5e; font-weight:bold;">Turbina / Inercia Hídrica</text>
+        <text x="562" y="84">(1 - Tw·s) / (1 + 0.5·Tw·s)</text>
+
+        <!-- Conexión Turbina a Sumador Mecánico -->
+        <line x1="690" y1="70" x2="729" y2="70" class="wire" marker-end="url(#m-arr)" />
+        <text x="696" y="63" class="label-var">Pm(t)</text>
+
+        <!-- Sumador Mecánico con Perturbación -->
+        <circle cx="740" cy="70" r="11" class="sum" />
+        <text x="736" y="74" style="fill:#fff; font-size: 13px;">+</text>
+        <text x="746" y="58" style="fill:#f43f5e; font-size: 12px;">−</text>
+
+        <!-- Perturbación Exógena Delta PL -->
+        <line x1="740" y1="12" x2="740" y2="59" class="wire" style="stroke:#f43f5e;" marker-end="url(#m-arr)" />
+        <text x="750" y="25" style="fill:#f43f5e; font-weight:bold;">ΔP_L(t) [Carga Red]</text>
+
+        <!-- Conexión a Dinámica de Rotor -->
+        <line x1="751" y1="70" x2="785" y2="70" class="wire" marker-end="url(#m-arr)" />
+        <text x="754" y="87" style="fill:#94a3b8; font-size:10px;">Pm − Pe</text>
+
+        <!-- Bloque 4: Generador y Red -->
+        <rect x="785" y="42" width="125" height="56" rx="5" class="block" />
+        <text x="797" y="64" style="fill:#38bdf8; font-weight:bold;">Generador / Red</text>
+        <text x="808" y="84">1 / (2H·s + D)</text>
+
+        <!-- Salida Principal -->
+        <line x1="910" y1="70" x2="960" y2="70" class="wire" marker-end="url(#m-arr)" />
+        <circle cx="935" cy="70" r="3" style="fill:#38bdf8;" />
+        <text x="918" y="63" class="label-var" style="fill:#38bdf8;">Δω(t)</text>
+        <text x="918" y="85" style="fill: #64748b; font-size: 10px;">[pu / Hz]</text>
+
+        <!-- Lazo de Realimentación -->
+        <line x1="935" y1="70" x2="935" y2="185" class="wire-feedback" />
+        <line x1="935" y1="185" x2="125" y2="185" class="wire-feedback" />
+        <line x1="125" y1="185" x2="125" y2="82" class="wire-feedback" marker-end="url(#m-arr-fb)" />
+        <text x="470" y="202" style="fill:#fbbf24; font-size:11px; text-anchor:middle;">Sensor de Frecuencia / Medición de Velocidad</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: WORKSPACE DE SIMULACIÓN -->
+  <div class="workspace-grid">
+    <!-- PANEL DE ENTRADAS Y PARÁMETROS -->
+    <aside>
+      <div class="preset-bar">
+        <button class="btn active" id="btn-pre-stable" onclick="setPreset('stable')">Nominal Estable</button>
+        <button class="btn" id="btn-pre-rhp" onclick="setPreset('highRhp')">Inercia Hídrica Fuerte</button>
+        <button class="btn" id="btn-pre-agg" onclick="setPreset('unstable')">PID Agresivo (Oscilante)</button>
+      </div>
+
+      <!-- Parámetros de Planta -->
+      <div class="param-group">
+        <h3>1. Parámetros de la Planta</h3>
+        
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Inercia Hídrica (Tw)</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_Tw" min="0.5" max="3.0" step="0.1" value="1.2" oninput="sync('Tw', this.value)">
+            <input type="number" id="num_Tw" min="0.5" max="3.0" step="0.1" value="1.2" oninput="sync('Tw', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Inercia del Rotor (H)</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_H" min="1.0" max="6.0" step="0.1" value="3.5" oninput="sync('H', this.value)">
+            <input type="number" id="num_H" min="1.0" max="6.0" step="0.1" value="3.5" oninput="sync('H', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Amortiguamiento Carga (D)</span>
+            <span class="param-unit">[pu/pu]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_D" min="0.0" max="3.0" step="0.1" value="1.0" oninput="sync('D', this.value)">
+            <input type="number" id="num_D" min="0.0" max="3.0" step="0.1" value="1.0" oninput="sync('D', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Constante Actuador (Tg)</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_Tg" min="0.05" max="0.5" step="0.01" value="0.20" oninput="sync('Tg', this.value)">
+            <input type="number" id="num_Tg" min="0.05" max="0.5" step="0.01" value="0.20" oninput="sync('Tg', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Vel. Máx Compuerta (|ġ_max|)</span>
+            <span class="param-unit">[pu/s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_gDotMax" min="0.05" max="0.40" step="0.01" value="0.15" oninput="sync('gDotMax', this.value)">
+            <input type="number" id="num_gDotMax" min="0.05" max="0.40" step="0.01" value="0.15" oninput="sync('gDotMax', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Parámetros de Control -->
+      <div class="param-group">
+        <h3>2. Sintonización del Gobernador</h3>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Ganancia Proporcional (Kp)</span>
+            <span class="param-unit">[pu/pu]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_Kp" min="0.1" max="6.0" step="0.1" value="1.8" oninput="sync('Kp', this.value)">
+            <input type="number" id="num_Kp" min="0.1" max="6.0" step="0.1" value="1.8" oninput="sync('Kp', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Ganancia Integral (Ki)</span>
+            <span class="param-unit">[1/s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_Ki" min="0.01" max="1.5" step="0.01" value="0.40" oninput="sync('Ki', this.value)">
+            <input type="number" id="num_Ki" min="0.01" max="1.5" step="0.01" value="0.40" oninput="sync('Ki', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Ganancia Derivativa (Kd)</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_Kd" min="0.0" max="2.0" step="0.05" value="0.5" oninput="sync('Kd', this.value)">
+            <input type="number" id="num_Kd" min="0.0" max="2.0" step="0.05" value="0.5" oninput="sync('Kd', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Escenario y Perturbación -->
+      <div class="param-group">
+        <h3>3. Perturbación y Simulación</h3>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Escalón de Carga (ΔP_L)</span>
+            <span class="param-unit">[pu]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_dPL" min="-0.3" max="0.3" step="0.02" value="0.10" oninput="sync('dPL', this.value)">
+            <input type="number" id="num_dPL" min="-0.3" max="0.3" step="0.02" value="0.10" oninput="sync('dPL', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Tiempo de Aplicación</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_tStep" min="1.0" max="5.0" step="0.5" value="2.0" oninput="sync('tStep', this.value)">
+            <input type="number" id="num_tStep" min="1.0" max="5.0" step="0.5" value="2.0" oninput="sync('tStep', this.value)">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label-wrap">
+            <span>Tiempo Total (T_sim)</span>
+            <span class="param-unit">[s]</span>
+          </div>
+          <div class="param-controls">
+            <input type="range" id="rng_tFinal" min="15" max="60" step="5" value="25" oninput="sync('tFinal', this.value)">
+            <input type="number" id="num_tFinal" min="15" max="60" step="5" value="25" oninput="sync('tFinal', this.value)">
+          </div>
+        </div>
+
+        <button class="btn btn-run" onclick="runSimulation()">Ejecutar Simulación</button>
+      </div>
+    </aside>
+
+    <!-- PANEL DE RESULTADOS GRÁFICOS Y KPIS -->
+    <main>
+      <div class="charts-wrapper">
+        <!-- Gráfica 1: Frecuencia -->
+        <div class="chart-container">
+          <div class="chart-header">
+            <span class="chart-title">Desviación de Frecuencia / Velocidad Angular: Δω(t)</span>
+            <div class="chart-legend">
+              <div class="legend-tag"><span class="legend-color" style="background:#94a3b8;"></span> Ref: Δω_ref</div>
+              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-cyan);"></span> Salida: Δω(t) [pu]</div>
+            </div>
+          </div>
+          <canvas id="canvasOmega"></canvas>
+        </div>
+
+        <!-- Gráfica 2: Potencia Mecánica vs Eléctrica -->
+        <div class="chart-container">
+          <div class="chart-header">
+            <span class="chart-title">Balance de Potencias: P_m(t) vs P_e(t) (Nótese la respuesta inversa en Pm)</span>
+            <div class="chart-legend">
+              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-rose);"></span> Demanda: ΔP_L [pu]</div>
+              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-green);"></span> Potencia Mecánica: P_m [pu]</div>
+            </div>
+          </div>
+          <canvas id="canvasPower"></canvas>
+        </div>
+
+        <!-- Gráfica 3: Actuador y Compuerta -->
+        <div class="chart-container">
+          <div class="chart-header">
+            <span class="chart-title">Acción de Control y Carrera de Compuerta</span>
+            <div class="chart-legend">
+              <div class="legend-tag"><span class="legend-color" style="background:var(--chart-amber);"></span> Salida Controlador: u(t)</div>
+              <div class="legend-tag"><span class="legend-color" style="background:#a78bfa;"></span> Posición Compuerta: g(t) [pu]</div>
+            </div>
+          </div>
+          <canvas id="canvasGate"></canvas>
+        </div>
+
+        <!-- TABLERO DE MÉTRICAS / KPIS -->
+        <div class="kpi-deck">
+          <div class="kpi-card">
+            <div class="kpi-label">Frecuencia Nadir</div>
+            <div class="kpi-value" id="kpi-nadir">--</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tiempo al Nadir</div>
+            <div class="kpi-value" id="kpi-tnadir">--</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Sobrepaso (Overshoot)</div>
+            <div class="kpi-value" id="kpi-os">--</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Asentamiento ts (2%)</div>
+            <div class="kpi-value" id="kpi-ts">--</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Error Permanente (ess)</div>
+            <div class="kpi-value" id="kpi-ess">--</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // --- ESTADO Y PARÁMETROS GLOBALES ---
+    const params = {
+      Tw: 1.2,
+      H: 3.5,
+      D: 1.0,
+      Tg: 0.20,
+      gDotMax: 0.15,
+      Kp: 1.8,
+      Ki: 0.40,
+      Kd: 0.5,
+      N: 10.0,
+      dPL: 0.10,
+      tStep: 2.0,
+      tFinal: 25.0
+    };
+
+    function sync(param, val) {
+      const numVal = parseFloat(val);
+      params[param] = numVal;
+      document.getElementById('rng_' + param).value = numVal;
+      document.getElementById('num_' + param).value = numVal;
+      runSimulation();
+    }
+
+    function setPreset(type) {
+      document.querySelectorAll('.preset-bar .btn').forEach(b => b.classList.remove('active'));
+      if (type === 'stable') {
+        document.getElementById('btn-pre-stable').classList.add('active');
+        params.Tw = 1.0; params.H = 4.0; params.D = 1.0; params.Tg = 0.2;
+        params.Kp = 1.8; params.Ki = 0.35; params.Kd = 0.6; params.dPL = 0.10;
+      } else if (type === 'highRhp') {
+        document.getElementById('btn-pre-rhp').classList.add('active');
+        params.Tw = 2.4; params.H = 3.0; params.D = 0.8; params.Tg = 0.25;
+        params.Kp = 1.2; params.Ki = 0.18; params.Kd = 0.4; params.dPL = 0.12;
+      } else if (type === 'unstable') {
+        document.getElementById('btn-pre-agg').classList.add('active');
+        params.Tw = 1.6; params.H = 3.0; params.D = 0.5; params.Tg = 0.15;
+        params.Kp = 4.5; params.Ki = 1.10; params.Kd = 1.2; params.dPL = 0.10;
+      }
+
+      for (const [key, val] of Object.entries(params)) {
+        const r = document.getElementById('rng_' + key);
+        const n = document.getElementById('num_' + key);
+        if (r && n) { r.value = val; n.value = val; }
+      }
+      runSimulation();
+    }
+
+    // --- SOLVER NUMÉRICO RUNGE-KUTTA 4 (RK4) ---
+    // Variables de estado del sistema:
+    // x[0] = g (posición física de la compuerta)
+    // x[1] = q (desviación de caudal en tubería forzada)
+    // x[2] = dw (desviación de velocidad angular/frecuencia)
+    // x[3] = xi (estado integral del PID)
+    // x[4] = xd (estado del filtro derivativo)
+    function runSimulation() {
+      const dt = 0.005; // Paso de integración fijo de 5 ms
+      const steps = Math.floor(params.tFinal / dt);
+
+      const tArr = new Float64Array(steps);
+      const dwArr = new Float64Array(steps);
+      const pmArr = new Float64Array(steps);
+      const plArr = new Float64Array(steps);
+      const gArr = new Float64Array(steps);
+      const uArr = new Float64Array(steps);
+
+      // Condiciones iniciales en estado estacionario normalizado
+      let x = [0.0, 0.0, 0.0, 0.0, 0.0];
+
+      function derivatives(t, state) {
+        const g = state[0];
+        const q = state[1];
+        const dw = state[2];
+        const xi = state[3];
+        const xd = state[4];
+
+        // Perturbación escalón de carga
+        const dPL = (t >= params.tStep) ? params.dPL : 0.0;
+
+        // Error de lazo: delta_omega_ref = 0
+        const error = 0.0 - dw;
+
+        // Ecuaciones del controlador PID con filtro derivador:
+        // u = Kp*e + Ki*xi + N*(Kd*e - xd)
+        const d_term = params.N * (params.Kd * error - xd);
+        let u = params.Kp * error + params.Ki * xi + d_term;
+
+        // Dinámica del servomotor de compuerta con saturación de slew-rate
+        let gDot = (u - g) / params.Tg;
+        if (gDot > params.gDotMax) gDot = params.gDotMax;
+        if (gDot < -params.gDotMax) gDot = -params.gDotMax;
+
+        // Dinámica de columna de agua:
+        // dq/dt = -(2/Tw)*q + (2/Tw)*g
+        const qDot = -(2.0 / params.Tw) * q + (2.0 / params.Tw) * g;
+
+        // Potencia mecánica: Pm = 1.5*q - g (Cero RHP explícito)
+        const Pm = 1.5 * q - g;
+
+        // Dinámica de oscilación del generador:
+        // 2H * d(dw)/dt + D*dw = Pm - dPL
+        const dwDot = (Pm - dPL - params.D * dw) / (2.0 * params.H);
+
+        // Dinámica interna del controlador
+        const xiDot = error;
+        const xdDot = d_term;
+
+        return [gDot, qDot, dwDot, xiDot, xdDot, u, Pm, dPL];
+      }
+
+      for (let i = 0; i < steps; i++) {
+        const t = i * dt;
+        tArr[i] = t;
+
+        // Registro de salidas
+        const out = derivatives(t, x);
+        gArr[i] = x[0];
+        dwArr[i] = x[2];
+        uArr[i] = out[5];
+        pmArr[i] = out[6];
+        plArr[i] = out[7];
+
+        // RK4 Integration
+        const k1 = derivatives(t, x);
+        
+        const x_k2 = [
+          x[0] + 0.5 * dt * k1[0],
+          x[1] + 0.5 * dt * k1[1],
+          x[2] + 0.5 * dt * k1[2],
+          x[3] + 0.5 * dt * k1[3],
+          x[4] + 0.5 * dt * k1[4]
+        ];
+        const k2 = derivatives(t + 0.5 * dt, x_k2);
+
+        const x_k3 = [
+          x[0] + 0.5 * dt * k2[0],
+          x[1] + 0.5 * dt * k2[1],
+          x[2] + 0.5 * dt * k2[2],
+          x[3] + 0.5 * dt * k2[3],
+          x[4] + 0.5 * dt * k2[4]
+        ];
+        const k3 = derivatives(t + 0.5 * dt, x_k3);
+
+        const x_k4 = [
+          x[0] + dt * k3[0],
+          x[1] + dt * k3[1],
+          x[2] + dt * k3[2],
+          x[3] + dt * k3[3],
+          x[4] + dt * k3[4]
+        ];
+        const k4 = derivatives(t + dt, x_k4);
+
+        for (let j = 0; j < 5; j++) {
+          x[j] += (dt / 6.0) * (k1[j] + 2.0 * k2[j] + 2.0 * k3[j] + k4[j]);
+        }
+      }
+
+      // Procesar KPIs y graficar
+      computeKPIs(tArr, dwArr);
+      drawPlot('canvasOmega', tArr, [
+        { data: new Float64Array(steps).fill(0.0), color: '#64748b', dashed: true },
+        { data: dwArr, color: '#38bdf8' }
+      ], 'pu (Δf / f0)');
+
+      drawPlot('canvasPower', tArr, [
+        { data: plArr, color: '#f43f5e' },
+        { data: pmArr, color: '#4ade80' }
+      ], 'pu (Potencia)');
+
+      drawPlot('canvasGate', tArr, [
+        { data: uArr, color: '#fbbf24' },
+        { data: gArr, color: '#a78bfa' }
+      ], 'pu (Apertura)');
+    }
+
+    // --- CÁLCULO DE MÉTRICAS DINÁMICAS (KPIS) ---
+    function computeKPIs(t, dw) {
+      let minVal = 0.0;
+      let minIdx = 0;
+      const startIndex = Math.floor(params.tStep / (t[1] - t[0]));
+
+      for (let i = startIndex; i < dw.length; i++) {
+        if (dw[i] < minVal) {
+          minVal = dw[i];
+          minIdx = i;
+        }
+      }
+
+      const nadirVal = minVal;
+      const tNadir = t[minIdx] - params.tStep;
+
+      // Buscar overshoot en recuperación (pico positivo posterior al nadir)
+      let maxValAfterNadir = nadirVal;
+      for (let i = minIdx; i < dw.length; i++) {
+        if (dw[i] > maxValAfterNadir) maxValAfterNadir = dw[i];
+      }
+      const overshoot = (maxValAfterNadir > 0.0) ? (maxValAfterNadir * 100).toFixed(2) + ' %' : '0.00 %';
+
+      // Tiempo de asentamiento al 2% del nadir
+      const band = Math.abs(nadirVal) * 0.05;
+      let ts = '> ' + params.tFinal.toFixed(0) + ' s';
+      for (let i = dw.length - 1; i >= minIdx; i--) {
+        if (Math.abs(dw[i]) > Math.max(band, 0.001)) {
+          if (i < dw.length - 5) {
+            ts = (t[i] - params.tStep).toFixed(2) + ' s';
+          }
+          break;
+        }
+      }
+
+      const ess = dw[dw.length - 1].toFixed(5) + ' pu';
+
+      document.getElementById('kpi-nadir').innerText = nadirVal.toFixed(4) + ' pu';
+      document.getElementById('kpi-tnadir').innerText = tNadir.toFixed(2) + ' s';
+      document.getElementById('kpi-os').innerText = overshoot;
+      document.getElementById('kpi-ts').innerText = ts;
+      document.getElementById('kpi-ess').innerText = ess;
+    }
+
+    // --- MOTOR DE DIBUJO EN HTML5 CANVAS NATIVO ---
+    function drawPlot(canvasId, time, seriesList, yLabel) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+
+      // Márgenes
+      const padL = 60, padR = 20, padT = 15, padB = 25;
+      const plotW = width - padL - padR;
+      const plotH = height - padT - padB;
+
+      // Límites Y globales
+      let yMin = Infinity, yMax = -Infinity;
+      seriesList.forEach(s => {
+        for (let i = 0; i < s.data.length; i++) {
+          if (s.data[i] < yMin) yMin = s.data[i];
+          if (s.data[i] > yMax) yMax = s.data[i];
+        }
+      });
+
+      // Asegurar rango simétrico o mínimo
+      if (Math.abs(yMax - yMin) < 0.02) { yMax += 0.02; yMin -= 0.02; }
+      const ySpan = (yMax - yMin) * 1.15;
+      const yMid = (yMax + yMin) / 2;
+      const yPlotMin = yMid - ySpan / 2;
+      const yPlotMax = yMid + ySpan / 2;
+
+      const tMax = time[time.length - 1];
+
+      // Fondo y rejilla
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#64748b';
+
+      // Rejilla Horizontal (Y)
+      const yTicks = 4;
+      for (let i = 0; i <= yTicks; i++) {
+        const val = yPlotMin + (i / yTicks) * (yPlotMax - yPlotMin);
+        const yPx = padT + plotH - (i / yTicks) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padL, yPx);
+        ctx.lineTo(padL + plotW, yPx);
+        ctx.stroke();
+        ctx.fillText(val.toFixed(3), 8, yPx + 3);
+      }
+
+      // Rejilla Vertical (X)
+      const xTicks = 6;
+      for (let i = 0; i <= xTicks; i++) {
+        const tVal = (i / xTicks) * tMax;
+        const xPx = padL + (i / xTicks) * plotW;
+        ctx.beginPath();
+        ctx.moveTo(xPx, padT);
+        ctx.lineTo(xPx, padT + plotH);
+        ctx.stroke();
+        ctx.fillText(tVal.toFixed(0) + 's', xPx - 8, height - 8);
+      }
+
+      // Línea de Cero (si está dentro del rango)
+      if (yPlotMin < 0 && yPlotMax > 0) {
+        const yZero = padT + plotH - ((0 - yPlotMin) / (yPlotMax - yPlotMin)) * plotH;
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(padL, yZero);
+        ctx.lineTo(padL + plotW, yZero);
+        ctx.stroke();
+      }
+
+      // Render de Curvas
+      seriesList.forEach(s => {
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = s.dashed ? 1.5 : 2;
+        if (s.dashed) ctx.setLineDash([4, 4]);
+        else ctx.setLineDash([]);
+
+        ctx.beginPath();
+        for (let i = 0; i < time.length; i++) {
+          const xPx = padL + (time[i] / tMax) * plotW;
+          const yPx = padT + plotH - ((s.data[i] - yPlotMin) / (yPlotMax - yPlotMin)) * plotH;
+          if (i === 0) ctx.moveTo(xPx, yPx);
+          else ctx.lineTo(xPx, yPx);
+        }
+        ctx.stroke();
+      });
+
+      // Etiqueta vertical Y
+      ctx.save();
+      ctx.translate(14, padT + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(yLabel, 0, 0);
+      ctx.restore();
+    }
+
+    // Inicializar simulación al cargar la página
+    window.onload = () => {
+      runSimulation();
+    };
+
+    // Re-render al cambiar el tamaño de pantalla
+    window.onresize = () => {
+      runSimulation();
+    };
+  </script>
+</body>
+</html>
