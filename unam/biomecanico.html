@@ -75,7 +75,7 @@
             background: #fdfdfd;
             border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 10px 0;
+            padding: 15px 0;
         }
         .mode-selector {
             background: #eef2f5;
@@ -121,63 +121,117 @@
         <div class="math-box">
             [X', Y']<sup>T</sup> = J(θ)·[θ<sub>1</sub>', θ<sub>2</sub>', θ<sub>3</sub>']<sup>T</sup>
         </div>
-        <p>Al tener 3 grados de libertad para un espacio 2D, el sistema es redundante. El cerebro (y el simulador) resuelve esto minimizando el esfuerzo articular, matemáticamente análogo a la pseudoinversa J<sup>†</sup> = J<sup>T</sup>(J J<sup>T</sup>)<sup>-1</sup>.</p>
-
-        <h3>Controlador Multivariable (Ley de Control PID + Gravedad)</h3>
-        <p>Para estabilizar la planta se implementa un control de torque articular basado en propiocepción (posición y velocidad). Se usa un PID desacoplado con prealimentación gravitacional:</p>
-        <div class="math-box">
-            e(t) = θ<sub>ref</sub> - θ(t)<br>
-            τ = K<sub>p</sub> e(t) + K<sub>i</sub> ∫ e(t) dt + K<sub>d</sub> d(e(t))/dt + G(θ)
-        </div>
     </div>
 
-    <!-- Diagrama a Bloques -->
+    <!-- Representación en Variables de Estado -->
     <div class="panel">
-        <h2>2. Diagrama a Bloques de la Arquitectura de Control</h2>
+        <h2>2. Representación en Variables de Estado (MIMO)</h2>
+        <p>Para aplicar técnicas de control moderno (como linealización exacta, LQR multivariable o control predictivo), el sistema de ecuaciones diferenciales no lineales de segundo orden se transforma en un sistema de ecuaciones de primer orden. Definimos el vector de estado <b>x</b> ∈ ℝ<sup>6</sup> y el vector de entrada <b>u</b> ∈ ℝ<sup>3</sup>:</p>
+        
+        <div class="math-box">
+            <b>Vector de Estado:</b><br>
+            <b>x</b> = [ x<sub>1</sub>, x<sub>2</sub> ]<sup>T</sup> = [ θ, θ' ]<sup>T</sup> = [ θ<sub>1</sub>, θ<sub>2</sub>, θ<sub>3</sub>, ω<sub>1</sub>, ω<sub>2</sub>, ω<sub>3</sub> ]<sup>T</sup><br><br>
+            <b>Vector de Entrada (Esfuerzos de Control):</b><br>
+            <b>u</b> = τ = [ τ<sub>1</sub>, τ<sub>2</sub>, τ<sub>3</sub> ]<sup>T</sup>
+        </div>
+
+        <p>Despejando el vector de aceleraciones articulares θ'' de la dinámica de cuerpo rígido, y aprovechando que la matriz de inercia <b>M(θ)</b> es simétrica y definida positiva (lo que garantiza que siempre es invertible), obtenemos el modelo en el espacio de estados:</p>
+        
+        <div class="math-box">
+            <b>Ecuaciones de Estado:</b><br>
+            x<sub>1</sub>' = x<sub>2</sub><br>
+            x<sub>2</sub>' = M(x<sub>1</sub>)<sup>-1</sup> [ <b>u</b> - C(x<sub>1</sub>, x<sub>2</sub>)x<sub>2</sub> - G(x<sub>1</sub>) ]<br><br>
+            
+            <b>Ecuación de Salida (Propiocepción Articular):</b><br>
+            <b>y</b> = x<sub>1</sub>
+        </div>
+        <p>Esta estructura revela la naturaleza fuertemente acoplada del sistema: la derivada de cualquier velocidad ω<sub>i</sub> depende de las posiciones y velocidades de todos los demás eslabones a través de la matriz inversa <b>M<sup>-1</sup></b> y los términos de Coriolis <b>C</b>.</p>
+    </div>
+
+    <!-- Diagrama a Bloques Multivariable -->
+    <div class="panel">
+        <h2>3. Diagrama a Bloques del Sistema de Control Multivariable</h2>
+        <p>El esquema muestra un control por par desacoplado. Las líneas gruesas (con el símbolo <b>/ 3</b>) representan buses de señales multivariables (vectores en ℝ<sup>3</sup>). Se aprecia el lazo principal con matrices de ganancia PID diagonales y el lazo de prealimentación (feedforward) para compensar la no linealidad gravitacional <b>G(θ)</b>.</p>
         <div class="diagram-container">
-            <svg width="900" height="210" xmlns="http://www.w3.org/2000/svg">
+            <svg width="900" height="300" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
                         <path d="M0,0 L0,6 L9,3 z" fill="#333" />
                     </marker>
                 </defs>
                 
-                <rect x="10" y="70" width="120" height="60" fill="#eef2f5" stroke="#3498db" stroke-width="2" />
-                <text x="70" y="95" font-family="sans-serif" font-size="12" text-anchor="middle">Generador de</text>
-                <text x="70" y="115" font-family="sans-serif" font-size="12" text-anchor="middle">Marcha / Manual</text>
+                <!-- Generador de Ref -->
+                <rect x="20" y="80" width="120" height="60" fill="#eef2f5" stroke="#3498db" stroke-width="2" />
+                <text x="80" y="105" font-family="sans-serif" font-size="12" text-anchor="middle">Planificador</text>
+                <text x="80" y="125" font-family="sans-serif" font-size="12" text-anchor="middle">de Marcha</text>
                 
-                <line x1="130" y1="100" x2="160" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="145" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ<tspan dy="5" font-size="10">ref</tspan></text>
-                <text x="145" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Set Point</text>
+                <!-- Linea Ref -->
+                <line x1="140" y1="110" x2="190" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="160" y1="102" x2="168" y2="118" stroke="#333" stroke-width="2" />
+                <text x="165" y="98" font-family="sans-serif" font-size="10">3</text>
+                <text x="165" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ<tspan dy="5" font-size="10">ref</tspan></text>
 
-                <circle cx="180" cy="100" r="15" fill="white" stroke="#333" stroke-width="2" />
-                <text x="165" y="95" font-family="sans-serif" font-size="12">+</text>
-                <text x="175" y="125" font-family="sans-serif" font-size="12">-</text>
+                <!-- Sumador 1 -->
+                <circle cx="210" cy="110" r="15" fill="white" stroke="#333" stroke-width="2" />
+                <text x="195" y="105" font-family="sans-serif" font-size="14">+</text>
+                <text x="205" y="135" font-family="sans-serif" font-size="14">-</text>
 
-                <line x1="195" y1="100" x2="230" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="212" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e(t)</text>
+                <!-- Linea Error -->
+                <line x1="225" y1="110" x2="270" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="242" y1="102" x2="250" y2="118" stroke="#333" stroke-width="2" />
+                <text x="247" y="98" font-family="sans-serif" font-size="10">3</text>
+                <text x="247" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e(t)</text>
 
-                <rect x="230" y="50" width="220" height="100" fill="#fff" stroke="#e67e22" stroke-width="2" />
-                <text x="340" y="70" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Controlador PID + Gravedad</text>
-                <text x="340" y="100" font-family="sans-serif" font-size="12" text-anchor="middle">PID = K<tspan dy="3" font-size="10">p</tspan><tspan dy="-3">e</tspan> + K<tspan dy="3" font-size="10">i</tspan><tspan dy="-3">∫edt</tspan> + K<tspan dy="3" font-size="10">d</tspan><tspan dy="-3">e'</tspan></text>
-                <text x="340" y="130" font-family="sans-serif" font-size="12" text-anchor="middle">τ = PID + G(θ)</text>
+                <!-- Matriz PID -->
+                <rect x="270" y="70" width="160" height="80" fill="#fff3e0" stroke="#e67e22" stroke-width="2" />
+                <text x="350" y="95" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Ganancias PID</text>
+                <text x="350" y="125" font-family="sans-serif" font-size="12" text-anchor="middle">K<tspan dy="3" font-size="10">P</tspan><tspan dy="-3">e</tspan> + K<tspan dy="3" font-size="10">I</tspan><tspan dy="-3">∫e</tspan> + K<tspan dy="3" font-size="10">D</tspan><tspan dy="-3">e'</tspan></text>
 
-                <line x1="450" y1="100" x2="510" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="480" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">τ(t)</text>
-                <text x="480" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Var. Manipulada</text>
+                <!-- Linea PID out -->
+                <line x1="430" y1="110" x2="480" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="450" y1="102" x2="458" y2="118" stroke="#333" stroke-width="2" />
+                <text x="455" y="98" font-family="sans-serif" font-size="10">3</text>
 
-                <rect x="510" y="50" width="220" height="100" fill="#fff" stroke="#2c3e50" stroke-width="2" />
-                <text x="620" y="75" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Planta Biomecánica</text>
-                <text x="620" y="105" font-family="sans-serif" font-size="12" text-anchor="middle">M(θ)θ'' + C(θ,θ')θ' + G(θ) = τ</text>
+                <!-- Sumador 2 (MIMO) -->
+                <circle cx="500" cy="110" r="15" fill="white" stroke="#333" stroke-width="2" />
+                <text x="485" y="105" font-family="sans-serif" font-size="14">+</text>
+                <text x="495" y="135" font-family="sans-serif" font-size="14">+</text>
 
-                <line x1="730" y1="100" x2="820" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="775" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ(t)</text>
-                <text x="775" y="115" font-family="sans-serif" font-size="10" fill="#666" text-anchor="middle">Var. Controlada</text>
+                <!-- Linea Torque Total -->
+                <line x1="515" y1="110" x2="570" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="535" y1="102" x2="543" y2="118" stroke="#333" stroke-width="2" />
+                <text x="540" y="98" font-family="sans-serif" font-size="10">3</text>
+                <text x="540" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">τ(t)</text>
 
-                <line x1="760" y1="100" x2="760" y2="180" stroke="#333" stroke-width="2" />
-                <line x1="760" y1="180" x2="180" y2="180" stroke="#333" stroke-width="2" />
-                <line x1="180" y1="180" x2="180" y2="115" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="480" y="175" font-family="sans-serif" font-size="12" text-anchor="middle">Retroalimentación Sensorial (Propiocepción)</text>
+                <!-- Planta -->
+                <rect x="570" y="55" width="220" height="110" fill="#f5eef8" stroke="#8e44ad" stroke-width="2" />
+                <text x="680" y="80" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Planta Multivariable</text>
+                <text x="680" y="110" font-family="sans-serif" font-size="12" text-anchor="middle">x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3">'</tspan> = M<tspan dy="-5" font-size="10">-1</tspan><tspan dy="5">[τ - Cx</tspan><tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> - G]</tspan></text>
+                <text x="680" y="140" font-family="sans-serif" font-size="12" text-anchor="middle">∫x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3">'</tspan> = x<tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> , ∫x</tspan><tspan dy="3" font-size="10">2</tspan><tspan dy="-3"> = x</tspan><tspan dy="3" font-size="10">1</tspan><tspan dy="-3"> (θ)</tspan></text>
+
+                <!-- Linea Salida Theta -->
+                <line x1="790" y1="110" x2="870" y2="110" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="820" y1="102" x2="828" y2="118" stroke="#333" stroke-width="2" />
+                <text x="825" y="98" font-family="sans-serif" font-size="10">3</text>
+                <text x="840" y="85" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ(t)</text>
+
+                <!-- Feedback Line -->
+                <line x1="810" y1="110" x2="810" y2="250" stroke="#333" stroke-width="3" />
+                <line x1="810" y1="250" x2="210" y2="250" stroke="#333" stroke-width="3" />
+                <line x1="210" y1="250" x2="210" y2="125" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <line x1="500" y1="250" x2="508" y2="242" stroke="#333" stroke-width="2" />
+                <text x="504" y="238" font-family="sans-serif" font-size="10">3</text>
+                <text x="220" y="240" font-family="sans-serif" font-size="12">Propiocepción (x<tspan dy="3" font-size="10">1</tspan><tspan dy="-3"> = θ)</tspan></text>
+
+                <!-- Bloque Gravedad (Prealimentación) -->
+                <circle cx="500" cy="250" r="4" fill="#333" />
+                <line x1="500" y1="250" x2="500" y2="225" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
+                <rect x="420" y="165" width="160" height="60" fill="#eef2f5" stroke="#2c3e50" stroke-width="2" stroke-dasharray="5,5" />
+                <text x="500" y="190" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">Prealimentación</text>
+                <text x="500" y="210" font-family="sans-serif" font-size="12" text-anchor="middle">Gravedad: G(θ)</text>
+                
+                <!-- Salida de Gravedad al Sumador 2 -->
+                <line x1="500" y1="165" x2="500" y2="125" stroke="#333" stroke-width="3" marker-end="url(#arrow)" />
             </svg>
         </div>
     </div>
