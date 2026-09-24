@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador Biomecánico MIMO con Control Automático</title>
+    <title>Simulador Biomecánico MIMO: Control, Marcha y Cinemática</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,7 +11,7 @@
             margin: 0;
             padding: 20px;
         }
-        h1, h2, h3 { color: #2c3e50; }
+        h1, h2, h3 { color: #2c3e50; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -25,6 +25,24 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+        }
+        .math-box {
+            background: #eef2f5;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.05em;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+        .matrix {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            border-left: 2px solid #333;
+            border-right: 2px solid #333;
+            padding: 0 5px;
+            border-radius: 5px / 10px;
         }
         canvas {
             background: #fff;
@@ -47,7 +65,6 @@
         .color-r { color: #2ecc71; } 
         .color-c { color: #3498db; }
         
-        /* Estilos para el diagrama a bloques */
         .diagram-container {
             width: 100%;
             overflow-x: auto;
@@ -70,21 +87,54 @@
 </head>
 <body>
 
-    <h1>Simulador Biomecánico: Control y Marcha</h1>
+    <h1>Simulador Biomecánico: Modelo de 3 Grados de Libertad (Pierna)</h1>
+
+    <div class="panel">
+        <h2>1. Justificación Matemática y Dinámica del Sistema</h2>
+        <p>El sistema se modela como un manipulador robótico de tres eslabones interactuando con la gravedad en el plano sagital. La dinámica no lineal se obtiene mediante la formulación clásica de Euler-Lagrange:</p>
+        
+        <div class="math-box">
+            M(θ)θ'' + C(θ, θ')θ' + G(θ) = τ
+        </div>
+        
+        <p>Donde <b>θ</b> = [θ<sub>1</sub>, θ<sub>2</sub>, θ<sub>3</sub>]<sup>T</sup> es el vector de ángulos articulares. La estabilización se logra mediante un control multivariable en lazo cerrado que emula el sistema neuromuscular:</p>
+        <div class="math-box">
+            Control de Impedancia Biológica:<br>
+            τ = K<sub>p</sub>(θ<sub>ref</sub> - θ) - K<sub>d</sub>θ' + G(θ)
+        </div>
+
+        <h3>Cinemática Directa</h3>
+        <p>Define la posición final del centro de masa del tronco (X<sub>T</sub>, Y<sub>T</sub>) a partir de los ángulos articulares. Si la base (pie) está en (0,0):</p>
+        <div class="math-box">
+            X<sub>T</sub> = L<sub>1</sub>·sin(θ<sub>1</sub>) + L<sub>2</sub>·sin(θ<sub>2</sub>) + L<sub>3</sub>·sin(θ<sub>3</sub>)<br>
+            Y<sub>T</sub> = L<sub>1</sub>·cos(θ<sub>1</sub>) + L<sub>2</sub>·cos(θ<sub>2</sub>) + L<sub>3</sub>·cos(θ<sub>3</sub>)
+        </div>
+
+        <h3>Cinemática Inversa y Redundancia</h3>
+        <p>Dado que tenemos 3 grados de libertad (n=3) para posicionar el centro de masa en un plano 2D (m=2), el sistema es redundante. Para hallar las velocidades articulares θ' necesarias para una trayectoria X' deseada, se emplea el Jacobiano J(θ) y la matriz pseudoinversa de Moore-Penrose J<sup>†</sup>:</p>
+        <div class="math-box">
+            X' = J(θ)·θ'  =>  θ' = J<sup>†</sup>(θ)·X'<br><br>
+            Donde: J<sup>†</sup> = J<sup>T</sup>(J·J<sup>T</sup>)<sup>-1</sup>
+            <br><br>
+            J(θ) = 
+            <div class="matrix">
+                L<sub>1</sub>cos(θ<sub>1</sub>) &nbsp;&nbsp; L<sub>2</sub>cos(θ<sub>2</sub>) &nbsp;&nbsp; L<sub>3</sub>cos(θ<sub>3</sub>)<br>
+                -L<sub>1</sub>sin(θ<sub>1</sub>) &nbsp; -L<sub>2</sub>sin(θ<sub>2</sub>) &nbsp; -L<sub>3</sub>sin(θ<sub>3</sub>)
+            </div>
+        </div>
+    </div>
 
     <!-- Diagrama a Bloques del Sistema -->
     <div class="panel">
-        <h2>Diagrama a Bloques (Lazo Cerrado MIMO)</h2>
+        <h2>2. Diagrama a Bloques (Lazo Cerrado MIMO)</h2>
         <div class="diagram-container">
             <svg width="900" height="200" xmlns="http://www.w3.org/2000/svg">
-                <!-- Definición de flechas -->
                 <defs>
                     <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
                         <path d="M0,0 L0,6 L9,3 z" fill="#333" />
                     </marker>
                 </defs>
                 
-                <!-- Generador de Trayectorias (Modo Auto) -->
                 <rect x="10" y="70" width="120" height="60" fill="#eef2f5" stroke="#3498db" stroke-width="2" />
                 <text x="70" y="95" font-family="sans-serif" font-size="12" text-anchor="middle">Generador de</text>
                 <text x="70" y="115" font-family="sans-serif" font-size="12" text-anchor="middle">Marcha</text>
@@ -92,38 +142,31 @@
                 <line x1="130" y1="100" x2="160" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="145" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ<tspan dy="5" font-size="10">ref</tspan></text>
 
-                <!-- Sumador -->
                 <circle cx="180" cy="100" r="15" fill="white" stroke="#333" stroke-width="2" />
                 <text x="165" y="95" font-family="sans-serif" font-size="12">+</text>
                 <text x="175" y="125" font-family="sans-serif" font-size="12">-</text>
 
-                <!-- Señal de Error -->
                 <line x1="195" y1="100" x2="240" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="217" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">e</text>
 
-                <!-- Controlador (Sistema Neuromuscular) -->
                 <rect x="240" y="60" width="180" height="80" fill="#fff" stroke="#e74c3c" stroke-width="2" />
                 <text x="330" y="80" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Controlador PD + G(θ)</text>
                 <text x="330" y="105" font-family="sans-serif" font-size="12" text-anchor="middle">τ = K<tspan dy="3" font-size="10">p</tspan><tspan dy="-3">e</tspan> - K<tspan dy="3" font-size="10">d</tspan><tspan dy="-3">θ'</tspan> + G(θ)</text>
 
-                <!-- Señal de Control (Torques) -->
                 <line x1="420" y1="100" x2="480" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="450" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">τ</text>
 
-                <!-- Planta (Dinámica Euler-Lagrange) -->
                 <rect x="480" y="50" width="220" height="100" fill="#fff" stroke="#2c3e50" stroke-width="2" />
                 <text x="590" y="75" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Planta Biomecánica</text>
                 <text x="590" y="105" font-family="sans-serif" font-size="12" text-anchor="middle">M(θ)θ'' + C(θ,θ')θ' + G(θ) = τ</text>
 
-                <!-- Salida (Ángulos) -->
                 <line x1="700" y1="100" x2="800" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="750" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">θ, θ'</text>
 
-                <!-- Retroalimentación -->
                 <line x1="730" y1="100" x2="730" y2="170" stroke="#333" stroke-width="2" />
                 <line x1="730" y1="170" x2="180" y2="170" stroke="#333" stroke-width="2" />
                 <line x1="180" y1="170" x2="180" y2="115" stroke="#333" stroke-width="2" marker-end="url(#arrow)" />
-                <text x="450" y="160" font-family="sans-serif" font-size="12" text-anchor="middle">Propiocepción (Husos musculares / Órganos de Golgi)</text>
+                <text x="450" y="160" font-family="sans-serif" font-size="12" text-anchor="middle">Propiocepción (Husos musculares / Órganos tendinosos de Golgi)</text>
             </svg>
         </div>
     </div>
@@ -133,7 +176,7 @@
         <div class="panel">
             <h2>Simulación Cinemática</h2>
             <canvas id="simCanvas" width="600" height="500"></canvas>
-            <p><i>La base representa el pie apoyado. Los eslabones son: Tibia (rojo), Fémur (verde), Tronco (azul).</i></p>
+            <p><i>La base representa el tobillo. Enlaces: Tibia (rojo), Fémur (verde), Tronco (azul).</i></p>
         </div>
 
         <!-- Columna Derecha: Gráficas y Controles -->
@@ -148,7 +191,6 @@
 
             <h2>Panel de Control</h2>
             
-            <!-- Selector de Modos -->
             <div class="mode-selector">
                 <b>Modo de Operación:</b>
                 <div class="radio-group">
@@ -158,7 +200,6 @@
             </div>
 
             <div class="controls">
-                <!-- Parámetros físicos comunes -->
                 <div class="control-group">
                     <label>Masa del Tronco M<sub>T</sub> (kg): <span id="val_masa" class="value-display">40</span></label>
                     <input type="range" id="slider_masa" min="10" max="90" step="1" value="40">
@@ -195,48 +236,40 @@
     <script>
         // Parámetros Físicos Biomecánicos
         const g = 9.81;
-        const L1 = 0.45; // Tibia
-        const L2 = 0.45; // Fémur
-        const L3 = 0.60; // Tronco
+        const L1 = 0.45; 
+        const L2 = 0.45; 
+        const L3 = 0.60; 
         
         let m1 = 3.5, m2 = 7.0, m3 = 40.0; 
 
-        // Estados del sistema (Ángulos absolutos desde la vertical)
         let th1 = 0, th2 = 0, th3 = 0;
         let w1 = 0, w2 = 0, w3 = 0;
 
-        // Referencias
         let ref1 = 0, ref2 = 0, ref3 = 0;
 
-        // Control
-        let Kp = 3500; // Incrementado para mayor seguimiento en modo dinámico
+        let Kp = 3500; 
         let Kd = 100;
 
-        // Variables Modo Automático
         let isAutoMode = false;
         let linearSpeed = 1.5;
         let gaitPhase = 0;
 
-        // Historial
         const historySize = 300;
         let hist1 = new Array(historySize).fill(0);
         let hist2 = new Array(historySize).fill(0);
         let hist3 = new Array(historySize).fill(0);
 
-        // Dom Elements
         const simCanvas = document.getElementById('simCanvas');
         const simCtx = simCanvas.getContext('2d');
         const graphCanvas = document.getElementById('graphCanvas');
         const graphCtx = graphCanvas.getContext('2d');
 
-        // Escuchadores de Modos
         document.querySelectorAll('input[name="modo"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 isAutoMode = this.value === 'auto';
                 document.querySelectorAll('.manual-ctrl').forEach(el => el.classList.toggle('hidden', isAutoMode));
                 document.querySelectorAll('.auto-ctrl').forEach(el => el.classList.toggle('hidden', !isAutoMode));
                 
-                // Suavizar la transición al regresar a manual
                 if(!isAutoMode) {
                     document.getElementById('slider_t1').value = (ref1 * 180 / Math.PI).toFixed(0);
                     document.getElementById('slider_t2').value = (ref2 * 180 / Math.PI).toFixed(0);
@@ -248,7 +281,6 @@
             });
         });
 
-        // Escuchadores de Sliders
         document.getElementById('slider_masa').addEventListener('input', e => { m3 = parseFloat(e.target.value); document.getElementById('val_masa').innerText = m3; });
         document.getElementById('slider_kd').addEventListener('input', e => { Kd = parseFloat(e.target.value); document.getElementById('val_kd').innerText = Kd; });
         document.getElementById('slider_t1').addEventListener('input', e => { if(!isAutoMode) { ref1 = parseFloat(e.target.value) * Math.PI / 180; document.getElementById('val_t1').innerText = e.target.value; }});
@@ -259,17 +291,13 @@
         const dt = 0.01; 
 
         function generateGaitCycle() {
-            // Frecuencia de zancada proporcional a la velocidad
             let freq = linearSpeed / 1.5; 
             gaitPhase += 2 * Math.PI * freq * dt;
-            
-            // Amplitudes adaptativas según velocidad
             let amp = Math.min(linearSpeed * 0.2, 0.8); 
             
-            // Perfiles articulares simplificados para la simulación
-            ref3 = amp * 0.5 * Math.sin(gaitPhase); // Cadera oscila
-            ref2 = ref3 + amp * 0.8 * Math.abs(Math.cos(gaitPhase + Math.PI/4)); // Rodilla flexiona hacia atrás
-            ref1 = ref2 - amp * 0.4 * Math.sin(gaitPhase + Math.PI/2); // Tobillo compensa
+            ref3 = amp * 0.5 * Math.sin(gaitPhase); 
+            ref2 = ref3 + amp * 0.8 * Math.abs(Math.cos(gaitPhase + Math.PI/4)); 
+            ref1 = ref2 - amp * 0.4 * Math.sin(gaitPhase + Math.PI/2); 
         }
 
         function updatePhysics() {
@@ -305,6 +333,7 @@
             const oy = simCanvas.height - 80;
             const scale = 180; 
 
+            // Cinemática Directa aplicada a la animación
             const kneeX = ox + L1 * scale * Math.sin(th1);
             const kneeY = oy - L1 * scale * Math.cos(th1);
             const hipX = kneeX + L2 * scale * Math.sin(th2);
