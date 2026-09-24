@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- Panel de Parámetros de la Planta (NUEVO) -->
+            <!-- Panel de Parámetros de la Planta -->
             <h3>Parámetros Físicos de la Planta (Perturbaciones)</h3>
             <div class="controls">
                 <div class="control-group plant-section">
@@ -285,11 +285,12 @@
 
         <!-- Columna Derecha: Gráficas de Control -->
         <div class="panel">
-            <h2>1. Variables Controladas (Ángulos θ vs Set Points)</h2>
+            <h2>1. Variables Controladas y Macropuerta (Set Point)</h2>
             <div class="legend">
                 <span class="color-t">■ Tobillo (Línea: θ, Punteada: θ<sub>ref</sub>)</span>
                 <span class="color-r">■ Rodilla</span>
                 <span class="color-c">■ Cadera</span>
+                <span style="color: #1abc9c;">■ V<sub>ref</sub> (m/s)</span>
             </div>
             <canvas id="graphAngles" width="600" height="150"></canvas>
 
@@ -300,12 +301,6 @@
                 <span class="color-c">■ τ<sub>3</sub> Cadera (Nm)</span>
             </div>
             <canvas id="graphTorques" width="600" height="150"></canvas>
-
-            <h2>3. Set Point de Alto Nivel (Velocidad de Marcha)</h2>
-            <div class="legend">
-                <span style="color: #1abc9c;">■ V<sub>ref</sub> Comandada (m/s)</span>
-            </div>
-            <canvas id="graphVelocity" width="600" height="120"></canvas>
         </div>
     </div>
 
@@ -346,7 +341,6 @@
         const simCtx = document.getElementById('simCanvas').getContext('2d');
         const ctxAngles = document.getElementById('graphAngles').getContext('2d');
         const ctxTorques = document.getElementById('graphTorques').getContext('2d');
-        const ctxVelocity = document.getElementById('graphVelocity').getContext('2d');
 
         // Sincronización Inputs / Sliders
         function syncInput(sliderId, numId, callback) {
@@ -437,14 +431,13 @@
         function drawSimulation() {
             simCtx.clearRect(0, 0, 600, 400);
             const ox = 300; const oy = 350; 
-            // Escala visual adaptativa según las longitudes para que no se salga de la pantalla
             const visualScale = 140 * (0.45 / L1); 
 
             const kneeX = ox + L1 * visualScale * Math.sin(th1);
             const kneeY = oy - L1 * visualScale * Math.cos(th1);
             const hipX = kneeX + L2 * visualScale * Math.sin(th2);
             const hipY = kneeY - L2 * visualScale * Math.cos(th2);
-            const headX = hipX + L3 * 140 * Math.sin(th3); // Tronco fijo visualmente
+            const headX = hipX + L3 * 140 * Math.sin(th3); 
             const headY = hipY - L3 * 140 * Math.cos(th3);
 
             simCtx.lineWidth = 14; simCtx.lineCap = 'round';
@@ -484,30 +477,32 @@
         }
 
         function drawGraphs() {
-            [ctxAngles, ctxTorques, ctxVelocity].forEach(ctx => ctx.clearRect(0, 0, 600, 150));
+            [ctxAngles, ctxTorques].forEach(ctx => ctx.clearRect(0, 0, 600, 150));
             
             [ctxAngles, ctxTorques].forEach(ctx => {
                 ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
                 ctx.beginPath(); ctx.moveTo(0, 75); ctx.lineTo(600, 75); ctx.stroke();
             });
 
-            // 1. Ángulos (Scale 3.5 rad max)
+            // Línea base visual para la velocidad en la parte inferior de la gráfica de ángulos
+            ctxAngles.strokeStyle = '#eee'; ctxAngles.lineWidth = 1;
+            ctxAngles.beginPath(); ctxAngles.moveTo(0, 125); ctxAngles.lineTo(600, 125); ctxAngles.stroke();
+
+            // 1. Ángulos (Scale 3.5 rad max) y Velocidad unificadas
             plotSignal(ctxAngles, 600, 150, h_ref1, '#f1a9a0', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th1, '#e74c3c', false, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_ref2, '#87d37c', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th2, '#2ecc71', false, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_ref3, '#89c4f4', true, 3.5); 
             plotSignal(ctxAngles, 600, 150, h_th3, '#3498db', false, 3.5); 
+            
+            // Set Point Velocidad con offset para situarla en el margen inferior de la misma gráfica
+            plotSignal(ctxAngles, 600, 150, h_vref, '#1abc9c', false, 10, 50); 
 
             // 2. Torques (Scale dinámico / 3000 Nm max)
             plotSignal(ctxTorques, 600, 150, h_tau1, '#e74c3c', false, 3000);
             plotSignal(ctxTorques, 600, 150, h_tau2, '#2ecc71', false, 3000);
             plotSignal(ctxTorques, 600, 150, h_tau3, '#3498db', false, 3000);
-
-            // 3. Velocidad
-            ctxVelocity.strokeStyle = '#ccc'; ctxVelocity.lineWidth = 1;
-            ctxVelocity.beginPath(); ctxVelocity.moveTo(0, 110); ctxVelocity.lineTo(600, 110); ctxVelocity.stroke();
-            plotSignal(ctxVelocity, 600, 120, h_vref, '#1abc9c', false, 10, 50); 
         }
 
         function loop() {
