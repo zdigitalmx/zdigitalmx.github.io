@@ -82,6 +82,12 @@
             font-size: 1.1em;
             margin-top: 10px;
         }
+        .legend {
+            text-align: center; 
+            font-size: 0.9em; 
+            margin-top: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -128,15 +134,25 @@
             <div class="data-display">
                 Tiempo: <span id="val-t">0.00</span> s <br>
                 Torque actual: <span id="val-tau">0.00</span> Nm <br>
-                Velocidad angular: <span id="val-w">0.00</span> rad/s
+                Velocidad angular: <span id="val-w">0.00</span> rad/s <br>
+                Posición angular: <span id="val-theta">0.00</span> rad
             </div>
         </div>
 
         <!-- Animación -->
         <div class="panel">
-            <h2>Animación del Spinner</h2>
-            <canvas id="spinner-canvas" width="400" height="400"></canvas>
-            <canvas id="signal-canvas" width="400" height="150" style="margin-top: 15px;"></canvas>
+            <h2>Animación del Spinner y Gráficas</h2>
+            <canvas id="spinner-canvas" width="400" height="300"></canvas>
+            
+            <h3 style="text-align: center; font-size: 1em; margin-bottom: 5px;">Señal de Entrada (&tau;)</h3>
+            <canvas id="signal-canvas" width="400" height="100"></canvas>
+            
+            <h3 style="text-align: center; font-size: 1em; margin-bottom: 5px; margin-top: 15px;">Comparativa: Entrada vs Salida (&theta;)</h3>
+            <canvas id="response-canvas" width="400" height="150"></canvas>
+            <div class="legend">
+                <span style="color: #e74c3c;">&mdash; Entrada (Torque)</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+                <span style="color: #2980b9;">&mdash; Salida (Posición Angular)</span>
+            </div>
         </div>
 
         <!-- Análisis Matemático -->
@@ -188,6 +204,7 @@
         let time = 0;
         let running = false;
         let lastTimestamp = 0;
+        let historyData = []; // Nuevo arreglo para almacenar historial de gráficas
         
         // Elementos UI
         const inputJ = document.getElementById('input-J');
@@ -202,12 +219,15 @@
         const spanT = document.getElementById('val-t');
         const spanTau = document.getElementById('val-tau');
         const spanW = document.getElementById('val-w');
+        const spanTheta = document.getElementById('val-theta');
 
         // Canvas
         const canvas = document.getElementById('spinner-canvas');
         const ctx = canvas.getContext('2d');
         const sigCanvas = document.getElementById('signal-canvas');
         const sigCtx = sigCanvas.getContext('2d');
+        const respCanvas = document.getElementById('response-canvas');
+        const respCtx = respCanvas.getContext('2d');
 
         function updateEquation() {
             J = parseFloat(inputJ.value);
@@ -313,7 +333,7 @@
             ctx.restore();
         }
 
-        // Dibuja la gráfica de la señal en tiempo real
+        // Dibuja la gráfica de la señal de entrada en tiempo real
         function drawSignalGraph(t_current) {
             sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
             
@@ -321,8 +341,8 @@
             sigCtx.strokeStyle = '#999';
             sigCtx.lineWidth = 1;
             sigCtx.beginPath();
-            sigCtx.moveTo(30, 10); sigCtx.lineTo(30, 130); // Y
-            sigCtx.moveTo(30, 130); sigCtx.lineTo(390, 130); // X
+            sigCtx.moveTo(30, 10); sigCtx.lineTo(30, 90); // Y
+            sigCtx.moveTo(30, 90); sigCtx.lineTo(390, 90); // X
             sigCtx.stroke();
             
             // Trazar señal
@@ -335,13 +355,12 @@
             
             for(let px = 30; px <= 390; px++) {
                 let simTime = (px - 30) / (360 / viewWindow);
-                // Si la simulación pasa de 5s, desplazamos la vista
                 if (t_current > viewWindow) {
                     simTime += (t_current - viewWindow);
                 }
                 
                 let tau = getTorque(simTime);
-                let py = 130 - (tau / (amp * 1.2)) * 100; // Escala Y basada en amplitud
+                let py = 90 - (tau / (amp * 1.2)) * 70; // Escala Y basada en amplitud
                 
                 if (px === 30) sigCtx.moveTo(px, py);
                 else sigCtx.lineTo(px, py);
@@ -352,8 +371,58 @@
             let currentPx = 30 + (t_current > viewWindow ? viewWindow : t_current) * (360 / viewWindow);
             sigCtx.fillStyle = '#2c3e50';
             sigCtx.beginPath();
-            sigCtx.arc(currentPx, 130 - (getTorque(t_current) / (amp * 1.2)) * 100, 4, 0, 2*Math.PI);
+            sigCtx.arc(currentPx, 90 - (getTorque(t_current) / (amp * 1.2)) * 70, 4, 0, 2*Math.PI);
             sigCtx.fill();
+        }
+
+        // Nueva gráfica: Comparativa Entrada vs Salida (Posición Angular)
+        function drawResponseGraph(t_current) {
+            respCtx.clearRect(0, 0, respCanvas.width, respCanvas.height);
+            
+            // Ejes
+            respCtx.strokeStyle = '#999';
+            respCtx.lineWidth = 1;
+            respCtx.beginPath();
+            respCtx.moveTo(30, 10); respCtx.lineTo(30, 140); // Y
+            respCtx.moveTo(30, 140); respCtx.lineTo(390, 140); // X
+            respCtx.stroke();
+
+            if (historyData.length === 0) return;
+
+            const viewWindow = 5; 
+            const t_min = Math.max(0, t_current - viewWindow);
+            
+            // Filtrar datos visibles en la ventana actual
+            const visibleData = historyData.filter(d => d.t >= t_min);
+            if (visibleData.length === 0) return;
+
+            // Encontrar máximos para autoescalar las gráficas
+            const maxTau = Math.max(...visibleData.map(d => Math.abs(d.tau)), 1);
+            const maxTheta = Math.max(...visibleData.map(d => Math.abs(d.theta)), 1);
+
+            // Dibujar Torque (Entrada) - Rojo
+            respCtx.strokeStyle = '#e74c3c';
+            respCtx.lineWidth = 2;
+            respCtx.beginPath();
+            visibleData.forEach((d, i) => {
+                let px = 30 + ((d.t - t_min) / viewWindow) * 360;
+                let py = 140 - (d.tau / maxTau) * 120;
+                if(i === 0) respCtx.moveTo(px, py);
+                else respCtx.lineTo(px, py);
+            });
+            respCtx.stroke();
+
+            // Dibujar Theta (Salida) - Azul
+            respCtx.strokeStyle = '#2980b9';
+            respCtx.lineWidth = 2;
+            respCtx.beginPath();
+            visibleData.forEach((d, i) => {
+                let px = 30 + ((d.t - t_min) / viewWindow) * 360;
+                let py = 140 - (d.theta / maxTheta) * 120; 
+                if(i === 0) respCtx.moveTo(px, py);
+                else respCtx.lineTo(px, py);
+            });
+            respCtx.stroke();
         }
 
         function simulate(timestamp) {
@@ -374,12 +443,22 @@
                 omega += alpha * deltaTime;
                 theta += omega * deltaTime;
 
+                // Almacenar el historial
+                historyData.push({ t: time, tau: tau, theta: theta });
+                
+                // Mantener el tamaño del historial controlado (ej. últimos 1000 puntos para optimizar)
+                if (historyData.length > 2000) {
+                    historyData.shift();
+                }
+
                 spanT.innerText = time.toFixed(2);
                 spanTau.innerText = tau.toFixed(2);
                 spanW.innerText = omega.toFixed(2);
+                spanTheta.innerText = theta.toFixed(2);
 
                 drawSpinner(theta);
                 drawSignalGraph(time);
+                drawResponseGraph(time);
             }
 
             requestAnimationFrame(simulate);
@@ -402,17 +481,21 @@
             time = 0;
             theta = 0;
             omega = 0;
+            historyData = [];
             spanT.innerText = "0.00";
             spanTau.innerText = "0.00";
             spanW.innerText = "0.00";
+            spanTheta.innerText = "0.00";
             document.getElementById('btn-start').innerText = "Iniciar Simulación";
             drawSpinner(0);
             drawSignalGraph(0);
+            drawResponseGraph(0);
         });
 
         // Init inicial
         drawSpinner(0);
         drawSignalGraph(0);
+        drawResponseGraph(0);
 
     </script>
 </body>
