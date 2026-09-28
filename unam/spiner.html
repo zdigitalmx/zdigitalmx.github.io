@@ -204,7 +204,7 @@
         let time = 0;
         let running = false;
         let lastTimestamp = 0;
-        let historyData = []; // Nuevo arreglo para almacenar historial de gráficas
+        let historyData = []; 
         
         // Elementos UI
         const inputJ = document.getElementById('input-J');
@@ -232,7 +232,6 @@
         function updateEquation() {
             J = parseFloat(inputJ.value);
             B = parseFloat(inputB.value);
-            // Render MathJax dynamically
             eqDisplay.innerHTML = `\\[ ${J} \\frac{d^2\\theta(t)}{dt^2} + ${B} \\frac{d\\theta(t)}{dt} = \\tau_{in}(t) \\]`;
             if (window.MathJax) {
                 MathJax.typesetPromise([eqDisplay]);
@@ -263,34 +262,30 @@
             if (t >= t1 && t <= t2) {
                 if (type === 'escalon') return amp;
                 if (type === 'rampa') {
-                    // Triangular form exactly like Figure 20
                     return amp * ((t - t1) / (t2 - t1));
                 }
                 if (type === 'senoidal') {
-                    // Half sine wave
                     return amp * Math.sin(Math.PI * (t - t1) / (t2 - t1));
                 }
             }
             return 0;
         }
 
-        // Dibujar Spinner (Colores: Azul y Negro simulando la figura)
+        // Dibujar Spinner y mostrar grados/radianes
         function drawSpinner(angle) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate(angle);
 
-            const colorMain = '#1e3a8a'; // Azul
-            const colorBearing = '#111827'; // Negro
+            const colorMain = '#1e3a8a'; 
+            const colorBearing = '#111827'; 
             const rCentral = 35;
             const rLobe = 45;
             const distLobe = 65;
 
             // Dibujar estructura central y brazos
             ctx.fillStyle = colorMain;
-            
-            // Cuerpo conectado
             ctx.beginPath();
             for(let i=0; i<3; i++) {
                 let a = i * (2 * Math.PI / 3);
@@ -310,17 +305,12 @@
                 let a = i * (2 * Math.PI / 3);
                 ctx.save();
                 ctx.translate(Math.cos(a) * distLobe, Math.sin(a) * distLobe);
-                
-                // Aro exterior rodamiento
                 ctx.fillStyle = colorBearing;
                 ctx.beginPath(); ctx.arc(0, 0, 22, 0, 2*Math.PI); ctx.fill();
-                // Metal
                 ctx.fillStyle = '#9ca3af';
                 ctx.beginPath(); ctx.arc(0, 0, 14, 0, 2*Math.PI); ctx.fill();
-                // Centro hueco
                 ctx.fillStyle = '#f4f4f9';
                 ctx.beginPath(); ctx.arc(0, 0, 7, 0, 2*Math.PI); ctx.fill();
-                
                 ctx.restore();
             }
 
@@ -331,82 +321,119 @@
             ctx.beginPath(); ctx.arc(0, 0, 20, 0, 2*Math.PI); ctx.fill();
             
             ctx.restore();
+
+            // Mostrar el incremento de los grados y radianes de la posición angular
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(`Grados: ${(angle * 180 / Math.PI).toFixed(1)}°`, 10, 25);
+            ctx.fillText(`Radianes: ${angle.toFixed(2)} rad`, 10, 45);
         }
 
-        // Dibuja la gráfica de la señal de entrada en tiempo real
+        // Dibuja la gráfica de la señal de entrada con unidades
         function drawSignalGraph(t_current) {
             sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
             
+            const viewWindow = 5; 
+            const amp = parseFloat(inputAmp.value) || 10;
+            const t_min = Math.max(0, t_current - viewWindow);
+            const t_max = Math.max(viewWindow, t_current);
+
             // Ejes
             sigCtx.strokeStyle = '#999';
             sigCtx.lineWidth = 1;
             sigCtx.beginPath();
-            sigCtx.moveTo(30, 10); sigCtx.lineTo(30, 90); // Y
-            sigCtx.moveTo(30, 90); sigCtx.lineTo(390, 90); // X
+            sigCtx.moveTo(40, 15); sigCtx.lineTo(40, 80); // Y
+            sigCtx.moveTo(40, 80); sigCtx.lineTo(360, 80); // X
             sigCtx.stroke();
             
+            // Textos de Ejes (Unidades)
+            sigCtx.font = '10px Arial';
+            sigCtx.fillStyle = '#333';
+            sigCtx.fillText(`Tiempo [s]`, 180, 95);
+            sigCtx.fillText(`${t_min.toFixed(1)}`, 35, 95);
+            sigCtx.fillText(`${t_max.toFixed(1)}`, 350, 95);
+            
+            sigCtx.fillStyle = '#e74c3c';
+            sigCtx.fillText(`${amp.toFixed(1)} Nm`, 2, 20);
+            sigCtx.fillText(`0`, 25, 80);
+
             // Trazar señal
             sigCtx.strokeStyle = '#e74c3c';
             sigCtx.lineWidth = 2;
             sigCtx.beginPath();
             
-            const viewWindow = 5; // Mostrar 5 segundos
-            const amp = parseFloat(inputAmp.value) || 10;
-            
-            for(let px = 30; px <= 390; px++) {
-                let simTime = (px - 30) / (360 / viewWindow);
-                if (t_current > viewWindow) {
-                    simTime += (t_current - viewWindow);
-                }
-                
+            for(let px = 40; px <= 360; px++) {
+                let simTime = t_min + ((px - 40) / 320) * viewWindow;
                 let tau = getTorque(simTime);
-                let py = 90 - (tau / (amp * 1.2)) * 70; // Escala Y basada en amplitud
+                let py = 80 - (tau / (amp * 1.2)) * 65; 
                 
-                if (px === 30) sigCtx.moveTo(px, py);
+                if (px === 40) sigCtx.moveTo(px, py);
                 else sigCtx.lineTo(px, py);
             }
             sigCtx.stroke();
             
             // Indicador de tiempo actual
-            let currentPx = 30 + (t_current > viewWindow ? viewWindow : t_current) * (360 / viewWindow);
+            let currentPx = 40 + ((t_current - t_min) / viewWindow) * 320;
             sigCtx.fillStyle = '#2c3e50';
             sigCtx.beginPath();
-            sigCtx.arc(currentPx, 90 - (getTorque(t_current) / (amp * 1.2)) * 70, 4, 0, 2*Math.PI);
+            sigCtx.arc(currentPx, 80 - (getTorque(t_current) / (amp * 1.2)) * 65, 4, 0, 2*Math.PI);
             sigCtx.fill();
         }
 
-        // Nueva gráfica: Comparativa Entrada vs Salida (Posición Angular)
+        // Gráfica Comparativa con unidades de amplitud y tiempo
         function drawResponseGraph(t_current) {
             respCtx.clearRect(0, 0, respCanvas.width, respCanvas.height);
             
+            const viewWindow = 5; 
+            const t_min = Math.max(0, t_current - viewWindow);
+            const t_max = Math.max(viewWindow, t_current);
+
+            const visibleData = historyData.filter(d => d.t >= t_min);
+            
+            let maxTau = 1;
+            let maxTheta = 1;
+
+            if (visibleData.length > 0) {
+                maxTau = Math.max(...visibleData.map(d => Math.abs(d.tau)), 1);
+                maxTheta = Math.max(...visibleData.map(d => Math.abs(d.theta)), 1);
+            }
+
             // Ejes
             respCtx.strokeStyle = '#999';
             respCtx.lineWidth = 1;
             respCtx.beginPath();
-            respCtx.moveTo(30, 10); respCtx.lineTo(30, 140); // Y
-            respCtx.moveTo(30, 140); respCtx.lineTo(390, 140); // X
+            respCtx.moveTo(40, 15); respCtx.lineTo(40, 125); // Y izq
+            respCtx.moveTo(40, 125); respCtx.lineTo(360, 125); // X
+            respCtx.moveTo(360, 15); respCtx.lineTo(360, 125); // Y der
             respCtx.stroke();
 
-            if (historyData.length === 0) return;
-
-            const viewWindow = 5; 
-            const t_min = Math.max(0, t_current - viewWindow);
+            // Textos de Ejes (Unidades)
+            respCtx.font = '10px Arial';
             
-            // Filtrar datos visibles en la ventana actual
-            const visibleData = historyData.filter(d => d.t >= t_min);
-            if (visibleData.length === 0) return;
+            // X-axis (Tiempo)
+            respCtx.fillStyle = '#333';
+            respCtx.fillText(`Tiempo [s]`, 180, 140);
+            respCtx.fillText(`${t_min.toFixed(1)}`, 35, 140);
+            respCtx.fillText(`${t_max.toFixed(1)}`, 350, 140);
+            
+            // Y-axis Izquierdo (Torque)
+            respCtx.fillStyle = '#e74c3c';
+            respCtx.fillText(`${maxTau.toFixed(1)} Nm`, 2, 20);
+            respCtx.fillText(`0`, 25, 125);
 
-            // Encontrar máximos para autoescalar las gráficas
-            const maxTau = Math.max(...visibleData.map(d => Math.abs(d.tau)), 1);
-            const maxTheta = Math.max(...visibleData.map(d => Math.abs(d.theta)), 1);
+            // Y-axis Derecho (Posición Angular en rad)
+            respCtx.fillStyle = '#2980b9';
+            respCtx.fillText(`${maxTheta.toFixed(1)} rad`, 365, 20);
+
+            if (visibleData.length === 0) return;
 
             // Dibujar Torque (Entrada) - Rojo
             respCtx.strokeStyle = '#e74c3c';
             respCtx.lineWidth = 2;
             respCtx.beginPath();
             visibleData.forEach((d, i) => {
-                let px = 30 + ((d.t - t_min) / viewWindow) * 360;
-                let py = 140 - (d.tau / maxTau) * 120;
+                let px = 40 + ((d.t - t_min) / viewWindow) * 320;
+                let py = 125 - (d.tau / maxTau) * 110;
                 if(i === 0) respCtx.moveTo(px, py);
                 else respCtx.lineTo(px, py);
             });
@@ -417,8 +444,8 @@
             respCtx.lineWidth = 2;
             respCtx.beginPath();
             visibleData.forEach((d, i) => {
-                let px = 30 + ((d.t - t_min) / viewWindow) * 360;
-                let py = 140 - (d.theta / maxTheta) * 120; 
+                let px = 40 + ((d.t - t_min) / viewWindow) * 320;
+                let py = 125 - (d.theta / maxTheta) * 110; 
                 if(i === 0) respCtx.moveTo(px, py);
                 else respCtx.lineTo(px, py);
             });
@@ -429,24 +456,21 @@
             if (!running) return;
             
             if (!lastTimestamp) lastTimestamp = timestamp;
-            const deltaTime = (timestamp - lastTimestamp) / 1000; // Segundos
+            const deltaTime = (timestamp - lastTimestamp) / 1000; 
             lastTimestamp = timestamp;
 
-            // Limitar deltaTime para evitar inestabilidad si se cambia de pestaña
             if (deltaTime < 0.1) {
                 time += deltaTime;
                 
                 let tau = getTorque(time);
                 
-                // Método de Euler para integración numérica
+                // Método de Euler
                 let alpha = (tau - B * omega) / J;
                 omega += alpha * deltaTime;
                 theta += omega * deltaTime;
 
-                // Almacenar el historial
                 historyData.push({ t: time, tau: tau, theta: theta });
                 
-                // Mantener el tamaño del historial controlado (ej. últimos 1000 puntos para optimizar)
                 if (historyData.length > 2000) {
                     historyData.shift();
                 }
