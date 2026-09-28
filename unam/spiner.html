@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 3 - Respuesta de un Sistema Mecánico Rotacional</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        label {
+            display: inline-block;
+            width: 180px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        input, select {
+            padding: 5px;
+            margin-top: 5px;
+            width: 120px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1a252f;
+        }
+        canvas {
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #bdc3c7;
+        }
+        .eq-display {
+            font-size: 1.2em;
+            text-align: center;
+            padding: 15px;
+            background: #e8f4f8;
+            border-left: 5px solid #3498db;
+            margin-top: 15px;
+        }
+        .step {
+            margin-bottom: 20px;
+        }
+        .data-display {
+            font-family: monospace;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Actividad 3: Respuesta al escalón de un sistema mecánico rotacional (Spinner)</h1>
+
+    <div class="container">
+        <!-- Controles y Ecuación -->
+        <div class="panel">
+            <h2>Parámetros del Sistema</h2>
+            
+            <label for="input-J">Momento de Inercia (J):</label>
+            <input type="number" id="input-J" value="2" step="0.1"><br>
+            
+            <label for="input-B">Fricción Viscosa (B):</label>
+            <input type="number" id="input-B" value="0.2" step="0.1"><br>
+
+            <h3>Señal de Entrada (Torque &tau;<sub>in</sub>)</h3>
+            <label for="input-type">Tipo de Señal:</label>
+            <select id="input-type">
+                <option value="rampa">Rampa (Triangular - Fig 20)</option>
+                <option value="escalon">Escalón (Pulso Cuadrado)</option>
+                <option value="constante">Valor Numérico Directo (Constante)</option>
+                <option value="senoidal">Pulso Senoidal</option>
+            </select><br>
+
+            <label for="input-amp">Amplitud máxima:</label>
+            <input type="number" id="input-amp" value="10" step="1"><br>
+
+            <div id="time-params">
+                <label for="input-t1">Tiempo Inicio (s):</label>
+                <input type="number" id="input-t1" value="1.0" step="0.1"><br>
+                <label for="input-t2">Tiempo Fin (s):</label>
+                <input type="number" id="input-t2" value="1.5" step="0.1"><br>
+            </div>
+
+            <div class="eq-display" id="dynamic-equation">
+                <!-- Ecuación inyectada por JS -->
+            </div>
+
+            <button id="btn-start">Iniciar Simulación</button>
+            <button id="btn-reset" style="background-color: #e74c3c;">Reiniciar</button>
+            
+            <div class="data-display">
+                Tiempo: <span id="val-t">0.00</span> s <br>
+                Torque actual: <span id="val-tau">0.00</span> Nm <br>
+                Velocidad angular: <span id="val-w">0.00</span> rad/s
+            </div>
+        </div>
+
+        <!-- Animación -->
+        <div class="panel">
+            <h2>Animación del Spinner</h2>
+            <canvas id="spinner-canvas" width="400" height="400"></canvas>
+            <canvas id="signal-canvas" width="400" height="150" style="margin-top: 15px;"></canvas>
+        </div>
+
+        <!-- Análisis Matemático -->
+        <div class="panel full-width">
+            <h2>Análisis del Sistema Matemático</h2>
+            
+            <div class="step">
+                <h3>1. Diagrama de Cuerpo Libre y Análisis Físico</h3>
+                <p>El spinner se modela como una masa inercial pura que rota alrededor de un eje fijo. Las fuerzas (torques) que interactúan son:</p>
+                <ul>
+                    <li><strong>Torque de entrada (\(\tau_{in}\)):</strong> Es la fuerza de excitación externa generada para hacer girar el sistema.</li>
+                    <li><strong>Torque de fricción (\(\tau_{B}\)):</strong> Se opone al movimiento, proporcional a la velocidad angular debido a los rodamientos. \(\tau_{B} = B \cdot \omega(t) = B \frac{d\theta(t)}{dt}\).</li>
+                    <li><strong>Torque inercial (\(\tau_{J}\)):</strong> La resistencia al cambio de estado de movimiento. \(\tau_{J} = J \cdot \alpha(t) = J \frac{d^2\theta(t)}{dt^2}\).</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>2. Obtención de la Ecuación Diferencial</h3>
+                <p>Aplicando la Segunda Ley de Newton para la rotación (\(\sum \tau = J \cdot \alpha\)):</p>
+                <p>\[\tau_{in}(t) - \tau_{B}(t) = J \frac{d^2\theta(t)}{dt^2}\]</p>
+                <p>Sustituyendo el término de fricción y reordenando, obtenemos la ecuación diferencial lineal ordinaria de segundo orden:</p>
+                <p>\[J \frac{d^2\theta(t)}{dt^2} + B \frac{d\theta(t)}{dt} = \tau_{in}(t)\]</p>
+            </div>
+
+            <div class="step">
+                <h3>3. Transformada de Laplace</h3>
+                <p>Para encontrar la función de transferencia, pasamos la ecuación del dominio del tiempo (\(t\)) al dominio de la frecuencia compleja (\(s\)). Asumiendo condiciones iniciales nulas (\(\theta(0)=0\), \(\theta'(0)=0\)):</p>
+                <p>\[\mathcal{L} \left\{ J \frac{d^2\theta(t)}{dt^2} + B \frac{d\theta(t)}{dt} \right\} = \mathcal{L} \{ \tau_{in}(t) \}\]</p>
+                <p>\[J s^2 \Theta(s) + B s \Theta(s) = T_{in}(s)\]</p>
+                <p>Factorizando la variable de salida \(\Theta(s)\):</p>
+                <p>\[\Theta(s) \left( J s^2 + B s \right) = T_{in}(s)\]</p>
+            </div>
+
+            <div class="step">
+                <h3>4. Función de Transferencia</h3>
+                <p>La función de transferencia \(G(s)\) es la relación entre la salida (posición angular \(\Theta(s)\)) y la entrada (torque \(T_{in}(s)\)):</p>
+                <p>\[G(s) = \frac{\Theta(s)}{T_{in}(s)} = \frac{1}{J s^2 + B s}\]</p>
+                <p><em>Nota:</em> Si consideramos la velocidad angular \(\Omega(s) = s\Theta(s)\) como la salida, la función de transferencia de primer orden resultante sería \(H(s) = \frac{1}{J s + B}\).</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables físicas
+        let J = 2;
+        let B = 0.2;
+        let theta = 0;
+        let omega = 0;
+        let time = 0;
+        let running = false;
+        let lastTimestamp = 0;
+        
+        // Elementos UI
+        const inputJ = document.getElementById('input-J');
+        const inputB = document.getElementById('input-B');
+        const inputType = document.getElementById('input-type');
+        const inputAmp = document.getElementById('input-amp');
+        const inputT1 = document.getElementById('input-t1');
+        const inputT2 = document.getElementById('input-t2');
+        const eqDisplay = document.getElementById('dynamic-equation');
+        const timeParams = document.getElementById('time-params');
+        
+        const spanT = document.getElementById('val-t');
+        const spanTau = document.getElementById('val-tau');
+        const spanW = document.getElementById('val-w');
+
+        // Canvas
+        const canvas = document.getElementById('spinner-canvas');
+        const ctx = canvas.getContext('2d');
+        const sigCanvas = document.getElementById('signal-canvas');
+        const sigCtx = sigCanvas.getContext('2d');
+
+        function updateEquation() {
+            J = parseFloat(inputJ.value);
+            B = parseFloat(inputB.value);
+            // Render MathJax dynamically
+            eqDisplay.innerHTML = `\\[ ${J} \\frac{d^2\\theta(t)}{dt^2} + ${B} \\frac{d\\theta(t)}{dt} = \\tau_{in}(t) \\]`;
+            if (window.MathJax) {
+                MathJax.typesetPromise([eqDisplay]);
+            }
+        }
+
+        inputType.addEventListener('change', () => {
+            if (inputType.value === 'constante') {
+                timeParams.style.display = 'none';
+            } else {
+                timeParams.style.display = 'block';
+            }
+        });
+
+        inputJ.addEventListener('input', updateEquation);
+        inputB.addEventListener('input', updateEquation);
+        updateEquation();
+
+        // Función del Torque de Entrada
+        function getTorque(t) {
+            const type = inputType.value;
+            const amp = parseFloat(inputAmp.value);
+            const t1 = parseFloat(inputT1.value);
+            const t2 = parseFloat(inputT2.value);
+
+            if (type === 'constante') return amp;
+
+            if (t >= t1 && t <= t2) {
+                if (type === 'escalon') return amp;
+                if (type === 'rampa') {
+                    // Triangular form exactly like Figure 20
+                    return amp * ((t - t1) / (t2 - t1));
+                }
+                if (type === 'senoidal') {
+                    // Half sine wave
+                    return amp * Math.sin(Math.PI * (t - t1) / (t2 - t1));
+                }
+            }
+            return 0;
+        }
+
+        // Dibujar Spinner (Colores: Azul y Negro simulando la figura)
+        function drawSpinner(angle) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(angle);
+
+            const colorMain = '#1e3a8a'; // Azul
+            const colorBearing = '#111827'; // Negro
+            const rCentral = 35;
+            const rLobe = 45;
+            const distLobe = 65;
+
+            // Dibujar estructura central y brazos
+            ctx.fillStyle = colorMain;
+            
+            // Cuerpo conectado
+            ctx.beginPath();
+            for(let i=0; i<3; i++) {
+                let a = i * (2 * Math.PI / 3);
+                let x = Math.cos(a) * distLobe;
+                let y = Math.sin(a) * distLobe;
+                ctx.arc(x, y, rLobe, 0, 2*Math.PI);
+            }
+            ctx.fill();
+
+            // Rellenar centro
+            ctx.beginPath();
+            ctx.arc(0, 0, distLobe, 0, 2*Math.PI);
+            ctx.fill();
+
+            // Dibujar los 3 rodamientos externos
+            for(let i=0; i<3; i++) {
+                let a = i * (2 * Math.PI / 3);
+                ctx.save();
+                ctx.translate(Math.cos(a) * distLobe, Math.sin(a) * distLobe);
+                
+                // Aro exterior rodamiento
+                ctx.fillStyle = colorBearing;
+                ctx.beginPath(); ctx.arc(0, 0, 22, 0, 2*Math.PI); ctx.fill();
+                // Metal
+                ctx.fillStyle = '#9ca3af';
+                ctx.beginPath(); ctx.arc(0, 0, 14, 0, 2*Math.PI); ctx.fill();
+                // Centro hueco
+                ctx.fillStyle = '#f4f4f9';
+                ctx.beginPath(); ctx.arc(0, 0, 7, 0, 2*Math.PI); ctx.fill();
+                
+                ctx.restore();
+            }
+
+            // Rodamiento Central
+            ctx.fillStyle = colorBearing;
+            ctx.beginPath(); ctx.arc(0, 0, 28, 0, 2*Math.PI); ctx.fill();
+            ctx.fillStyle = colorMain;
+            ctx.beginPath(); ctx.arc(0, 0, 20, 0, 2*Math.PI); ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // Dibuja la gráfica de la señal en tiempo real
+        function drawSignalGraph(t_current) {
+            sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+            
+            // Ejes
+            sigCtx.strokeStyle = '#999';
+            sigCtx.lineWidth = 1;
+            sigCtx.beginPath();
+            sigCtx.moveTo(30, 10); sigCtx.lineTo(30, 130); // Y
+            sigCtx.moveTo(30, 130); sigCtx.lineTo(390, 130); // X
+            sigCtx.stroke();
+            
+            // Trazar señal
+            sigCtx.strokeStyle = '#e74c3c';
+            sigCtx.lineWidth = 2;
+            sigCtx.beginPath();
+            
+            const viewWindow = 5; // Mostrar 5 segundos
+            const amp = parseFloat(inputAmp.value) || 10;
+            
+            for(let px = 30; px <= 390; px++) {
+                let simTime = (px - 30) / (360 / viewWindow);
+                // Si la simulación pasa de 5s, desplazamos la vista
+                if (t_current > viewWindow) {
+                    simTime += (t_current - viewWindow);
+                }
+                
+                let tau = getTorque(simTime);
+                let py = 130 - (tau / (amp * 1.2)) * 100; // Escala Y basada en amplitud
+                
+                if (px === 30) sigCtx.moveTo(px, py);
+                else sigCtx.lineTo(px, py);
+            }
+            sigCtx.stroke();
+            
+            // Indicador de tiempo actual
+            let currentPx = 30 + (t_current > viewWindow ? viewWindow : t_current) * (360 / viewWindow);
+            sigCtx.fillStyle = '#2c3e50';
+            sigCtx.beginPath();
+            sigCtx.arc(currentPx, 130 - (getTorque(t_current) / (amp * 1.2)) * 100, 4, 0, 2*Math.PI);
+            sigCtx.fill();
+        }
+
+        function simulate(timestamp) {
+            if (!running) return;
+            
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const deltaTime = (timestamp - lastTimestamp) / 1000; // Segundos
+            lastTimestamp = timestamp;
+
+            // Limitar deltaTime para evitar inestabilidad si se cambia de pestaña
+            if (deltaTime < 0.1) {
+                time += deltaTime;
+                
+                let tau = getTorque(time);
+                
+                // Método de Euler para integración numérica
+                let alpha = (tau - B * omega) / J;
+                omega += alpha * deltaTime;
+                theta += omega * deltaTime;
+
+                spanT.innerText = time.toFixed(2);
+                spanTau.innerText = tau.toFixed(2);
+                spanW.innerText = omega.toFixed(2);
+
+                drawSpinner(theta);
+                drawSignalGraph(time);
+            }
+
+            requestAnimationFrame(simulate);
+        }
+
+        document.getElementById('btn-start').addEventListener('click', () => {
+            if (!running) {
+                running = true;
+                lastTimestamp = 0;
+                requestAnimationFrame(simulate);
+                document.getElementById('btn-start').innerText = "Pausar Simulación";
+            } else {
+                running = false;
+                document.getElementById('btn-start').innerText = "Reanudar Simulación";
+            }
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            running = false;
+            time = 0;
+            theta = 0;
+            omega = 0;
+            spanT.innerText = "0.00";
+            spanTau.innerText = "0.00";
+            spanW.innerText = "0.00";
+            document.getElementById('btn-start').innerText = "Iniciar Simulación";
+            drawSpinner(0);
+            drawSignalGraph(0);
+        });
+
+        // Init inicial
+        drawSpinner(0);
+        drawSignalGraph(0);
+
+    </script>
+</body>
+</html>
