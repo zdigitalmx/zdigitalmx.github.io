@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Sistema Híbrido</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e1e; color: #d4d4d4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; width: 100%; max-width: 1400px; }
+        .panel { background-color: #2d2d2d; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); flex: 1; min-width: 300px; }
+        h2 { border-bottom: 2px solid #007acc; padding-bottom: 10px; margin-top: 0; }
+        .input-group { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+        input[type="number"], input[type="range"] { background: #3c3c3c; color: white; border: 1px solid #555; padding: 5px; border-radius: 4px; width: 80px; }
+        input[type="range"] { width: 100%; margin-left: 10px; }
+        button { background: #007acc; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; width: 100%; margin-top: 10px;}
+        button:hover { background: #0098ff; }
+        canvas { max-width: 100%; }
+        .motor-canvas-container { text-align: center; margin-top: 20px; }
+        .charts-container { display: flex; flex-direction: column; gap: 20px; flex: 2; min-width: 600px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel">
+        <h2>Parámetros del Sistema</h2>
+        <div class="input-group"><label>L (H):</label><input type="number" id="L" value="0.01" step="0.001"></div>
+        <div class="input-group"><label>C (F):</label><input type="number" id="C" value="0.001" step="0.0001"></div>
+        <div class="input-group"><label>R (Ω):</label><input type="number" id="R" value="10" step="1"></div>
+        <div class="input-group"><label>E (V):</label><input type="number" id="E" value="24" step="1"></div>
+        <div class="input-group"><label>Lm (H):</label><input type="number" id="Lm" value="0.5" step="0.01"></div>
+        <div class="input-group"><label>Rm (Ω):</label><input type="number" id="Rm" value="2" step="0.1"></div>
+        <div class="input-group"><label>Ke (V·s/rad):</label><input type="number" id="Ke" value="0.1" step="0.01"></div>
+        <div class="input-group"><label>Km (N·m/A):</label><input type="number" id="Km" value="0.1" step="0.01"></div>
+        <div class="input-group"><label>J (kg·m²):</label><input type="number" id="J" value="0.02" step="0.01"></div>
+        <div class="input-group"><label>B (N·m·s/rad):</label><input type="number" id="B" value="0.01" step="0.001"></div>
+        <div class="input-group"><label>τL (N·m):</label><input type="number" id="TauL" value="0.05" step="0.01"></div>
+        
+        <h2>Control (PWM)</h2>
+        <div class="input-group">
+            <label>u (Ciclo de trabajo %): <span id="pwmVal">50</span>%</label>
+        </div>
+        <input type="range" id="DutyCycle" min="0" max="100" value="50">
+        
+        <button onclick="resetSim()">Reiniciar Simulación</button>
+        
+        <div class="motor-canvas-container">
+            <h3>Animación Dinámica</h3>
+            <canvas id="motorCanvas" width="200" height="200"></canvas>
+            <p>Velocidad (ω): <span id="valW">0.00</span> rad/s</p>
+            <p>Posición (θ): <span id="valTheta">0.00</span> rad</p>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="panel">
+            <h2>Dinámica Eléctrica (Convertidor y Armadura)</h2>
+            <canvas id="elecChart"></canvas>
+        </div>
+        <div class="panel">
+            <h2>Dinámica Mecánica (Velocidad Angular)</h2>
+            <canvas id="mechChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables de Estado
+    let x = { i: 0, v: 0, ia: 0, w: 0, theta: 0 };
+    let t = 0;
+    
+    // Parámetros de Simulación
+    const dt = 1e-5; // Paso de integración (Euler) muy pequeño para la dinámica del inductor
+    const T_pwm = 0.001; // Periodo de PWM 1kHz
+    const stepsPerFrame = 2000; // Pasos calculados antes de actualizar la UI
+    
+    // Gráficas
+    let elecChart, mechChart;
+    const historyLength = 150;
+    let timeData = [], vData = [], iaData = [], wData = [];
+
+    // Inicializar Gráficas
+    function initCharts() {
+        const ctxElec = document.getElementById('elecChart').getContext('2d');
+        const ctxMech = document.getElementById('mechChart').getContext('2d');
+
+        elecChart = new Chart(ctxElec, {
+            type: 'line',
+            data: {
+                labels: timeData,
+                datasets: [
+                    { label: 'Voltaje Cap (v)', borderColor: '#ff6384', data: vData, pointRadius: 0, tension: 0.1 },
+                    { label: 'Corriente Motor (ia)', borderColor: '#36a2eb', data: iaData, pointRadius: 0, tension: 0.1 }
+                ]
+            },
+            options: { animation: false, scales: { x: { display: false } } }
+        });
+
+        mechChart = new Chart(ctxMech, {
+            type: 'line',
+            data: {
+                labels: timeData,
+                datasets: [{ label: 'Velocidad (ω) rad/s', borderColor: '#4bc0c0', data: wData, pointRadius: 0, tension: 0.1 }]
+            },
+            options: { animation: false, scales: { x: { display: false } } }
+        });
+    }
+
+    function resetSim() {
+        x = { i: 0, v: 0, ia: 0, w: 0, theta: 0 };
+        t = 0;
+        timeData.length = 0; vData.length = 0; iaData.length = 0; wData.length = 0;
+    }
+
+    function drawMotor(theta) {
+        const canvas = document.getElementById('motorCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const radius = 60;
+        
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#444';
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#007acc';
+        ctx.stroke();
+
+        const xEnd = cx + radius * Math.cos(theta);
+        const yEnd = cy + radius * Math.sin(theta);
+        
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(xEnd, yEnd);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#ff6384';
+        ctx.stroke();
+    }
+
+    function simStep() {
+        // Leer parámetros
+        const p = {
+            L: parseFloat(document.getElementById('L').value),
+            C: parseFloat(document.getElementById('C').value),
+            R: parseFloat(document.getElementById('R').value),
+            E: parseFloat(document.getElementById('E').value),
+            Lm: parseFloat(document.getElementById('Lm').value),
+            Rm: parseFloat(document.getElementById('Rm').value),
+            Ke: parseFloat(document.getElementById('Ke').value),
+            Km: parseFloat(document.getElementById('Km').value),
+            J: parseFloat(document.getElementById('J').value),
+            B: parseFloat(document.getElementById('B').value),
+            TauL: parseFloat(document.getElementById('TauL').value),
+            duty: parseFloat(document.getElementById('DutyCycle').value) / 100
+        };
+        
+        document.getElementById('pwmVal').innerText = (p.duty * 100).toFixed(0);
+
+        for(let k = 0; k < stepsPerFrame; k++) {
+            // Lógica discreta de PWM
+            let u = (t % T_pwm) < (p.duty * T_pwm) ? 1 : 0;
+            
+            // Ecuaciones de estado
+            let di = (u * p.E - x.v) / p.L;
+            let dv = (x.i - (x.v / p.R) - x.ia) / p.C;
+            let dia = (x.v - p.Rm * x.ia - p.Ke * x.w) / p.Lm;
+            let dw = (p.Km * x.ia - p.B * x.w - p.TauL) / p.J;
+
+            // Integración de Euler
+            x.i += di * dt;
+            x.v += dv * dt;
+            x.ia += dia * dt;
+            x.w += dw * dt;
+            x.theta += x.w * dt;
+            t += dt;
+        }
+
+        // Actualizar datos para las gráficas
+        timeData.push(t.toFixed(3));
+        vData.push(x.v);
+        iaData.push(x.ia);
+        wData.push(x.w);
+
+        if(timeData.length > historyLength) {
+            timeData.shift(); vData.shift(); iaData.shift(); wData.shift();
+        }
+
+        elecChart.update();
+        mechChart.update();
+        
+        drawMotor(x.theta);
+        document.getElementById('valW').innerText = x.w.toFixed(2);
+        document.getElementById('valTheta').innerText = (x.theta % (2*Math.PI)).toFixed(2);
+
+        requestAnimationFrame(simStep);
+    }
+
+    initCharts();
+    requestAnimationFrame(simStep);
+</script>
+</body>
+</html>
