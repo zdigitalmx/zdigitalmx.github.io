@@ -1,335 +1,308 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis de Sistemas y Señales: Circuito RC</title>
-    
+    <title>Análisis y Simulación de Circuito RRC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
         .math-container { overflow-x: auto; padding: 1rem 0; }
+        #chart-container { position: relative; height: 60vh; min-height: 600px; width: 100%; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased p-4 md:p-8">
+<body class="bg-gray-50 text-gray-900 pb-12">
 
-    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        
-        <header class="bg-blue-900 text-white p-6 md:p-8 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Análisis de Sistemas y Señales</h1>
-            <p class="text-blue-200 text-lg">Modelado matemático y simulación de un circuito de primer orden</p>
-        </header>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-900">Análisis de Sistemas y Señales: Circuito RRC</h1>
 
-        <main class="p-6 md:p-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
-            
-            <!-- Columna Izquierda: Teoría -->
-            <div class="lg:col-span-7 space-y-8">
-                
-                <section>
-                    <h2 class="text-2xl font-semibold border-b-2 border-blue-900 pb-2 mb-4">Diagrama del Circuito</h2>
-                    <img src="268183.jpg" alt="Diagrama del circuito RC" style="max-width: 400px; display: block; margin: 0 auto;" class="rounded-lg shadow-sm border border-slate-200">
-                </section>
+        <!-- Diagrama del Circuito -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 flex flex-col items-center">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2 w-full text-left">1. Diagrama del Circuito</h2>
+            <img src="268183.jpg" alt="Diagrama del circuito" class="max-w-2xl w-full object-contain border rounded shadow-sm">
+        </div>
 
-                <section>
-                    <h2 class="text-2xl font-semibold border-b-2 border-blue-900 pb-2 mb-4">1. Ecuación Diferencial (Dominio del Tiempo)</h2>
-                    <p class="mb-2 text-justify">Aplicando la Ley de Voltajes de Kirchhoff (LVK) a la malla del circuito, la suma de las caídas de voltaje es igual al voltaje de entrada:</p>
-                    <div class="math-container text-lg">
-                        $$v_{in}(t) = v_{R1}(t) + v_{R2}(t) + v_C(t)$$
-                    </div>
-                    <p class="mb-2 text-justify">Expresando en función de la corriente $i(t)$ y sabiendo que el voltaje de salida se toma en la rama de $R_2$ y $C$:</p>
-                    <div class="math-container text-lg">
-                        $$v_{out}(t) = R_2 i(t) + \frac{1}{C} \int i(t) dt \implies i(t) = \frac{v_{in}(t) - v_{out}(t)}{R_1}$$
-                    </div>
-                    <p class="mb-2 text-justify">Sustituyendo la corriente y derivando respecto al tiempo para eliminar la integral, obtenemos la ecuación diferencial que modela el sistema:</p>
-                    <div class="math-container text-lg font-bold">
-                        $$(R_1 + R_2) \frac{d v_{out}(t)}{dt} + \frac{1}{C} v_{out}(t) = R_2 \frac{d v_{in}(t)}{dt} + \frac{1}{C} v_{in}(t)$$
-                    </div>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-semibold border-b-2 border-blue-900 pb-2 mb-4">2. Función de Transferencia (Laplace)</h2>
-                    <p class="mb-2 text-justify">Para obtener la función de transferencia $H(s) = V_{out}(s)/V_{in}(s)$, aplicamos la transformada de Laplace a la ecuación diferencial asumiendo condiciones iniciales nulas:</p>
-                    <div class="math-container text-lg">
-                        $$(R_1 + R_2)s V_{out}(s) + \frac{1}{C} V_{out}(s) = R_2 s V_{in}(s) + \frac{1}{C} V_{in}(s)$$
-                    </div>
-                    <p class="mb-2 text-justify">Factorizando y despejando la relación entre salida y entrada:</p>
-                    <div class="math-container text-lg font-bold">
-                        $$H(s) = \frac{R_2 s + \frac{1}{C}}{(R_1 + R_2)s + \frac{1}{C}} = \frac{R_2 C s + 1}{(R_1 + R_2)C s + 1}$$
-                    </div>
-                </section>
-
-                <section>
-                    <h2 class="text-2xl font-semibold border-b-2 border-blue-900 pb-2 mb-4">3. Análisis Fasorial (Impedancias)</h2>
-                    <p class="mb-2 text-justify">En estado estacionario senoidal, podemos analizar el circuito usando impedancias complejas donde $s = j\omega$. Las impedancias de los componentes son:</p>
-                    <div class="math-container text-lg">
-                        $$Z_{R1} = R_1, \quad Z_{R2} = R_2, \quad Z_C = \frac{1}{j\omega C}$$
-                    </div>
-                    <p class="mb-2 text-justify">Definimos la impedancia donde tomamos la salida ($Z_{out}$) y aplicamos el principio del divisor de voltaje:</p>
-                    <div class="math-container text-lg">
-                        $$Z_{out} = Z_{R2} + Z_C = R_2 + \frac{1}{j\omega C}$$
-                        $$V_{out} = V_{in} \left( \frac{Z_{out}}{Z_{R1} + Z_{out}} \right) \implies H(j\omega) = \frac{Z_{out}}{Z_{R1} + Z_{out}}$$
-                    </div>
-                    <p class="mb-2 text-justify">Sustituyendo las impedancias y multiplicando el numerador y denominador por $j\omega C$ para simplificar:</p>
-                    <div class="math-container text-lg font-bold text-blue-800">
-                        $$H(j\omega) = \frac{R_2 + \frac{1}{j\omega C}}{R_1 + R_2 + \frac{1}{j\omega C}} = \frac{j\omega R_2 C + 1}{j\omega (R_1 + R_2) C + 1}$$
-                    </div>
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded text-green-900 mt-4 shadow-sm">
-                        <p><strong>Comprobación:</strong> Como podemos observar, el resultado del divisor de tensión fasorial $H(j\omega)$ es <strong>exactamente el mismo</strong> que se obtiene al sustituir $s = j\omega$ en la función de transferencia de Laplace $H(s)$ encontrada en el paso anterior.</p>
-                    </div>
-                </section>
+        <!-- Teoría Parte 1: Ecuación Diferencial -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2">2. Análisis en el Dominio del Tiempo y Transformada de Laplace</h2>
+            <p class="mb-4 text-justify">
+                El análisis de circuitos dinámicos en el dominio del tiempo genera ecuaciones íntegro-diferenciales debido a los elementos almacenadores de energía. Aplicando la Ley de Voltajes de Kirchhoff (LVK) a la malla única del circuito, la suma de caídas de voltaje es igual al voltaje de entrada:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$v_{in}(t) = v_{R1}(t) + v_{R2}(t) + v_C(t)$$
             </div>
+            <p class="mb-4 text-justify">
+                Sustituyendo el comportamiento de cada componente en función de la corriente $i(t)$:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$v_{in}(t) = R_1 i(t) + R_2 i(t) + \frac{1}{C} \int i(t) dt$$
+            </div>
+            <p class="mb-4 text-justify">
+                El voltaje de salida $v_{out}(t)$ está medido entre las terminales de $R_2$ y $C$:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$v_{out}(t) = R_2 i(t) + \frac{1}{C} \int i(t) dt$$
+            </div>
+            <p class="mb-4 text-justify">
+                Despejando la caída de voltaje en $R_1$, obtenemos la corriente en términos de la entrada y la salida: $v_{in}(t) - v_{out}(t) = R_1 i(t) \implies i(t) = \frac{v_{in}(t) - v_{out}(t)}{R_1}$. Sustituyendo esta corriente en la ecuación de $v_{out}(t)$:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$v_{out}(t) = \frac{R_2}{R_1} (v_{in}(t) - v_{out}(t)) + \frac{1}{R_1 C} \int (v_{in}(t) - v_{out}(t)) dt$$
+            </div>
+            <p class="mb-4 text-justify">
+                Para eliminar la integral, derivamos toda la ecuación con respecto al tiempo:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$\frac{d v_{out}(t)}{dt} = \frac{R_2}{R_1} \frac{d v_{in}(t)}{dt} - \frac{R_2}{R_1} \frac{d v_{out}(t)}{dt} + \frac{1}{R_1 C} v_{in}(t) - \frac{1}{R_1 C} v_{out}(t)$$
+            </div>
+            <p class="mb-4 text-justify">
+                Agrupando términos de salida a la izquierda y de entrada a la derecha, y multiplicando por $R_1$:
+            </p>
+            <div class="math-container text-center text-lg font-bold text-blue-800">
+                $$(R_1 + R_2) \frac{d v_{out}(t)}{dt} + \frac{1}{C} v_{out}(t) = R_2 \frac{d v_{in}(t)}{dt} + \frac{1}{C} v_{in}(t)$$
+            </div>
+            <p class="mb-4 text-justify">
+                Para pasar al dominio de la frecuencia compleja $s$ y obtener la función de transferencia, aplicamos la transformada de Laplace asumiendo condiciones iniciales nulas. Esto convierte las derivadas en multiplicaciones por $s$:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$(R_1 + R_2) s V_{out}(s) + \frac{1}{C} V_{out}(s) = R_2 s V_{in}(s) + \frac{1}{C} V_{in}(s)$$
+            </div>
+            <div class="math-container text-center text-lg">
+                $$V_{out}(s) \left[ (R_1 + R_2)s + \frac{1}{C} \right] = V_{in}(s) \left[ R_2 s + \frac{1}{C} \right]$$
+            </div>
+            <p class="mb-4 text-justify">
+                Despejando $H(s) = \frac{V_{out}(s)}{V_{in}(s)}$ y multiplicando por $C$ para simplificar la expresión:
+            </p>
+            <div class="math-container text-center text-xl font-bold bg-gray-100 p-4 rounded inline-block w-full">
+                $$H(s) = \frac{R_2 C s + 1}{(R_1 + R_2)C s + 1}$$
+            </div>
+        </div>
 
-            <!-- Columna Derecha: Simulación Interactiva -->
-            <div class="lg:col-span-5 bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner h-fit sticky top-6">
-                <h2 class="text-2xl font-semibold border-b-2 border-blue-900 pb-2 mb-6">Simulador Interactivo</h2>
-                
-                <div class="space-y-4 mb-8">
-                    <h3 class="font-medium text-slate-700">Parámetros del Circuito</h3>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase">R1 (Ω)</label>
-                            <input type="number" id="input-r1" value="1000" min="1" step="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase">R2 (Ω)</label>
-                            <input type="number" id="input-r2" value="1000" min="1" step="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase">C (F)</label>
-                            <input type="number" id="input-c" value="0.00001" min="0.000001" step="0.000001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        </div>
+        <!-- Teoría Parte 2: Fasorial -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2">3. Análisis en el Dominio Fasorial mediante Impedancias</h2>
+            <p class="mb-4 text-justify">
+                Para analizar el estado estacionario senoidal, mapeamos la variable compleja $s = \sigma + j\omega$ al eje imaginario puro estableciendo $s = j\omega$ (desvanecimiento del transitorio $\sigma=0$).
+                La transformada de la relación integral del capacitor resulta en la impedancia capacitiva $Z_C(s) = \frac{1}{sC}$. Sustituyendo $s = j\omega$, obtenemos:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$Z_{R1} = R_1 \quad ; \quad Z_{R2} = R_2 \quad ; \quad Z_C = \frac{1}{j\omega C}$$
+            </div>
+            <p class="mb-4 text-justify">
+                Utilizando el principio del divisor de voltaje, la impedancia de la rama de salida es $Z_{out} = Z_{R2} + Z_C$, y la impedancia total de la malla es $Z_{total} = Z_{R1} + Z_{R2} + Z_C$.
+                La relación de voltaje de salida a voltaje de entrada está dada por:
+            </p>
+            <div class="math-container text-center text-lg">
+                $$\mathbf{V}_{out} = \mathbf{V}_{in} \left( \frac{Z_{R2} + Z_C}{Z_{R1} + Z_{R2} + Z_C} \right) \implies \mathbf{H}(j\omega) = \frac{R_2 + \frac{1}{j\omega C}}{R_1 + R_2 + \frac{1}{j\omega C}}$$
+            </div>
+            <p class="mb-4 text-justify">
+                Multiplicando el numerador y denominador por $j\omega C$ para eliminar las fracciones, comprobamos que el resultado es exactamente la evaluación de la función de transferencia previa en $s = j\omega$:
+            </p>
+            <div class="math-container text-center text-xl font-bold bg-gray-100 p-4 rounded inline-block w-full">
+                $$\mathbf{H}(j\omega) = \frac{j\omega R_2 C + 1}{j\omega (R_1 + R_2) C + 1}$$
+            </div>
+        </div>
+
+        <!-- Simulador Interactivo -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-6 border-b pb-2">4. Simulador Interactivo</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Panel de Control -->
+                <div class="col-span-1 bg-gray-50 p-4 rounded-lg border shadow-inner">
+                    <h3 class="text-lg font-medium mb-4 text-gray-700">Parámetros del Sistema</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">R1 (Ohms, $\Omega$)</label>
+                        <input type="number" id="r1" value="1000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">R2 (Ohms, $\Omega$)</label>
+                        <input type="number" id="r2" value="1000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">C (Microfaradios, $\mu F$)</label>
+                        <input type="number" id="c" value="10" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
                     </div>
 
-                    <h3 class="font-medium text-slate-700 mt-6">Configuración de la Señal de Entrada</h3>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase">Tipo de Entrada (Vin)</label>
-                        <select id="input-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                            <option value="step">Escalón</option>
-                            <option value="impulse">Impulso</option>
+                    <h3 class="text-lg font-medium mt-6 mb-4 text-gray-700">Entrada del Sistema</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Tipo de Entrada</label>
+                        <select id="inputType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                            <option value="step">Escalón (Constante)</option>
+                            <option value="impulse">Impulso (Aprox.)</option>
                             <option value="sine">Senoidal</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase">Amplitud (V)</label>
-                            <input type="number" id="input-amp" value="5" min="0.1" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        </div>
-                        <div id="freq-container" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-500 uppercase">Frecuencia (Hz)</label>
-                            <input type="number" id="input-freq" value="10" min="0.1" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-                        </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Amplitud (Volts)</label>
+                        <input type="number" id="amp" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                    </div>
+                    <div class="mb-4" id="freq-container" style="display: none;">
+                        <label class="block text-sm font-medium text-gray-700">Frecuencia (Hz)</label>
+                        <input type="number" id="freq" value="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Tiempo de Simulación (ms)</label>
+                        <input type="number" id="tsim" value="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" onchange="updateChart()">
+                    </div>
+                    <button onclick="updateChart()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">
+                        Actualizar Gráfica
+                    </button>
+                </div>
+
+                <!-- Gráfica Expandida -->
+                <div class="col-span-1 lg:col-span-3">
+                    <p class="text-sm text-gray-500 mb-2 italic" id="sim-note">La gráfica se ajusta automáticamente para observar el régimen transitorio y permanente.</p>
+                    <div id="chart-container" class="border rounded shadow-sm bg-white p-2">
+                        <canvas id="simChart"></canvas>
                     </div>
                 </div>
-
-                <!-- Contenedor del Gráfico -->
-                <div class="w-full bg-white rounded-lg p-2 shadow-sm border border-slate-200">
-                    <canvas id="simulationChart"></canvas>
-                </div>
             </div>
-
-        </main>
+        </div>
     </div>
 
     <script>
-        // Variables globales
-        let chartInstance = null;
+        let simChart;
 
-        // Referencias al DOM
-        const inputR1 = document.getElementById('input-r1');
-        const inputR2 = document.getElementById('input-r2');
-        const inputC = document.getElementById('input-c');
-        const inputType = document.getElementById('input-type');
-        const inputAmp = document.getElementById('input-amp');
-        const inputFreq = document.getElementById('input-freq');
-        const freqContainer = document.getElementById('freq-container');
-
-        // Escuchar cambios para actualizar simulación en tiempo real
-        const inputs = [inputR1, inputR2, inputC, inputType, inputAmp, inputFreq];
-        inputs.forEach(input => {
-            input.addEventListener('input', runSimulation);
-        });
-
-        // Mostrar/ocultar frecuencia según tipo
-        inputType.addEventListener('change', (e) => {
-            if (e.target.value === 'sine') {
-                freqContainer.classList.remove('hidden');
-            } else {
-                freqContainer.classList.add('hidden');
-            }
-        });
-
-        // Función principal de simulación
-        function runSimulation() {
-            // Leer valores
-            const R1 = parseFloat(inputR1.value);
-            const R2 = parseFloat(inputR2.value);
-            const C = parseFloat(inputC.value);
-            const type = inputType.value;
-            const amp = parseFloat(inputAmp.value);
-            const freq = parseFloat(inputFreq.value);
-
-            // Validar entradas básicas
-            if (R1 <= 0 || R2 <= 0 || C <= 0 || amp <= 0) return;
-
-            // Parámetros del sistema
-            const tau = (R1 + R2) * C;
-            
-            // Configurar el tiempo de simulación
-            let t_max = 8 * tau; // Suficiente para estabilizar en escalón
-            if (type === 'sine') {
-                const T = 1 / freq;
-                // Mostrar al menos 4 ciclos, pero no menos de 2 taus para ver el transitorio
-                t_max = Math.max(5 * tau, 4 * T);
-            }
-            
-            const numSteps = 1000;
-            const dt = t_max / numSteps;
-
-            // Vectores de datos
-            const timeData = [];
-            const vinData = [];
-            const voutData = [];
-
-            // Condiciones iniciales
-            let v_C = 0; 
-
-            // Ciclo de simulación usando Integración de Euler (Formulación espacio de estados)
-            for (let i = 0; i <= numSteps; i++) {
-                const t = i * dt;
-                let v_in = 0;
-
-                // Generar señal de entrada
-                if (type === 'step') {
-                    v_in = (t >= 0) ? amp : 0;
-                } else if (type === 'impulse') {
-                    // Aproximación de un impulso en tiempo discreto: 
-                    // Un pulso de ancho dt y área = amp
-                    v_in = (i === 0 || i === 1) ? amp / dt : 0;
-                } else if (type === 'sine') {
-                    v_in = amp * Math.sin(2 * Math.PI * freq * t);
-                }
-
-                // Ecuación diferencial del estado (voltaje en el capacitor)
-                // dv_C/dt = (V_in - v_C) / ((R1 + R2) * C)
-                const dvC_dt = (v_in - v_C) / tau;
-
-                // Ecuación de salida (Voltaje en R2 y C)
-                // V_out = v_C * (R1/(R1+R2)) + V_in * (R2/(R1+R2))
-                const v_out = v_C * (R1 / (R1 + R2)) + v_in * (R2 / (R1 + R2));
-
-                // Guardar datos (Para el impulso, limitamos visualmente el V_in para que la gráfica sea legible)
-                timeData.push(t.toFixed(4));
-                if (type === 'impulse' && (i === 0 || i===1)) {
-                     vinData.push(amp); // Gráficamente lo mostramos como la amplitud dada para no romper la escala Y
-                } else {
-                     vinData.push(v_in);
-                }
-                voutData.push(v_out);
-
-                // Integración numérica (Método de Euler hacia adelante)
-                v_C = v_C + dvC_dt * dt;
-            }
-
-            drawChart(timeData, vinData, voutData, type, amp);
-        }
-
-        function drawChart(labels, vinData, voutData, type, maxAmp) {
-            const ctx = document.getElementById('simulationChart').getContext('2d');
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            // Opciones dinámicas para el eje Y
-            let yMin = undefined;
-            let yMax = undefined;
-            if (type === 'step' || type === 'impulse') {
-                yMin = 0;
-                yMax = maxAmp * 1.2; 
-            }
-
-            chartInstance = new Chart(ctx, {
+        function initChart() {
+            const ctx = document.getElementById('simChart').getContext('2d');
+            simChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: [],
                     datasets: [
                         {
-                            label: 'V_in (Entrada)',
-                            data: vinData,
-                            borderColor: 'rgba(148, 163, 184, 0.8)', // Slate 400
-                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            label: 'Voltaje de Entrada, Vin (V)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
                             borderWidth: 2,
                             borderDash: [5, 5],
-                            pointRadius: 0,
-                            fill: false,
-                            tension: 0.1
+                            data: [],
+                            pointRadius: 0
                         },
                         {
-                            label: 'V_out (Salida)',
-                            data: voutData,
-                            borderColor: 'rgba(30, 64, 175, 1)', // Blue 800
-                            backgroundColor: 'rgba(30, 64, 175, 0.1)',
-                            borderWidth: 2.5,
-                            pointRadius: 0,
-                            fill: true,
-                            tension: 0.1
+                            label: 'Voltaje de Salida, Vout (V)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 3,
+                            data: [],
+                            pointRadius: 0
                         }
                     ]
                 },
                 options: {
                     responsive: true,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
+                    maintainAspectRatio: false, // Permite que el CSS defina la altura grande
+                    animation: { duration: 400 },
+                    interaction: { mode: 'index', intersect: false },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Tiempo (s)'
-                            },
-                            ticks: {
-                                maxTicksLimit: 8
-                            }
+                            title: { display: true, text: 'Tiempo (milisegundos)', font: { size: 16, weight: 'bold' } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Voltaje (V)'
-                            },
-                            min: yMin,
-                            max: yMax
+                            title: { display: true, text: 'Amplitud de Voltaje (Volts)', font: { size: 16, weight: 'bold' } },
+                            grid: { color: 'rgba(0,0,0,0.1)' }
                         }
                     },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        }
+                        legend: { labels: { font: { size: 14 } } },
+                        tooltip: { titleFont: { size: 14 }, bodyFont: { size: 14 } }
                     }
                 }
             });
+            updateChart();
         }
 
-        // Ejecutar simulación inicial al cargar la página
-        window.onload = function() {
-            runSimulation();
-        };
+        function updateChart() {
+            // Obtener variables de la UI
+            const R1 = parseFloat(document.getElementById('r1').value);
+            const R2 = parseFloat(document.getElementById('r2').value);
+            const C = parseFloat(document.getElementById('c').value) * 1e-6; // a Faradios
+            const type = document.getElementById('inputType').value;
+            const amp = parseFloat(document.getElementById('amp').value);
+            const freq = parseFloat(document.getElementById('freq').value);
+            const tSimMs = parseFloat(document.getElementById('tsim').value);
 
+            // Mostrar/ocultar input de frecuencia
+            document.getElementById('freq-container').style.display = (type === 'sine') ? 'block' : 'none';
+
+            // Nota dinámica para el usuario
+            const noteEl = document.getElementById('sim-note');
+            if(type === 'impulse') {
+                noteEl.innerText = "Nota: Para la entrada impulso, se grafica la respuesta natural exponencial. El pico delta en t=0 de Vin se omite matemáticamente por tender al infinito.";
+            } else {
+                noteEl.innerText = "La gráfica se ajusta automáticamente para observar el estado transitorio y estacionario.";
+            }
+
+            // Cálculos analíticos base
+            const tau = (R1 + R2) * C;
+            const tEnd = tSimMs / 1000.0;
+            const points = 1000;
+            const dt = tEnd / points;
+
+            let timeData = [];
+            let vinData = [];
+            let voutData = [];
+
+            // Pre-cálculos para senoidal
+            let omega, magH, phi, K_transient;
+            if (type === 'sine') {
+                omega = 2 * Math.PI * freq;
+                // Magnitud de la función de transferencia |H(jw)|
+                magH = Math.sqrt( (1 + Math.pow(omega * R2 * C, 2)) / (1 + Math.pow(omega * tau, 2)) );
+                // Fase de la función de transferencia
+                phi = Math.atan(omega * R2 * C) - Math.atan(omega * tau);
+                // Constante del término transitorio para garantizar vout(0) = 0
+                K_transient = -amp * magH * Math.sin(phi);
+            }
+
+            for (let i = 0; i <= points; i++) {
+                let t = i * dt;
+                timeData.push((t * 1000).toFixed(2)); // Guardar en ms
+
+                let vin_val = 0;
+                let vout_val = 0;
+
+                if (type === 'step') {
+                    vin_val = amp; // Escalón
+                    // Ecuación exacta de Vout para escalón
+                    vout_val = amp * (1 - (R1 / (R1 + R2)) * Math.exp(-t / tau));
+                } 
+                else if (type === 'impulse') {
+                    // Simulación visual del impulso en entrada (solo en t=0 muestra el pico visualmente)
+                    vin_val = (i === 0) ? amp : 0; 
+                    // Ecuación exacta de Vout para impulso (ignorando el delta(t) escalar en t=0)
+                    vout_val = amp * (R1 / (Math.pow(R1 + R2, 2) * C)) * Math.exp(-t / tau);
+                } 
+                else if (type === 'sine') {
+                    vin_val = amp * Math.sin(omega * t);
+                    // Ecuación exacta: Respuesta en estado estable + Respuesta transitoria
+                    vout_val = amp * magH * Math.sin(omega * t + phi) + K_transient * Math.exp(-t / tau);
+                }
+
+                vinData.push(vin_val);
+                voutData.push(vout_val);
+            }
+
+            // Actualizar datos en Chart.js
+            simChart.data.labels = timeData;
+            simChart.data.datasets[0].data = vinData;
+            simChart.data.datasets[1].data = voutData;
+            simChart.update();
+        }
+
+        // Inicializar al cargar la página
+        window.onload = initChart;
     </script>
 </body>
 </html>
