@@ -12,19 +12,19 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
         h1, h2, h3 { color: #2c3e50; }
-        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1400px; margin: auto; }
-        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex: 1 1 400px; }
-        .theory-panel { flex: 1 1 500px; }
-        .simulation-panel { flex: 2 1 600px; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1500px; margin: auto; }
+        .panel { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex: 1 1 45%; }
         svg { display: block; margin: 0 auto 20px auto; max-width: 100%; height: auto; }
         .control-group { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-        .control-group label { font-weight: bold; margin-right: 10px; width: 40%; }
-        .control-group input, .control-group select { width: 55%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        button { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .control-group label { font-weight: bold; margin-right: 10px; width: 45%; }
+        .control-group input, .control-group select { width: 50%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; margin-top: 15px; }
         button:hover { background: #1a252f; }
-        .formula-box { background: #f8f9fa; padding: 15px; border-left: 4px solid #2c3e50; margin-bottom: 20px; overflow-x: auto; }
+        .theory-section { background: #f8f9fa; padding: 20px; border-left: 4px solid #2c3e50; margin-bottom: 20px; overflow-x: auto; }
+        .theory-section p { margin-bottom: 10px; }
+        .theory-section h3 { margin-top: 0; color: #2c3e50; font-size: 1.2em; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -32,8 +32,8 @@
 <h1>Análisis Transitorio de Circuito RLC</h1>
 
 <div class="container">
-    <!-- Panel de Teoría y Circuito -->
-    <div class="panel theory-panel">
+    <!-- Panel de Teoría y Modelado -->
+    <div class="panel">
         <h2>Esquema del Circuito</h2>
         <!-- SVG Circuito RLC -->
         <svg viewBox="0 0 400 250" width="350">
@@ -69,31 +69,51 @@
             <text x="385" y="150" fill="#e74c3c" font-weight="bold">Vout</text>
         </svg>
 
-        <h2>Modelado y Ecuaciones</h2>
-        <div class="formula-box">
-            <p><strong>LVK en el dominio del tiempo:</strong></p>
-            <p>\[ V_{in}(t) = R i(t) + L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau \]</p>
+        <h2>Desarrollo Analítico</h2>
+        
+        <div class="theory-section">
+            <h3>1. Modelado del Sistema en el Dominio del Tiempo</h3>
+            <p>Aplicando la ley de voltajes de Kirchhoff (LVK) en la malla cerrada del circuito en serie, la suma de las caídas de potencial en los componentes es igual al voltaje de excitación de la fuente:</p>
+            <p>\[ V_{in}(t) = V_R(t) + V_L(t) + V_C(t) \]</p>
+            <p>Sustituyendo las ecuaciones constitutivas de cada componente (resistor, inductor y capacitor) en términos de la corriente de malla \( i(t) \):</p>
+            <p>\[ V_{in}(t) = R \cdot i(t) + L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau \]</p>
+            <p>La señal de salida requerida es la caída de potencial a través de la combinación en serie del inductor y el capacitor:</p>
+            <p>\[ V_{out}(t) = V_L(t) + V_C(t) = L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau \]</p>
+            <p>De la LVK se puede deducir una expresión equivalente y más directa para la simulación de estados:</p>
+            <p>\[ V_{out}(t) = V_{in}(t) - V_R(t) = V_{in}(t) - R \cdot i(t) \]</p>
         </div>
-        <div class="formula-box">
-            <p><strong>Salida solicitada (a través de L y C):</strong></p>
-            <p>\[ V_{out}(t) = L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau = V_{in}(t) - R i(t) \]</p>
+
+        <div class="theory-section">
+            <h3>2. Transformación al Dominio de Laplace</h3>
+            <p>Considerando condiciones iniciales nulas (\( i(0) = 0 \), \( V_C(0) = 0 \)), aplicamos la transformada de Laplace a la ecuación de malla:</p>
+            <p>\[ V_{in}(s) = R \cdot I(s) + sL \cdot I(s) + \frac{1}{sC} I(s) \]</p>
+            <p>\[ V_{in}(s) = I(s) \left( R + sL + \frac{1}{sC} \right) \]</p>
+            <p>Despejando la corriente \( I(s) \):</p>
+            <p>\[ I(s) = \frac{V_{in}(s)}{R + sL + \frac{1}{sC}} = \frac{sC \cdot V_{in}(s)}{s^2 LC + sRC + 1} \]</p>
+            <p>Aplicamos la transformada de Laplace al voltaje de salida:</p>
+            <p>\[ V_{out}(s) = sL \cdot I(s) + \frac{1}{sC} I(s) = I(s) \left( \frac{s^2 LC + 1}{sC} \right) \]</p>
         </div>
-        <div class="formula-box">
-            <p><strong>Función de Transferencia \( H(s) = \frac{V_{out}(s)}{V_{in}(s)} \):</strong></p>
+
+        <div class="theory-section">
+            <h3>3. Función de Transferencia</h3>
+            <p>La función de transferencia \( H(s) \) relaciona la salida con la entrada en el dominio de la frecuencia compleja. Sustituyendo \( I(s) \) en \( V_{out}(s) \):</p>
+            <p>\[ V_{out}(s) = \left[ \frac{sC \cdot V_{in}(s)}{s^2 LC + sRC + 1} \right] \left( \frac{s^2 LC + 1}{sC} \right) \]</p>
+            <p>\[ H(s) = \frac{V_{out}(s)}{V_{in}(s)} = \frac{s^2 LC + 1}{s^2 LC + sRC + 1} \]</p>
+            <p>Dividiendo el numerador y el denominador entre \( LC \) para expresarla en su forma estándar monica:</p>
             <p>\[ H(s) = \frac{s^2 + \frac{1}{LC}}{s^2 + \frac{R}{L}s + \frac{1}{LC}} \]</p>
         </div>
     </div>
 
-    <!-- Panel de Simulación -->
-    <div class="panel simulation-panel">
-        <h2>Parámetros de Simulación</h2>
+    <!-- Panel de Simulación y Gráficas -->
+    <div class="panel">
+        <h2>Simulación Interactiva en Web</h2>
         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 250px;">
                 <div class="control-group">
-                    <label>Tipo de Entrada (Vin):</label>
+                    <label>Tipo de Entrada:</label>
                     <select id="signalType">
                         <option value="step">Escalón Unitario</option>
-                        <option value="impulse">Impulso (aprox)</option>
+                        <option value="impulse">Impulso</option>
                         <option value="sine">Senoidal</option>
                         <option value="triangle">Triangular</option>
                     </select>
@@ -107,7 +127,7 @@
                     <input type="number" id="res" value="10" step="0.1">
                 </div>
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 250px;">
                 <div class="control-group">
                     <label>Inductancia L (H):</label>
                     <input type="number" id="ind" value="0.5" step="0.01">
@@ -124,7 +144,7 @@
         </div>
         <button onclick="runSimulation()">Ejecutar Simulación</button>
 
-        <div id="plot" style="width:100%; height:400px; margin-top:20px;"></div>
+        <div id="plot" style="width:100%; height:500px; margin-top:30px;"></div>
     </div>
 </div>
 
@@ -157,7 +177,6 @@
 
     // Integrador Runge-Kutta 4to Orden
     function runSimulation() {
-        // Obtener parámetros
         let R = parseFloat(document.getElementById('res').value);
         let L = parseFloat(document.getElementById('ind').value);
         let C = parseFloat(document.getElementById('cap').value);
@@ -165,24 +184,23 @@
         let type = document.getElementById('signalType').value;
         let freq = parseFloat(document.getElementById('freq').value);
 
-        let dt = tMax / 5000; // Paso de integración (5000 puntos para precisión)
+        let dt = tMax / 10000; // Paso de integración
         
         let t_arr = [];
         let Vin_arr = [];
         let Vout_arr = [];
 
-        // Condiciones iniciales [Vc(0), i(0)]
-        let y = [0, 0]; 
+        let y = [0, 0]; // Condiciones iniciales [Vc(0), i(0)]
 
         for (let t = 0; t <= tMax; t += dt) {
             let Vin_current = getVin(t, type, freq, dt);
             let i_current = y[1];
             
-            // Vout a través de L y C equivale a Vin - VR (Ley de voltajes)
+            // Vout a través de L y C equivale a Vin - VR
             let Vout_current = Vin_current - (R * i_current);
 
-            // Submuestreo para graficar más rápido (500 puntos max)
-            if (t_arr.length === 0 || t >= t_arr[t_arr.length - 1] + (tMax/500)) {
+            // Submuestreo para agilizar el renderizado
+            if (t_arr.length === 0 || t >= t_arr[t_arr.length - 1] + (tMax/1000)) {
                 t_arr.push(t);
                 Vin_arr.push(Vin_current);
                 Vout_arr.push(Vout_current);
@@ -190,13 +208,10 @@
 
             // RK4
             let k1 = derivatives(t, y, R, L, C, type, freq, dt);
-            
             let y_k2 = [y[0] + k1[0]*dt/2, y[1] + k1[1]*dt/2];
             let k2 = derivatives(t + dt/2, y_k2, R, L, C, type, freq, dt);
-            
             let y_k3 = [y[0] + k2[0]*dt/2, y[1] + k2[1]*dt/2];
             let k3 = derivatives(t + dt/2, y_k3, R, L, C, type, freq, dt);
-            
             let y_k4 = [y[0] + k3[0]*dt, y[1] + k3[1]*dt];
             let k4 = derivatives(t + dt, y_k4, R, L, C, type, freq, dt);
 
@@ -204,7 +219,6 @@
             y[1] = y[1] + (dt/6) * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
         }
 
-        // Trazado en Plotly
         var trace_Vin = {
             x: t_arr, y: Vin_arr,
             mode: 'lines', name: 'Entrada: Vin(t)',
