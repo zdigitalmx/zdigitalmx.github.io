@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis y Simulación: Circuito RLC en Serie</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]'], ['$$', '$$']]}
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1400px; margin: auto; }
+        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex: 1 1 400px; }
+        .theory-panel { flex: 1 1 500px; }
+        .simulation-panel { flex: 2 1 600px; }
+        svg { display: block; margin: 0 auto 20px auto; max-width: 100%; height: auto; }
+        .control-group { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .control-group label { font-weight: bold; margin-right: 10px; width: 40%; }
+        .control-group input, .control-group select { width: 55%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #1a252f; }
+        .formula-box { background: #f8f9fa; padding: 15px; border-left: 4px solid #2c3e50; margin-bottom: 20px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<h1>Análisis Transitorio de Circuito RLC</h1>
+
+<div class="container">
+    <!-- Panel de Teoría y Circuito -->
+    <div class="panel theory-panel">
+        <h2>Esquema del Circuito</h2>
+        <!-- SVG Circuito RLC -->
+        <svg viewBox="0 0 400 250" width="350">
+            <!-- Wires -->
+            <path d="M 50 150 L 50 50 L 120 50" stroke="#333" stroke-width="2" fill="none" />
+            <path d="M 180 50 L 350 50 L 350 80" stroke="#333" stroke-width="2" fill="none" />
+            <path d="M 350 140 L 350 180" stroke="#333" stroke-width="2" fill="none" />
+            <path d="M 350 200 L 350 220 L 50 220 L 50 190" stroke="#333" stroke-width="2" fill="none" />
+            
+            <!-- Source (Vin) -->
+            <circle cx="50" cy="170" r="20" stroke="#333" stroke-width="2" fill="white" />
+            <text x="43" y="175" font-size="18">~</text>
+            <text x="10" y="175" font-weight="bold">Vin</text>
+
+            <!-- Resistor (R) -->
+            <path d="M 120 50 L 125 40 L 135 60 L 145 40 L 155 60 L 165 40 L 175 60 L 180 50" stroke="#333" stroke-width="2" fill="none" />
+            <text x="145" y="30" font-weight="bold">R</text>
+
+            <!-- Inductor (L) -->
+            <path d="M 350 80 C 320 80, 320 100, 350 100 C 320 100, 320 120, 350 120 C 320 120, 320 140, 350 140" stroke="#333" stroke-width="2" fill="none" />
+            <text x="370" y="115" font-weight="bold">L</text>
+
+            <!-- Capacitor (C) -->
+            <line x1="335" y1="180" x2="365" y2="180" stroke="#333" stroke-width="2" />
+            <line x1="335" y1="200" x2="365" y2="200" stroke="#333" stroke-width="2" />
+            <text x="375" y="195" font-weight="bold">C</text>
+
+            <!-- Vout Nodes -->
+            <circle cx="350" cy="65" r="4" fill="#e74c3c" />
+            <circle cx="350" cy="220" r="4" fill="#e74c3c" />
+            <line x1="350" y1="65" x2="390" y2="65" stroke="#e74c3c" stroke-width="1" stroke-dasharray="4" />
+            <line x1="350" y1="220" x2="390" y2="220" stroke="#e74c3c" stroke-width="1" stroke-dasharray="4" />
+            <text x="385" y="150" fill="#e74c3c" font-weight="bold">Vout</text>
+        </svg>
+
+        <h2>Modelado y Ecuaciones</h2>
+        <div class="formula-box">
+            <p><strong>LVK en el dominio del tiempo:</strong></p>
+            <p>\[ V_{in}(t) = R i(t) + L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau \]</p>
+        </div>
+        <div class="formula-box">
+            <p><strong>Salida solicitada (a través de L y C):</strong></p>
+            <p>\[ V_{out}(t) = L \frac{di(t)}{dt} + \frac{1}{C} \int_0^t i(\tau) d\tau = V_{in}(t) - R i(t) \]</p>
+        </div>
+        <div class="formula-box">
+            <p><strong>Función de Transferencia \( H(s) = \frac{V_{out}(s)}{V_{in}(s)} \):</strong></p>
+            <p>\[ H(s) = \frac{s^2 + \frac{1}{LC}}{s^2 + \frac{R}{L}s + \frac{1}{LC}} \]</p>
+        </div>
+    </div>
+
+    <!-- Panel de Simulación -->
+    <div class="panel simulation-panel">
+        <h2>Parámetros de Simulación</h2>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <div class="control-group">
+                    <label>Tipo de Entrada (Vin):</label>
+                    <select id="signalType">
+                        <option value="step">Escalón Unitario</option>
+                        <option value="impulse">Impulso (aprox)</option>
+                        <option value="sine">Senoidal</option>
+                        <option value="triangle">Triangular</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Frecuencia de Fuente (Hz):</label>
+                    <input type="number" id="freq" value="10" step="0.1">
+                </div>
+                <div class="control-group">
+                    <label>Resistencia R (Ω):</label>
+                    <input type="number" id="res" value="10" step="0.1">
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <div class="control-group">
+                    <label>Inductancia L (H):</label>
+                    <input type="number" id="ind" value="0.5" step="0.01">
+                </div>
+                <div class="control-group">
+                    <label>Capacitancia C (F):</label>
+                    <input type="number" id="cap" value="0.001" step="0.0001">
+                </div>
+                <div class="control-group">
+                    <label>Tiempo Simulación (s):</label>
+                    <input type="number" id="tMax" value="0.5" step="0.01">
+                </div>
+            </div>
+        </div>
+        <button onclick="runSimulation()">Ejecutar Simulación</button>
+
+        <div id="plot" style="width:100%; height:400px; margin-top:20px;"></div>
+    </div>
+</div>
+
+<script>
+    // Generador de señales de entrada
+    function getVin(t, type, freq, dt) {
+        if (type === 'step') return t >= 0 ? 1 : 0;
+        if (type === 'impulse') return (t >= 0 && t < dt) ? (1/dt) : 0; // Aproximación área=1
+        if (type === 'sine') return Math.sin(2 * Math.PI * freq * t);
+        if (type === 'triangle') {
+            let period = 1 / freq;
+            let a = 4 / period;
+            let phase = t % period;
+            return (phase < period/2) ? -1 + a * phase : 3 - a * phase;
+        }
+        return 0;
+    }
+
+    // Sistema de ecuaciones diferenciales (Estado: y[0]=Vc, y[1]=i)
+    function derivatives(t, y, R, L, C, type, freq, dt) {
+        let Vc = y[0];
+        let i = y[1];
+        let Vin = getVin(t, type, freq, dt);
+        
+        let dVc_dt = i / C;
+        let di_dt = (Vin - R * i - Vc) / L;
+        
+        return [dVc_dt, di_dt];
+    }
+
+    // Integrador Runge-Kutta 4to Orden
+    function runSimulation() {
+        // Obtener parámetros
+        let R = parseFloat(document.getElementById('res').value);
+        let L = parseFloat(document.getElementById('ind').value);
+        let C = parseFloat(document.getElementById('cap').value);
+        let tMax = parseFloat(document.getElementById('tMax').value);
+        let type = document.getElementById('signalType').value;
+        let freq = parseFloat(document.getElementById('freq').value);
+
+        let dt = tMax / 5000; // Paso de integración (5000 puntos para precisión)
+        
+        let t_arr = [];
+        let Vin_arr = [];
+        let Vout_arr = [];
+
+        // Condiciones iniciales [Vc(0), i(0)]
+        let y = [0, 0]; 
+
+        for (let t = 0; t <= tMax; t += dt) {
+            let Vin_current = getVin(t, type, freq, dt);
+            let i_current = y[1];
+            
+            // Vout a través de L y C equivale a Vin - VR (Ley de voltajes)
+            let Vout_current = Vin_current - (R * i_current);
+
+            // Submuestreo para graficar más rápido (500 puntos max)
+            if (t_arr.length === 0 || t >= t_arr[t_arr.length - 1] + (tMax/500)) {
+                t_arr.push(t);
+                Vin_arr.push(Vin_current);
+                Vout_arr.push(Vout_current);
+            }
+
+            // RK4
+            let k1 = derivatives(t, y, R, L, C, type, freq, dt);
+            
+            let y_k2 = [y[0] + k1[0]*dt/2, y[1] + k1[1]*dt/2];
+            let k2 = derivatives(t + dt/2, y_k2, R, L, C, type, freq, dt);
+            
+            let y_k3 = [y[0] + k2[0]*dt/2, y[1] + k2[1]*dt/2];
+            let k3 = derivatives(t + dt/2, y_k3, R, L, C, type, freq, dt);
+            
+            let y_k4 = [y[0] + k3[0]*dt, y[1] + k3[1]*dt];
+            let k4 = derivatives(t + dt, y_k4, R, L, C, type, freq, dt);
+
+            y[0] = y[0] + (dt/6) * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
+            y[1] = y[1] + (dt/6) * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
+        }
+
+        // Trazado en Plotly
+        var trace_Vin = {
+            x: t_arr, y: Vin_arr,
+            mode: 'lines', name: 'Entrada: Vin(t)',
+            line: {color: '#3498db', width: 2}
+        };
+
+        var trace_Vout = {
+            x: t_arr, y: Vout_arr,
+            mode: 'lines', name: 'Salida: Vout(t)',
+            line: {color: '#e74c3c', width: 2}
+        };
+
+        var layout = {
+            title: 'Respuesta Transitoria del Sistema',
+            xaxis: { title: 'Tiempo (s)', gridcolor: '#eee' },
+            yaxis: { title: 'Voltaje (V)', gridcolor: '#eee' },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            margin: { l: 50, r: 20, t: 40, b: 40 }
+        };
+
+        Plotly.newPlot('plot', [trace_Vin, trace_Vout], layout, {responsive: true});
+    }
+
+    // Ejecutar al cargar la página
+    window.onload = runSimulation;
+</script>
+
+</body>
+</html>
