@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformaciones de Señales: La Analogía del Pastel</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- MathJax Configuration and Script -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #0f172a; /* tailwind slate-900 */
+            color: #f8fafc; /* tailwind slate-50 */
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom SVG Styling */
+        .svg-text {
+            fill: #94a3b8; /* slate-400 */
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .svg-text-title {
+            fill: #e2e8f0; /* slate-200 */
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* Math display container */
+        .math-container {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            overflow-x: auto;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8 selection:bg-blue-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="max-w-5xl mx-auto w-full mb-8 text-center">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-3 tracking-tight">
+            Transformaciones de Señales
+        </h1>
+        <p class="text-slate-400 text-lg">La Analogía del Pastel</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+        
+        <!-- Controls Sidebar / Top bar -->
+        <div class="lg:col-span-3 flex flex-row lg:flex-col gap-3 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide snap-x">
+            <!-- Buttons generated dynamically by JS -->
+            <div id="controls-container" class="flex lg:flex-col gap-2 min-w-max lg:min-w-0"></div>
+        </div>
+
+        <!-- Visual & Info Area -->
+        <div class="lg:col-span-9 flex flex-col gap-6">
+            
+            <!-- Visual Display -->
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden flex justify-center items-center aspect-video sm:aspect-auto sm:h-[400px]">
+                <!-- Decorative background glow -->
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+                
+                <div id="visual-container" class="w-full h-full flex justify-center items-center w-full max-w-lg">
+                    <!-- SVG gets injected here -->
+                </div>
+            </div>
+
+            <!-- Mathematical & Explanation Area -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col gap-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
+                    <h2 id="info-title" class="text-2xl font-bold text-slate-100">Dominio del Tiempo</h2>
+                </div>
+                
+                <!-- Math Formula -->
+                <div class="bg-slate-900 rounded-xl border border-slate-700 math-container shadow-inner text-emerald-400" id="math-display">
+                    <!-- MathJax content -->
+                </div>
+
+                <!-- Explanation -->
+                <p id="info-text" class="text-slate-300 leading-relaxed text-lg">
+                    <!-- Text content -->
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="max-w-5xl mx-auto w-full text-center mt-12 text-slate-500 text-sm">
+        <p>Una visualización conceptual de matemáticas aplicadas e ingeniería de sistemas.</p>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // SVG Assets structured for each state
+        const svgs = {
+            continuo: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                        </marker>
+                    </defs>
+                    <!-- Time Axis -->
+                    <line x1="40" y1="230" x2="360" y2="230" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                    <text x="350" y="250" class="svg-text">t (tiempo)</text>
+                    
+                    <!-- Complete Cake -->
+                    <g transform="translate(110, 100)">
+                        <!-- Cake Body -->
+                        <path d="M 0 30 C 0 10, 180 10, 180 30 L 180 110 C 180 130, 0 130, 0 110 Z" fill="#fcd34d" />
+                        <!-- Cake Layers/Filling -->
+                        <path d="M 0 70 C 40 85, 140 85, 180 70" stroke="#78350f" stroke-width="6" fill="none" />
+                        <!-- Icing -->
+                        <path d="M -5 30 C -5 -5, 185 -5, 185 30 C 185 40, 160 55, 140 35 C 120 55, 90 35, 70 55 C 50 35, 20 55, -5 30 Z" fill="#f472b6" />
+                        <path d="M 0 30 C 0 50, 180 50, 180 30" stroke="#db2777" stroke-width="2" fill="none" opacity="0.5" />
+                        <!-- Cherry -->
+                        <circle cx="90" cy="-5" r="12" fill="#ef4444" />
+                        <path d="M 90 -17 Q 105 -30 115 -15" stroke="#166534" stroke-width="3" fill="none" />
+                    </g>
+                    <!-- Continuous Function Line Overlay -->
+                    <path d="M 110 50 Q 155 -10 200 50 T 290 50" stroke="#3b82f6" stroke-width="4" fill="none" opacity="0.6" stroke-dasharray="8 4"/>
+                </svg>
+            `,
+            discreto: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Time Axis -->
+                    <line x1="40" y1="230" x2="360" y2="230" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                    <text x="350" y="250" class="svg-text">n (muestras)</text>
+                    
+                    <!-- Ticks -->
+                    <g stroke="#94a3b8" stroke-width="2">
+                        <line x1="125" y1="225" x2="125" y2="235" />
+                        <line x1="165" y1="225" x2="165" y2="235" />
+                        <line x1="205" y1="225" x2="205" y2="235" />
+                        <line x1="245" y1="225" x2="245" y2="235" />
+                        <line x1="285" y1="225" x2="285" y2="235" />
+                    </g>
+                    <g class="svg-text" fill="#64748b" text-anchor="middle">
+                        <text x="125" y="250">0</text>
+                        <text x="165" y="250">1</text>
+                        <text x="205" y="250">2</text>
+                        <text x="245" y="250">3</text>
+                        <text x="285" y="250">4</text>
+                    </g>
+
+                    <!-- Discretized Cake (Slices) -->
+                    <g transform="translate(110, 100)">
+                        <!-- Slice 1 -->
+                        <g transform="translate(0, 0)">
+                            <rect x="0" y="20" width="30" height="95" fill="#fcd34d" rx="2" />
+                            <rect x="0" y="65" width="30" height="6" fill="#78350f" />
+                            <path d="M 0 25 Q 15 5 30 25 L 30 35 Q 15 45 0 35 Z" fill="#f472b6" />
+                        </g>
+                        <!-- Slice 2 -->
+                        <g transform="translate(40, 0)">
+                            <rect x="0" y="20" width="30" height="95" fill="#fcd34d" rx="2" />
+                            <rect x="0" y="65" width="30" height="6" fill="#78350f" />
+                            <path d="M 0 25 Q 15 5 30 25 L 30 35 Q 15 45 0 35 Z" fill="#f472b6" />
+                        </g>
+                        <!-- Slice 3 (Center with cherry) -->
+                        <g transform="translate(80, -10)">
+                            <rect x="0" y="30" width="30" height="95" fill="#fcd34d" rx="2" />
+                            <rect x="0" y="75" width="30" height="6" fill="#78350f" />
+                            <path d="M 0 35 Q 15 15 30 35 L 30 45 Q 15 55 0 45 Z" fill="#f472b6" />
+                            <circle cx="15" cy="15" r="8" fill="#ef4444" />
+                        </g>
+                        <!-- Slice 4 -->
+                        <g transform="translate(120, 0)">
+                            <rect x="0" y="20" width="30" height="95" fill="#fcd34d" rx="2" />
+                            <rect x="0" y="65" width="30" height="6" fill="#78350f" />
+                            <path d="M 0 25 Q 15 5 30 25 L 30 35 Q 15 45 0 35 Z" fill="#f472b6" />
+                        </g>
+                        <!-- Slice 5 -->
+                        <g transform="translate(160, 0)">
+                            <rect x="0" y="20" width="30" height="95" fill="#fcd34d" rx="2" />
+                            <rect x="0" y="65" width="30" height="6" fill="#78350f" />
+                            <path d="M 0 25 Q 15 5 30 25 L 30 35 Q 15 45 0 35 Z" fill="#f472b6" />
+                        </g>
+                    </g>
+                </svg>
+            `,
+            laplace: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Plano S -->
+                    <text x="75" y="40" class="svg-text-title" text-anchor="middle">Plano s (Estructura)</text>
+                    <g transform="translate(100, 160)">
+                        <!-- Axes -->
+                        <line x1="-70" y1="0" x2="70" y2="0" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="0" y1="-90" x2="0" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="75" y="5" class="svg-text">σ</text>
+                        <text x="-5" y="-100" class="svg-text">jω</text>
+                        
+                        <!-- Poles (X) -->
+                        <g stroke="#f87171" stroke-width="3" stroke-linecap="round">
+                            <!-- Pole 1 -->
+                            <line x1="-35" y1="-45" x2="-25" y2="-35" />
+                            <line x1="-25" y1="-45" x2="-35" y2="-35" />
+                            <!-- Pole 2 -->
+                            <line x1="-35" y1="35" x2="-25" y2="45" />
+                            <line x1="-25" y1="35" x2="-35" y2="45" />
+                        </g>
+                        <!-- Zeros (O) -->
+                        <circle cx="-50" cy="0" r="5" stroke="#60a5fa" stroke-width="3" fill="none" />
+                        
+                        <!-- Region of convergence highlight -->
+                        <rect x="-70" y="-90" width="70" height="180" fill="#3b82f6" opacity="0.1" />
+                    </g>
+
+                    <!-- Ingredients -->
+                    <text x="290" y="40" class="svg-text-title" text-anchor="middle">Ingredientes Base</text>
+                    <g transform="translate(240, 80)">
+                        <!-- Flour Bag -->
+                        <path d="M 20 20 C 10 40, 10 100, 20 120 L 70 120 C 80 100, 80 40, 70 20 Z" fill="#e2e8f0" />
+                        <path d="M 15 20 Q 45 35 75 20 Z" fill="#cbd5e1" />
+                        <text x="45" y="80" text-anchor="middle" font-size="16" fill="#64748b" font-weight="bold">Harina</text>
+                        <text x="45" y="100" text-anchor="middle" font-size="10" fill="#64748b">(Crecimiento/σ)</text>
+                        
+                        <!-- Egg -->
+                        <path d="M 100 80 C 100 50, 120 40, 130 40 C 140 40, 160 50, 160 80 C 160 110, 145 120, 130 120 C 115 120, 100 110, 100 80 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="2" />
+                        <text x="130" y="85" text-anchor="middle" font-size="12" fill="#a16207" font-weight="bold">Huevo</text>
+                        <text x="130" y="100" text-anchor="middle" font-size="9" fill="#a16207">(Oscilación/jω)</text>
+                    </g>
+                    
+                    <!-- Arrow from ingredients to S-plane -->
+                    <path d="M 220 160 Q 180 160 180 160" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrow)" />
+                </svg>
+            `,
+            z: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Plano Z -->
+                    <text x="120" y="30" class="svg-text-title" text-anchor="middle">Plano z (Estructura Discreta)</text>
+                    <g transform="translate(130, 160)">
+                        <!-- Axes -->
+                        <line x1="-100" y1="0" x2="100" y2="0" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="0" y1="-100" x2="0" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="105" y="5" class="svg-text">Re</text>
+                        <text x="-5" y="-110" class="svg-text">Im</text>
+                        
+                        <!-- Unit Circle -->
+                        <circle cx="0" cy="0" r="70" stroke="#10b981" stroke-width="3" fill="none" stroke-dasharray="6 4" />
+                        <text x="50" y="-75" class="svg-text" fill="#10b981" font-size="12">|z| = 1</text>
+                        
+                        <!-- Region of convergence (outside/inside depending, let's highlight inside unit circle for stable causal, or outside. Let's just shade inside) -->
+                        <circle cx="0" cy="0" r="70" fill="#10b981" opacity="0.1" />
+
+                        <!-- Poles (X) inside unit circle -->
+                        <g stroke="#f87171" stroke-width="3" stroke-linecap="round">
+                            <line x1="35" y1="-45" x2="45" y2="-35" />
+                            <line x1="45" y1="-45" x2="35" y2="-35" />
+                            
+                            <line x1="35" y1="35" x2="45" y2="45" />
+                            <line x1="45" y1="35" x2="35" y2="45" />
+                        </g>
+                    </g>
+
+                    <!-- Ingredients (Discrete slices style) -->
+                    <g transform="translate(280, 100)">
+                        <text x="30" y="-30" class="svg-text-title" text-anchor="middle">Ingredientes</text>
+                        <text x="30" y="-10" class="svg-text" text-anchor="middle" font-size="11">(Por Rebanada)</text>
+                        <!-- Stack of discrete ingredient boxes -->
+                        <rect x="0" y="10" width="60" height="25" fill="#fca5a5" rx="4" />
+                        <text x="30" y="27" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Levadura</text>
+                        
+                        <rect x="0" y="45" width="60" height="25" fill="#fcd34d" rx="4" />
+                        <text x="30" y="62" text-anchor="middle" font-size="12" fill="#78350f" font-weight="bold">Azúcar</text>
+                        
+                        <rect x="0" y="80" width="60" height="25" fill="#93c5fd" rx="4" />
+                        <text x="30" y="97" text-anchor="middle" font-size="12" fill="#1e3a8a" font-weight="bold">Agua</text>
+                    </g>
+                </svg>
+            `,
+            fourier: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Title -->
+                    <text x="200" y="30" class="svg-text-title" text-anchor="middle">Espectro de Sabores (Frecuencias)</text>
+                    <text x="200" y="50" class="svg-text" text-anchor="middle" font-size="12">¡No importa el cuándo, sólo el cuánto!</text>
+                    
+                    <g transform="translate(50, 240)">
+                        <!-- Axes -->
+                        <line x1="0" y1="0" x2="300" y2="0" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="0" y1="0" x2="0" y2="-170" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="310" y="5" class="svg-text">ω (Sabor/Frecuencia)</text>
+                        <text x="-30" y="-170" class="svg-text">|X(jω)|</text>
+                        
+                        <!-- Bars representing flavors -->
+                        
+                        <!-- Chocolate (Low Freq / Fundamental) -->
+                        <rect x="40" y="-140" width="40" height="140" fill="#78350f" rx="3" />
+                        <text x="60" y="-150" text-anchor="middle" class="svg-text" fill="#fcd34d" font-size="12">50%</text>
+                        <text x="60" y="20" text-anchor="middle" class="svg-text" font-size="12">Chocolate</text>
+                        <text x="60" y="35" text-anchor="middle" class="svg-text" font-size="10" opacity="0.7">(Baja freq)</text>
+
+                        <!-- Vainilla (Mid Freq) -->
+                        <rect x="120" y="-80" width="40" height="80" fill="#fde047" rx="3" />
+                        <text x="140" y="-90" text-anchor="middle" class="svg-text" fill="#fcd34d" font-size="12">30%</text>
+                        <text x="140" y="20" text-anchor="middle" class="svg-text" font-size="12">Vainilla</text>
+                        <text x="140" y="35" text-anchor="middle" class="svg-text" font-size="10" opacity="0.7">(Media freq)</text>
+
+                        <!-- Fresa (High Freq) -->
+                        <rect x="200" y="-40" width="40" height="40" fill="#f472b6" rx="3" />
+                        <text x="220" y="-50" text-anchor="middle" class="svg-text" fill="#fcd34d" font-size="12">20%</text>
+                        <text x="220" y="20" text-anchor="middle" class="svg-text" font-size="12">Fresa</text>
+                        <text x="220" y="35" text-anchor="middle" class="svg-text" font-size="10" opacity="0.7">(Alta freq)</text>
+                    </g>
+                </svg>
+            `,
+            wavelet: `
+                <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Title -->
+                    <text x="200" y="30" class="svg-text-title" text-anchor="middle">Mapa Tiempo-Escala (Qué sabor y en qué rebanada)</text>
+                    
+                    <g transform="translate(60, 240)">
+                        <!-- Axes -->
+                        <line x1="0" y1="0" x2="280" y2="0" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="0" y1="0" x2="0" y2="-180" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="290" y="5" class="svg-text">b (Rebanada / Tiempo)</text>
+                        <text x="-20" y="-190" class="svg-text">a (Sabor / Escala)</text>
+                        
+                        <!-- Axis Labels -->
+                        <text x="35" y="20" text-anchor="middle" class="svg-text" font-size="11">R.1</text>
+                        <text x="105" y="20" text-anchor="middle" class="svg-text" font-size="11">R.2</text>
+                        <text x="175" y="20" text-anchor="middle" class="svg-text" font-size="11">R.3</text>
+                        <text x="245" y="20" text-anchor="middle" class="svg-text" font-size="11">R.4</text>
+
+                        <text x="-15" y="-30" text-anchor="end" class="svg-text" font-size="11">Chocolate</text>
+                        <text x="-15" y="-90" text-anchor="end" class="svg-text" font-size="11">Vainilla</text>
+                        <text x="-15" y="-150" text-anchor="end" class="svg-text" font-size="11">Fresa</text>
+
+                        <!-- Heatmap Grid -->
+                        <!-- Row 1: Fresa (High Freq, small scale) -->
+                        <rect x="10" y="-170" width="50" height="40" fill="#f472b6" opacity="0.1" rx="4" />
+                        <rect x="80" y="-170" width="50" height="40" fill="#f472b6" opacity="0.1" rx="4" />
+                        <rect x="150" y="-170" width="50" height="40" fill="#f472b6" opacity="0.9" rx="4" /> <!-- Highlight -->
+                        <text x="175" y="-145" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">¡Aquí!</text>
+                        <rect x="220" y="-170" width="50" height="40" fill="#f472b6" opacity="0.1" rx="4" />
+
+                        <!-- Row 2: Vainilla -->
+                        <rect x="10" y="-110" width="50" height="40" fill="#fde047" opacity="0.2" rx="4" />
+                        <rect x="80" y="-110" width="50" height="40" fill="#fde047" opacity="0.8" rx="4" /> <!-- Highlight -->
+                        <rect x="150" y="-110" width="50" height="40" fill="#fde047" opacity="0.2" rx="4" />
+                        <rect x="220" y="-110" width="50" height="40" fill="#fde047" opacity="0.2" rx="4" />
+
+                        <!-- Row 3: Chocolate -->
+                        <rect x="10" y="-50" width="50" height="40" fill="#78350f" opacity="0.8" rx="4" /> <!-- Highlight -->
+                        <rect x="80" y="-50" width="50" height="40" fill="#78350f" opacity="0.8" rx="4" />
+                        <rect x="150" y="-50" width="50" height="40" fill="#78350f" opacity="0.8" rx="4" />
+                        <rect x="220" y="-50" width="50" height="40" fill="#78350f" opacity="0.8" rx="4" />
+                        
+                    </g>
+                </svg>
+            `
+        };
+
+        const transformData = [
+            {
+                id: 'continuo',
+                title: 'Tiempo Continuo',
+                math: '$$x(t)$$',
+                text: 'El pastel completo a lo largo de su existencia. Observamos la señal continua fluyendo ininterrumpidamente en el tiempo. Esta es nuestra perspectiva natural.',
+                svg: svgs.continuo
+            },
+            {
+                id: 'discreto',
+                title: 'Tiempo Discreto',
+                math: '$$x[n] = x(nT_s)$$',
+                text: 'Tomamos muestras (rebanadas) del pastel a intervalos regulares. Ya no vemos el pastel continuo, sino una secuencia discreta de partes separadas por un tiempo $T_s$.',
+                svg: svgs.discreto
+            },
+            {
+                id: 'laplace',
+                title: 'Transformada de Laplace',
+                math: '$$X(s) = \\int_{0}^{\\infty} x(t) e^{-st} dt$$',
+                text: 'Analizamos la <strong>estructura interna</strong> y los ingredientes base. Al pasar al dominio complejo $s = \\sigma + j\\omega$, la parte real ($\\sigma$) revela si la levadura hace que el pastel crezca al infinito o colapse (<strong>estabilidad</strong>), y la parte imaginaria ($j\\omega$) revela su textura u oscilación.',
+                svg: svgs.laplace
+            },
+            {
+                id: 'z',
+                title: 'Transformada Z',
+                math: '$$X(z) = \\sum_{n=0}^{\\infty} x[n] z^{-n}$$',
+                text: 'El equivalente a Laplace, pero aplicado a las <strong>rebanadas discretas</strong>. El plano complejo se mapea diferente: la estabilidad ahora depende de si los polos caen dentro de un "plato" delimitado por el círculo unitario ($|z| = 1$).',
+                svg: svgs.z
+            },
+            {
+                id: 'fourier',
+                title: 'Transformada de Fourier',
+                math: '$$X(j\\omega) = \\int_{-\\infty}^{\\infty} x(t) e^{-j\\omega t} dt$$',
+                text: 'Un caso particular de Laplace donde la parte real es nula ($\\sigma = 0$). Metemos el pastel a la licuadora y extraemos los <strong>sabores puros (frecuencias)</strong>. Nos dice exactamente de qué está hecho (e.g. 30% chocolate, 20% vainilla), pero <strong>perdemos completamente la noción de cuándo</strong> ocurre cada sabor.',
+                svg: svgs.fourier
+            },
+            {
+                id: 'wavelet',
+                title: 'Transformada Wavelet',
+                math: '$$X(a,b) = \\frac{1}{\\sqrt{a}} \\int_{-\\infty}^{\\infty} x(t) \\psi\\left(\\frac{t-b}{a}\\right) dt$$',
+                text: 'Análisis combinado de tiempo ($b$) y escala/frecuencia ($a$). Soluciona el problema de Fourier: nos permite saber <strong>exactamente en qué rebanada</strong> (cuándo) aparece un <strong>sabor específico</strong> (frecuencia). Es como un mapa térmico del pastel.',
+                svg: svgs.wavelet
+            }
+        ];
+
+        // UI Initialization
+        const controlsContainer = document.getElementById('controls-container');
+        const visualContainer = document.getElementById('visual-container');
+        const infoTitle = document.getElementById('info-title');
+        const mathDisplay = document.getElementById('math-display');
+        const infoText = document.getElementById('info-text');
+
+        let currentId = 'continuo';
+
+        function createButtons() {
+            transformData.forEach(data => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-xl font-medium text-left transition-all duration-300 flex items-center border ${
+                    data.id === currentId 
+                        ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' 
+                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`;
+                btn.innerHTML = `<span class="truncate w-full">${data.title}</span>`;
+                btn.onclick = () => updateState(data.id);
+                btn.id = `btn-${data.id}`;
+                controlsContainer.appendChild(btn);
+            });
+        }
+
+        function updateButtons(activeId) {
+            transformData.forEach(data => {
+                const btn = document.getElementById(`btn-${data.id}`);
+                if (data.id === activeId) {
+                    btn.className = 'px-4 py-3 rounded-xl font-medium text-left transition-all duration-300 flex items-center border bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]';
+                } else {
+                    btn.className = 'px-4 py-3 rounded-xl font-medium text-left transition-all duration-300 flex items-center border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white';
+                }
+            });
+        }
+
+        async function updateState(id) {
+            currentId = id;
+            updateButtons(id);
+            
+            const data = transformData.find(d => d.id === id);
+            if (!data) return;
+
+            // Trigger reflow animation for visuals
+            visualContainer.classList.remove('fade-in');
+            void visualContainer.offsetWidth; 
+            visualContainer.classList.add('fade-in');
+            
+            // Inject new SVG
+            visualContainer.innerHTML = data.svg;
+
+            // Update Text Content
+            infoTitle.textContent = data.title;
+            infoText.innerHTML = data.text;
+
+            // Update MathJax (crucial step for dynamic LaTeX)
+            mathDisplay.innerHTML = data.math;
+            
+            if (window.MathJax) {
+                try {
+                    // Typeset promise ensures the new content gets rendered as LaTeX formulas
+                    await window.MathJax.typesetPromise([mathDisplay, infoText]);
+                } catch (err) {
+                    console.error("Error rendering MathJax:", err);
+                }
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            createButtons();
+            updateState(currentId);
+        });
+
+    </script>
+</body>
+</html>
