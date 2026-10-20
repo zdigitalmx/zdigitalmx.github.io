@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario Previo: Transformada Z</title>
+    
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuración de MathJax para renderizar LaTeX ($ ... $) -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* Estilos adicionales para animaciones suaves */
+        .answer-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out, padding 0.5s ease-out;
+            opacity: 0;
+        }
+        .answer-box.visible {
+            max-height: 1000px; /* Un valor grande para asegurar que quepa el texto */
+            opacity: 1;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-12">
+
+    <!-- Encabezado -->
+    <header class="bg-blue-900 text-white py-12 px-4 shadow-lg mb-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Cuestionario Previo: Transformada Z</h1>
+            <p class="text-blue-200 text-lg md:text-xl max-w-2xl mx-auto">
+                Trabajo previo a la práctica. Analiza las siguientes preguntas para fundamentar tu comprensión de los sistemas en tiempo discreto frente a los de tiempo continuo.
+            </p>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <!-- Lista de Preguntas -->
+        <div class="space-y-6 mb-10">
+
+            <!-- Pregunta 1 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">1. Fundamento y Aplicación</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    ¿Cuál es la diferencia matemática y conceptual fundamental entre la Transformada de Laplace y la Transformada Z, y por qué esta última resulta indispensable al analizar señales muestreadas y procesar información en sistemas digitales?
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        La Transformada de Laplace se aplica a señales y sistemas en tiempo continuo ($t$), evaluando la integral de una función a lo largo del tiempo. La Transformada Z se aplica a señales en tiempo discreto (muestras $k$ o $nT$), utilizando una sumatoria de los valores muestreados. La Transformada Z es indispensable en sistemas digitales (como microcontroladores o procesadores digitales de señales) porque el hardware informático no puede procesar variables analógicas continuas, sino únicamente secuencias de valores numéricos discretos tomados en instantes específicos.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pregunta 2 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">2. Ecuaciones de Modelado</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    Mientras que la Transformada de Laplace es la herramienta estándar para resolver ecuaciones diferenciales lineales con coeficientes constantes, ¿qué tipo de ecuaciones se emplean para modelar la dinámica de un sistema en tiempo discreto y cómo facilita la Transformada Z su resolución?
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        La dinámica de los sistemas en tiempo discreto se modela mediante <strong>ecuaciones en diferencias</strong> (las cuales relacionan las muestras de salida actuales con entradas y salidas pasadas). La Transformada Z facilita su resolución al convertir estas ecuaciones en diferencias basadas en retrasos temporales en ecuaciones algebraicas en el dominio complejo $z$, del mismo modo que Laplace convierte las derivadas en multiplicaciones por $s$.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pregunta 3 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">3. Mapeo entre el Plano $s$ y el Plano $z$</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    A partir de la relación matemática $z = e^{sT}$ (donde $T$ es el periodo de muestreo), describe geométricamente cómo se transforma el plano $s$ en el plano $z$. Específicamente, indica hacia dónde se mapean el eje imaginario ($j\omega$) y el semiplano izquierdo del plano $s$.
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">Mediante el mapeo $z = e^{sT}$:</p>
+                    <ul class="list-disc ml-6 mt-2 text-slate-700 space-y-1">
+                        <li>El <strong>eje imaginario</strong> ($j\omega$) del plano $s$ se mapea exactamente sobre la <strong>circunferencia unitaria</strong> ($|z| = 1$) en el plano $z$.</li>
+                        <li>El <strong>semiplano izquierdo</strong> del plano $s$ (donde la parte real $\sigma < 0$) se mapea hacia el <strong>interior del círculo unitario</strong> ($|z| < 1$).</li>
+                        <li>El semiplano derecho de $s$ se mapea hacia el exterior del círculo unitario ($|z| > 1$).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Pregunta 4 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">4. Criterios de Estabilidad</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    En los sistemas continuos de primer o segundo orden, el análisis de estabilidad exige que los polos de la función de transferencia residan estrictamente en el semiplano izquierdo del plano $s$. ¿Cuál es el criterio de ubicación geométrica equivalente que deben cumplir los polos en el plano $z$ para garantizar que un sistema discreto sea estable?
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        Para que un sistema en tiempo discreto sea estable, todos los polos de su función de transferencia en lazo cerrado (o función del sistema $H(z)$) deben ubicarse estrictamente <strong>dentro del círculo unitario</strong> en el plano $z$. Es decir, la magnitud de cada polo debe ser menor a uno ($|z_p| < 1$).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pregunta 5 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">5. Impacto de la Discretización</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    Si se cuenta con la respuesta dinámica de un sistema físico modelado en tiempo continuo, ¿qué representa el proceso de muestreo y cómo afecta la magnitud del periodo de muestreo ($T$) a la fidelidad con la que la ecuación en diferencias resultante reproduce el estado transitorio original?
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        El muestreo representa la adquisición del valor de una variable física continua a intervalos regulares de tiempo. La magnitud de $T$ es crítica: si $T$ es suficientemente pequeño, el modelo discreto capturará fielmente la dinámica transitoria original (sobretiro, tiempo de establecimiento). Si $T$ es demasiado grande (violando el teorema de Nyquist o sin el margen adecuado para la dinámica dominante), se pierde información inter-muestral (aliasing), la respuesta transitoria discreta diferirá significativamente de la continua, y puede inducir inestabilidad en lazos de control que originalmente eran estables.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pregunta 6 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">6. Frecuencia y Periodo de Muestreo</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    ¿Qué es el periodo de muestreo ($T$), cómo se relaciona matemáticamente con la frecuencia de muestreo ($f_s$), y cuál es su relevancia fundamental en el modelado, diseño y aplicación de sistemas en tiempo discreto?
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        El periodo de muestreo ($T$) es el intervalo de tiempo constante que transcurre entre la adquisición de dos muestras consecutivas. Se relaciona inversamente con la frecuencia de muestreo mediante la ecuación $f_s = \frac{1}{T}$. Su relevancia es total: determina la posición de los polos discretos (ya que $z = e^{sT}$), define el límite teórico de las frecuencias que el sistema puede procesar (frecuencia de Nyquist, $f_s/2$) y establece un balance directo de diseño; un $T$ muy pequeño requiere hardware con alto poder de cómputo, mientras que un $T$ grande reduce la carga de procesamiento pero degrada la fidelidad del control y el análisis transitorio.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pregunta 7 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-2">7. Control en Lazo Cerrado</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    ¿Qué es un sistema de control en lazo cerrado y cuál es su objetivo principal de aplicación? Menciona tres ejemplos específicos de sistemas de control en lazo cerrado aplicados a diferentes áreas de la ingeniería.
+                </p>
+                <div class="answer-box bg-blue-50/50 rounded-lg mt-4 px-5 border-l-4 border-blue-500 hidden-answer">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-2">Respuesta Esperada</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        Un sistema de control en lazo cerrado (o con retroalimentación) es aquel en el que la variable de salida es medida y comparada constantemente con una señal de referencia (setpoint) para calcular un error. Este error alimenta al controlador para que tome acciones correctivas sobre la planta. Su objetivo es mantener el sistema en las condiciones deseadas, haciéndolo robusto frente a perturbaciones externas e incertidumbres en el modelo dinámico.
+                    </p>
+                    <p class="text-slate-700 mt-2 italic font-semibold">Ejemplos en ingeniería:</p>
+                    <ol class="list-decimal ml-6 mt-1 text-slate-700 space-y-2">
+                        <li><strong>Ingeniería Eléctrica/Electrónica:</strong> Regulación de voltaje en una fuente conmutada (SMPS) o control de velocidad de un motor de CD mediante PWM.</li>
+                        <li><strong>Ingeniería Mecánica/Mecatrónica:</strong> El control de crucero automático en un automóvil para mantener una velocidad constante sin importar la pendiente del terreno.</li>
+                        <li><strong>Ingeniería Química/Procesos:</strong> El control de temperatura o de nivel en un tanque de mezcla mediante válvulas proporcionales o elementos calefactores controlados por un PID.</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sección de validación / Mostrar respuestas -->
+        <div id="auth-section" class="bg-slate-800 text-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center border-t-4 border-blue-500">
+            <h3 class="text-xl font-bold mb-2 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Zona del Profesor
+            </h3>
+            <p class="text-slate-300 text-sm mb-4">Ingresa la contraseña de acceso para mostrar las respuestas.</p>
+            
+            <div class="flex flex-col gap-3">
+                <input type="password" id="password-input" placeholder="Ingresa la contraseña" 
+                    class="w-full px-4 py-2 rounded border border-slate-600 bg-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                
+                <button id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded transition-colors duration-200 shadow-md">
+                    Mostrar respuestas
+                </button>
+            </div>
+            
+            <!-- Mensaje de error -->
+            <div id="error-msg" class="hidden mt-3 text-red-400 text-sm font-medium animate-pulse">
+                Contraseña incorrecta. Intenta nuevamente.
+            </div>
+        </div>
+
+        <!-- Mensaje de éxito (oculto por defecto) -->
+        <div id="success-msg" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative max-w-md mx-auto text-center shadow-sm" role="alert">
+            <span class="block sm:inline font-semibold">¡Acceso concedido!</span> Se han revelado las respuestas esperadas.
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('password-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const errorMsg = document.getElementById('error-msg');
+            const authSection = document.getElementById('auth-section');
+            const successMsg = document.getElementById('success-msg');
+            const answerBoxes = document.querySelectorAll('.hidden-answer');
+
+            // Función para verificar la contraseña
+            const checkPassword = () => {
+                // Obtener el valor ingresado, ignorar espacios extra y convertir a minúsculas para robustez
+                const val = passwordInput.value.trim().toLowerCase();
+                
+                if (val === "sistemas y señales") {
+                    // Contraseña correcta
+                    errorMsg.classList.add('hidden');
+                    authSection.style.display = 'none'; // Ocultar el formulario
+                    successMsg.classList.remove('hidden'); // Mostrar mensaje de éxito
+                    
+                    // Mostrar todas las respuestas
+                    answerBoxes.forEach(box => {
+                        box.classList.add('visible');
+                    });
+                } else {
+                    // Contraseña incorrecta
+                    errorMsg.classList.remove('hidden');
+                    // Opcional: efecto de sacudida
+                    passwordInput.classList.add('border-red-500');
+                    setTimeout(() => passwordInput.classList.remove('border-red-500'), 500);
+                }
+            };
+
+            // Event listener para el botón
+            submitBtn.addEventListener('click', checkPassword);
+
+            // Event listener para presionar "Enter" en el campo de texto
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
